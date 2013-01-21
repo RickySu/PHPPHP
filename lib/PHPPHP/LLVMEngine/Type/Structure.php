@@ -8,18 +8,18 @@ abstract class Structure extends Writer\Base {
     protected $structureIRSize;
     protected $structureIRName;
 
-    public function writeDefineStructure(array $structure, $structureName) {
+    public function writeDeclareStructure(array $structure, $structureName) {
         switch ($structure['type']) {
             case 'union':
-                return $this->writeDefineStructureunion($structure, "union.$structureName");
+                return $this->writeDeclareStructureunion($structure, "union.$structureName");
                 break;
             case 'struct':
-                return $this->writeDefineStructureStructure($structure, "struct.$structureName");
+                return $this->writeDeclareStructureStructure($structure, "struct.$structureName");
                 break;
         }
     }
 
-    protected function writeDefineStructureStructure(array $structure, $structureName) {
+    protected function writeDeclareStructureStructure(array $structure, $structureName) {
         $struct = array();
         $structSize = 0;
 
@@ -29,15 +29,15 @@ abstract class Structure extends Writer\Base {
                 $structSize+=$item->size();
             }
             else{
-                $this->writeDefine($item, "{$structureName}_{$name}");
+                $this->writeDeclare($item, "{$structureName}_{$name}");
             }
         }
         $structureDefine=implode(", ",$struct);
-        $this->writer->writeDefineBlock("%$structureName = type { $structureDefine }");
+        $this->writer->writeDeclareBlock("%$structureName = type { $structureDefine }");
         return array($structSize,"%$structureName");
     }
 
-    protected function writeDefineStructureunion(array $structure, $structureName) {
+    protected function writeDeclareStructureunion(array $structure, $structureName) {
         $struct = '';
         $structSize = 0;
         foreach ($structure['struct'] as $name => $item) {
@@ -48,19 +48,19 @@ abstract class Structure extends Writer\Base {
                 }
             }
             else{
-                list($size,$define)=$this->writeDefineStructure($item, "{$structureName}_{$name}");
+                list($size,$define)=$this->writeDeclareStructure($item, "{$structureName}_{$name}");
                 if ($size > $structSize) {
                     $structSize=$size;
                     $struct=$define;
                 }
             }
         }
-        $this->writer->writeDefineBlock("%$structureName = type { $struct }");
+        $this->writer->writeDeclareBlock("%$structureName = type { $struct }");
         return array($structSize,"%$structureName");
     }
 
-    public function writeDefine() {
-        list($this->structureIRSize,$this->structureIRName)=$this->writeDefineStructure($this->structureDefine,$this->structName);
+    public function writeDeclare() {
+        list($this->structureIRSize,$this->structureIRName)=$this->writeDeclareStructure($this->structureDefine,$this->structName);
     }
 
     public function getStructureIRSize(){

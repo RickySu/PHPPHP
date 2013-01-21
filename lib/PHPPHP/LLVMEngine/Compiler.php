@@ -14,11 +14,13 @@ class Compiler{
     protected $context;
 
     public function __construct() {
+        $this->writer=new Writer();
     }
 
     public function compile(OpArray $opArray,$context){
-        $this->writer=new Writer($context);
-        $this->context=$context;
+        $module=new Writer\ModuleWriter($context);
+        $this->writer->addModuleWriter($module);
+        $this->writer->write();
     }
 
 }

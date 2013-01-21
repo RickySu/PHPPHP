@@ -31,7 +31,7 @@ class Base implements TypeDefine{
 
     public static function structure(Structure $structure,$ptr=false){
         $structure->setWriter(new Writer());
-        $structure->writeDefine();
+        $structure->writeDeclare();
         $structureIRName=$structure->getStructureIRName();
         if($ptr){
             $size=PHP_INT_SIZE;

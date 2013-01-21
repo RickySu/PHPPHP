@@ -16,6 +16,6 @@ abstract class Base{
         $this->writer=$writer;
     }
 
-    abstract public function writeDefine();
+    abstract protected function writeDeclare();
 
 }
