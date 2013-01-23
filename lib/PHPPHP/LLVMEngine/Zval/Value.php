@@ -20,7 +20,7 @@ class Value extends Structure {
                 'str' => array(
                     'type' => 'struct',
                     'struct' => array(
-                        'val' => Base::char($ptr = true),
+                        'val' => Base::char('*'),
                         'len' => Base::int(),
                     ),
                 ),

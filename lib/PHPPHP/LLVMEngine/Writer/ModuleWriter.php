@@ -2,9 +2,10 @@
 
 namespace PHPPHP\LLVMEngine\Writer;
 
-use PHPPHP\LLVMEngine\OpLines\OpLineInterface;
+use PHPPHP\LLVMEngine\OpLines\OpLine;
 use PHPPHP\LLVMEngine\Writer;
 use PHPPHP\LLVMEngine\Zval;
+use PHPPHP\LLVMEngine\Type\Base as StringType;
 
 class ModuleWriter extends Base {
 
@@ -13,14 +14,19 @@ class ModuleWriter extends Base {
     protected $opLines = array();
     protected $opLinesIR = array();
     protected $registerSerial = 0;
+    protected $constantSerial = 0;
 
     public function __construct($moduleName) {
         $this->moduleName = $moduleName;
-        $this->entryName = $this->generatEentryName($moduleName);
+        $this->entryName = $this->getEentryName();
     }
 
-    protected function generatEentryName($moduleName) {
-        return "PHPLLVM_module_entry_" . md5($moduleName);
+    protected function getEentryHash(){
+        return md5($this->moduleName);
+    }
+
+    protected function getEentryName() {
+        return "PHPLLVM_module_entry_{$this->getEentryHash($this->moduleName)}";
     }
 
     protected function writeDeclare() {
@@ -34,10 +40,10 @@ class ModuleWriter extends Base {
 
     /**
      *
-     * @param \PHPPHP\LLVMEngine\OpLines\OpLineInterface $opLine
+     * @param \PHPPHP\LLVMEngine\OpLines\OpLine $opLine
      * @return \PHPPHP\LLVMEngine\Writer\Module
      */
-    public function addOpLine(OpLineInterface $opLine) {
+    public function addOpLine(OpLine $opLine) {
         if (!in_array($opLine, $this->opLines)) {
             $this->opLines[] = $opLine;
             $opLine->setModule($this);
@@ -51,21 +57,44 @@ class ModuleWriter extends Base {
     }
 
     protected function writeOpLines() {
-        $IR.=";module {$this->moduleName}\n";
+        foreach ($this->opLines as $opLine) {
+            $opLine->write();
+        }
+    }
+
+    public function writeOpLineIR($opLineIR){
+        $this->opLinesIR[]=$opLineIR;
+    }
+
+    protected function writeIR(){
+        $IR=";module {$this->moduleName}\n";
         $IR.="define ".Zval::PtrIRDeclare()." @{$this->entryName}() nounwind uwtable {\n";
-        foreach ($this->opLines as $lineNumber => $opLine) {
-            $IR.="\t;line $lineNumber\n";
-            foreach($this->opLinesIR[$lineNumber] as $IRLine){
-                $IR.="\t$IRLine\n";
-            }
+        foreach($this->opLinesIR as $opLineIR){
+            $IR.="\t$opLineIR\n";
         }
         $IR.="}\n";
         $this->writer->writeModuleIR($this->entryName, $IR);
     }
 
+    /**
+     *
+     * @param string $constant
+     * @return StringType
+     */
+    public function writeConstant($constant){
+        $constantName="@str.{$this->getEentryHash()}.{$this->constantSerial}";
+        $constantLen=strlen($constant);
+        $this->constantSerial++;
+        $IR="$constantName = private unnamed_addr constant [$constantLen x i8] c\"{$this->escapeString($constant)}\" , align 1";
+        $this->writer->writeModuleConstantDeclare($this->entryName, $IR);
+        return StringType::char('*',$constantLen,$constantName);
+        //return new StringType($constantName,$constantLen);
+    }
+
     public function write() {
         $this->writeDeclare();
         $this->writeOpLines();
+        $this->writeIR();
     }
 
 }

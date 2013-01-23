@@ -14,7 +14,7 @@ class Ptr extends Structure {
         $this->structureDefine = array(
             'type' => 'struct',
             'struct' => array(
-                'value' => Base::structure(new Value(), true),
+                'value' => Base::structure(new Value(), '*'),
                 'refcount' => Base::int(),
                 'type' => Base::char(),
                 'is_ref' => Base::char(),
