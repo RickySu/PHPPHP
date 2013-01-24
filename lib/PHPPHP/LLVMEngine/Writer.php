@@ -4,12 +4,12 @@ namespace PHPPHP\LLVMEngine;
 
 class Writer {
 
-    protected $baseIRDeclare=array();
-    protected $moduleIRDeclare=array();
-    protected $moduleConstantDeclare=array();
-    protected $moduleIR=array();
+    protected $baseIRDeclare = array();
+    protected $moduleConstantDeclare = array();
     protected $moduleExternalDeclare = array();
     protected $modules = array();
+    protected $functionIRDeclare = array();
+    protected $functionIR = array();
 
     public function __construct() {
         $this->assignInternalModuleDefine();
@@ -17,11 +17,11 @@ class Writer {
 
     protected function assignInternalModuleDefine() {
         $interalModules = Internal\Module::Define();
-        foreach($interalModules as $entryName => $module){
-            list($return,$params)=$module;
-            $paramIR=implode(', ',$params);
-            $IR="declare fastcc $return @$entryName($paramIR)";
-            $this->writeModuleIRDeclare($entryName, $IR);
+        foreach ($interalModules as $functionName => $functionDeclare) {
+            list($return, $params) = $functionDeclare;
+            $paramIR = implode(', ', $params);
+            $IR = "declare fastcc $return @$functionName($paramIR)";
+            $this->writeFunctionIRDeclare('internal', $functionName, $IR);
         }
     }
 
@@ -29,20 +29,20 @@ class Writer {
         $this->baseIRDeclare[] = $IR;
     }
 
-    public function writeModuleIRDeclare($entryName, $IR) {
-        $this->moduleIRDeclare[$entryName] = $IR;
+    public function writeFunctionIRDeclare($moduleName, $functionName, $IR) {
+        $this->functionIRDeclare[$moduleName][$functionName] = $IR;
     }
 
-    public function writeModuleConstantDeclare($entryName, $IR) {
-        $this->moduleConstantDeclare[$entryName][] = $IR;
+    public function writeModuleConstantDeclare($moduleName, $IR) {
+        $this->moduleConstantDeclare[$moduleName][] = $IR;
     }
 
-    public function writeUsedModule($entryName){
-        $this->moduleExternalDeclare[$entryName]=true;
+    public function writeUsedFunction($functionName) {
+        $this->moduleExternalDeclare[$functionName] = true;
     }
 
-    public function writeModuleIR($entryName, $IR) {
-        $this->moduleIR[$entryName] = $IR;
+    public function writeFunctionIR($moduleName, $functionName, $IR) {
+        $this->functionIRs[$moduleName][$functionName] = $IR;
     }
 
     public function writeDeclare(Writer\Base $base) {
@@ -75,37 +75,41 @@ class Writer {
         }
     }
 
+    protected function getFunctionIRDeclare($externalFunction) {
+        foreach ($this->functionIRDeclare as $moduleName => $functions) {
+            if (isset($functions[$externalFunction])) {
+                return $functions[$externalFunction];
+            }
+        }
+        return '';
+    }
+
     public function write() {
         $this->assignStructureDeclare();
         $this->writeModules();
-        $outputIR='';
-        $outputIR.=implode("\n",$this->baseIRDeclare)."\n";
-        foreach ($this->moduleConstantDeclare as $constantDeclare){
-            $outputIR.=implode("\n", $constantDeclare);
+        $outputIR = '';
+        $outputIR.=implode("\n", $this->baseIRDeclare) . "\n";
+        foreach ($this->moduleConstantDeclare as $constantDeclare) {
+            $outputIR.=implode("\n", $constantDeclare) . "\n";
         }
-        $outputIR.="\n";
-        $outputIR.=implode("\n",$this->moduleIR);
-        $outputIR.="\n";
-        foreach($this->moduleExternalDeclare as $external => $used){
-            $outputIR.=$this->moduleIRDeclare[$external]."\n";
+        foreach ($this->functionIRs as $moduleName => $functionIR) {
+            $outputIR.=implode("\n", $functionIR) . "\n";
+        }
+        foreach ($this->moduleExternalDeclare as $externalFunction => $used) {
+            $outputIR.="{$this->getFunctionIRDeclare($externalFunction)}\n";
         }
 
-        echo $outputIR;
-        //print_r($this->moduleIRDeclare);
-        /*
-        print_r($this->baseIRDeclare);
-        print_r($this->moduleIRDeclare);
-        print_r($this->moduleIR);
-        print_r($this->moduleConstantDeclare);
-         *
-         */
+        return $outputIR;
     }
 
     public function clear() {
-        unset($this->baseIRDeclare);
-        unset($this->moduleConstantDeclare);
-        unset($this->moduleIR);
-        unset($this->modules);
+        $this->baseIRDeclare =
+                $this->moduleConstantDeclare =
+                $this->moduleExternalDeclar =
+                $this->modules =
+                $this->functionIRDeclare =
+                $this->functionIR =
+                array();
     }
 
 }

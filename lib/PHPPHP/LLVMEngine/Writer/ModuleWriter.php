@@ -6,36 +6,35 @@ use PHPPHP\LLVMEngine\OpLines\OpLine;
 use PHPPHP\LLVMEngine\Writer;
 use PHPPHP\LLVMEngine\Zval;
 use PHPPHP\LLVMEngine\Type\Base as StringType;
+use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 
 class ModuleWriter extends Base {
 
-    protected $moduleName;
-    protected $entryName;
+    protected $moduleContext;
     protected $opLines = array();
     protected $opLinesIR = array();
     protected $registerSerial = 0;
     protected $constantSerial = 0;
 
-    public function __construct($moduleName) {
-        $this->moduleName = $moduleName;
-        $this->entryName = $this->getEentryName();
+    public function __construct($moduleContext) {
+        $this->moduleContext = $moduleContext;
     }
 
-    protected function getEentryHash(){
-        return md5($this->moduleName);
+    public function getModuleName(){
+        return 'module_'.md5($this->moduleContext);
     }
 
-    protected function getEentryName() {
-        return "PHPLLVM_module_entry_{$this->getEentryHash($this->moduleName)}";
+    public function getEntryName() {
+        return "PHPLLVM_{$this->getModuleName()}_entry";
     }
 
     protected function writeDeclare() {
-        $IR = "declare @{$this->entryName}()";
-        $this->writer->writeModuleIRDeclare($this->entryName, $IR);
+        $IR = "declare @{$this->getEntryName()}()";
+        $this->writer->writeFunctionIRDeclare($this->getModuleName(),$this->getEntryName(), $IR);
     }
 
     public function getDeclareIR() {
-        return "declare @{$this->entryName}()";
+        return "declare @{$this->getEntryName()}()";
     }
 
     /**
@@ -67,28 +66,36 @@ class ModuleWriter extends Base {
     }
 
     protected function writeIR(){
-        $IR=";module {$this->moduleName}\n";
-        $IR.="define ".Zval::PtrIRDeclare()." @{$this->entryName}() nounwind uwtable {\n";
+        $IR=";module {$this->moduleContext}\n";
+        $IR.="define ".Zval::PtrIRDeclare()." @{$this->getEntryName()}() nounwind uwtable {\n";
+        $IR.=implode("\n\t",$this->moduleCtorIR())."\n";
         foreach($this->opLinesIR as $opLineIR){
             $IR.="\t$opLineIR\n";
         }
-        $IR.="}\n";
-        $this->writer->writeModuleIR($this->entryName, $IR);
+        $IR.=implode("\n\t",$this->moduleDtorIR())."\n";
+        $IR.="}";
+        $this->writer->writeFunctionIR($this->getModuleName(),$this->getEntryName(), $IR);
     }
 
+    protected function getConstantSerial(){
+        return ++$this->constantSerial;
+    }
+
+    protected function getRegisterSerial(){
+        return ++$this->registerSerial;
+    }
     /**
      *
      * @param string $constant
      * @return StringType
      */
     public function writeConstant($constant){
-        $constantName="@str.{$this->getEentryHash()}.{$this->constantSerial}";
+        $constantSerial=$this->getConstantSerial();
+        $constantName="@str.{$this->getModuleName()}.$constantSerial";
         $constantLen=strlen($constant);
-        $this->constantSerial++;
         $IR="$constantName = private unnamed_addr constant [$constantLen x i8] c\"{$this->escapeString($constant)}\" , align 1";
-        $this->writer->writeModuleConstantDeclare($this->entryName, $IR);
+        $this->writer->writeModuleConstantDeclare($this->getModuleName(), $IR);
         return StringType::char('*',$constantLen,$constantName);
-        //return new StringType($constantName,$constantLen);
     }
 
     public function write() {
@@ -97,4 +104,39 @@ class ModuleWriter extends Base {
         $this->writeIR();
     }
 
+    protected function moduleCtorIR(){
+        $IR[]='';
+        $IR[]=";function entry";
+
+        //prepare return value
+        $IR[]="%retval = alloca ".Zval::PtrIRDeclare().", align ".Zval::PtrIRAlign();
+        $IR[]="store ".Zval::PtrIRDeclare()." null , ".Zval::PtrIRDeclare()."* %retval, align ".Zval::PtrIRAlign();
+
+        //prepare var list
+        $voidType=StringType::void('*');
+        $IR[]="%varlist = alloca $voidType, align {$voidType->size()}";
+        $IR[]="store $voidType null, $voidType* %varlist, align {$voidType->size()}";
+        return $IR;
+    }
+
+    protected function moduleDtorIR(){
+        $IR[]="";
+        $IR[]=";function end";
+        $IR[]="end_return:";
+
+        //var list gc
+        $varlistRegister="%{$this->getRegisterSerial()}";
+        $voidType=StringType::void('*');
+        $IR[]=";prepare var list gc";
+        $IR[]="$varlistRegister = load $voidType* %varlist, align {$voidType->size()}";
+        $IR[]=InternalModule::call(InternalModule::VAR_LIST_GC,$varlistRegister);
+        $this->writer->writeUsedFunction(InternalModule::VAR_LIST_GC);
+
+        //return
+        $returnRegister="%{$this->getRegisterSerial()}";
+        $IR[]=";prepare return value";
+        $IR[]="$returnRegister = load ".Zval::PtrIRDeclare()."* %retval, align ".Zval::PtrIRAlign();
+        $IR[]="ret %struct.zval* $returnRegister";
+        return $IR;
+    }
 }

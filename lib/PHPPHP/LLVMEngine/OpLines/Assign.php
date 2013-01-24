@@ -20,6 +20,14 @@ class Assign extends OpLine {
     protected function writeImmediateValueAssign($varName, $value) {
         $valueType = gettype($value);
         $this->writeDebugInfo("$varName <= ($valueType)");
+        switch($valueType){
+            case 'integer':
+                $this->writeIntegerAssign($varName, $value);
+        }
+    }
+
+    protected function writeIntegerAssign($varName,$value){
+
     }
 
     protected function writeVarAssign($op1VarName, $op2VarName) {

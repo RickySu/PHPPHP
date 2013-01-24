@@ -4,6 +4,8 @@ namespace PHPPHP\LLVMEngine;
 use PHPPHP\LLVMEngine\OpLines;
 use PHPPHP\Engine\OpArray;
 
+dl('llvm_bind.so');
+
 class Compiler{
 
     /**
@@ -12,16 +14,29 @@ class Compiler{
      */
     protected $writer;
     protected $context;
+    protected $llvmBind;
 
     public function __construct() {
         $this->writer=new Writer();
+        $this->llvmBind=new \LLVMBind();
     }
 
     public function compile(OpArray $opArray,$context){
         $module=new Writer\ModuleWriter($context);
         $this->writer->addModuleWriter($module);
         $this->compileOpLine($module, $opArray);
-        $this->writer->write();
+        $IR=$this->writer->write();
+        echo $IR;
+        $this->writer->clear();
+        $bitcode=Internal\Module::getBitcode();
+        $this->llvmBind->loadBitcode($bitcode);
+        $bitcode=$this->llvmBind->compileAssembly($IR);
+        echo $this->llvmBind->getLastError();
+        $this->llvmBind->loadBitcode($bitcode);
+        $this->llvmBind->execute($module->getEntryName());
+        //echo $module->getEntryName();
+        die;
+        echo $bitcode;
     }
 
     protected function compileOpLine(Writer\ModuleWriter $module,OpArray $opArray){
@@ -31,7 +46,6 @@ class Compiler{
             $opLineClassName='\\PHPPHP\\LLVMEngine\\OpLines\\'.$className;
             $opLine=new $opLineClassName($opCode);
             $module->addOpLine($opLine);
-            //break;
         }
     }
 
