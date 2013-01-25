@@ -11,7 +11,7 @@ class FunctionWriter {
     protected $opLinesIR = array();
     protected $registerSerial = 0;
     protected $functionName;
-
+    protected $varList=array();
     /**
      *
      * @var ModuleWriter
@@ -124,6 +124,21 @@ class FunctionWriter {
     public function write() {
         $this->writeOpLines();
         $this->writeIR();
+    }
+
+    public function getZvalIR($varName){
+        if(isset($this->varList[$varName])){
+            return $this->varList[$varName];
+        }
+        $varZval="%PHPVar_$varName";
+        $this->varList[$varName]=$varZval;
+        $voidType=StringType::void('*');
+        $varZvalRegister="%{$this->getRegisterSerial()}";
+        $this->opLinesIR[]="$varZval = alloca ".Zval::PtrIRDeclare().", align ".Zval::PtrIRAlign();
+        $this->opLinesIR[]="$varZvalRegister = ".InternalModule::call(InternalModule::ZVAL_INIT);
+        $this->opLinesIR[]="store ".Zval::PtrIRDeclare()." $varZvalRegister, ".Zval::PtrIRDeclare()."* $varZval, align ".Zval::PtrIRAlign();
+        $this->moduleWriter->writeUsedFunction(InternalModule::ZVAL_INIT);
+        return $this->varList[$varName];
     }
 
 }

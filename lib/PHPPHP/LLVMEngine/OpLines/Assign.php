@@ -27,7 +27,7 @@ class Assign extends OpLine {
     }
 
     protected function writeIntegerAssign($varName,$value){
-
+        $varZval=$this->function->getZvalIR($varName);
     }
 
     protected function writeVarAssign($op1VarName, $op2VarName) {
