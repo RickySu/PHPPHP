@@ -19,9 +19,9 @@ class EchoOp extends OpLine{
         $valueType = gettype($value);
         $this->writeDebugInfo("echo ($valueType)");
         $constant=$this->function->writeConstant($value);
-        $IR=InternalModule::call(Module::T_ECHO,strlen($value),$constant->ptr())."\n";
+        $IR=InternalModule::call(InternalModule::T_ECHO,strlen($value),$constant->ptr())."\n";
         $this->function->writeOpLineIR($IR);
-        $this->function->writeUsedFunction(Module::T_ECHO);
+        $this->function->writeUsedFunction(InternalModule::T_ECHO);
     }
 
     protected function writeVarEcho($varName) {
@@ -34,5 +34,5 @@ class EchoOp extends OpLine{
         $this->function->writeOpLineIR(InternalModule::call(InternalModule::T_ECHO_ZVAL,$fromRegister));
         $this->function->writeUsedFunction(InternalModule::T_ECHO_ZVAL);
     }
-    
+
 }
