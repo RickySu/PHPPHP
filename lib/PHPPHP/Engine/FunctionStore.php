@@ -19,6 +19,16 @@ class FunctionStore {
         $this->functions[$name] = $func;
     }
 
+    public function getUserFunctions(){
+        $functions=array();
+        foreach($this->functions as $functionName =>$functionData){
+            if($functionData instanceof FunctionData\User){
+                $functions[$functionName]=$functionData;
+            }
+        }
+        return $functions;
+    }
+
     public function exists($name) {
         return isset($this->functions[strtolower($name)]);
     }
@@ -31,7 +41,7 @@ class FunctionStore {
 
         return $this->functions[$name];
     }
-    
+
     public function getName(FunctionData $func) {
         foreach ($this->functions as $name => $test) {
             if ($test === $func) {

@@ -14,9 +14,13 @@ typedef union _zvalue_value {
 
 struct _zval_struct {
         zvalue_value value;             /* value */
-        int  refcount__gc;
+        int  refcount;
         char type;                     /* active type */
-        char is_ref__gc;
+        char is_ref;
+        struct {
+            zval *prev;
+            zval *next;
+        } internal_link;
 };
 
 #endif

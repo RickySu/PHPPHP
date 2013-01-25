@@ -7,19 +7,19 @@ use PHPPHP\LLVMEngine\Type\Base;
 final class Module {
 
     const T_ECHO = 'PHPLLVM_T_ECHO';
-    const VAR_LIST_GC = 'VAR_LIST_GC';
+    const ZVAL_LIST_GC = 'ZVAL_LIST_GC';
 
     public static function Define() {
         return array(
             self::T_ECHO => array(Base::void(), array(Base::int(), Base::char('*'))),
-            self::VAR_LIST_GC => array(Base::void(), array(Base::void('*'))),
+            self::ZVAL_LIST_GC => array(Base::void(), array(Base::void('*'))),
         );
     }
 
     public static function getBitcode() {
         $bitcodeCompiler = new BitcodeCompiler(array(
             self::T_ECHO . '.c',
-            self::VAR_LIST_GC.'.c',
+            self::ZVAL_LIST_GC.'.c',
             ));
         return $bitcodeCompiler->compileAll();
     }

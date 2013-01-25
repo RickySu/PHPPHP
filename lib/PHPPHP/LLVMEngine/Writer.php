@@ -9,7 +9,7 @@ class Writer {
     protected $moduleExternalDeclare = array();
     protected $modules = array();
     protected $functionIRDeclare = array();
-    protected $functionIR = array();
+    protected $functionIRs = array();
 
     public function __construct() {
         $this->assignInternalModuleDefine();
@@ -29,8 +29,8 @@ class Writer {
         $this->baseIRDeclare[] = $IR;
     }
 
-    public function writeFunctionIRDeclare($moduleName, $functionName, $IR) {
-        $this->functionIRDeclare[$moduleName][$functionName] = $IR;
+    public function writeFunctionIRDeclare($moduleName, $entryName, $IR) {
+        $this->functionIRDeclare[$moduleName][$entryName] = $IR;
     }
 
     public function writeModuleConstantDeclare($moduleName, $IR) {

@@ -55,16 +55,21 @@ class PHPLLVM {
     public function compile($code,$context){
         $ast = $this->parseCode($code, $context);
         $this->opcodeCompiler->setFileName($context,'/');
-        return $this->opcodeCompiler->compile($ast);
+        $opcode=$this->opcodeCompiler->compile($ast);
+        $functionStore=$this->opcodeCompiler->getFunctionStore();
+        $UserFunctions=$functionStore->getUserFunctions();
+        return array(
+            'opcode'=>$opcode,
+            'functionData' => $UserFunctions,
+        );
     }
 
     public function setCWD($dir) {
     }
 
     public function execute($code,$context) {
-        $opcode=$this->compile($code, $context);
-        $bitcode=$this->bitcodeCompiler->compile($opcode,$context);
-       print_r($bitcode);
+        $compiledData=$this->compile($code, $context);
+        $bitcode=$this->bitcodeCompiler->compile($compiledData,$context);
     }
 
     public function executeFile($file) {

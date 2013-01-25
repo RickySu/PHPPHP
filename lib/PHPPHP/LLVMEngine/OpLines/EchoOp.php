@@ -17,10 +17,10 @@ class EchoOp extends OpLine{
     protected function writeImmediateValueEcho($value) {
         $valueType = gettype($value);
         $this->writeDebugInfo("echo ($valueType)");
-        $constant=$this->module->writeConstant($value);
+        $constant=$this->function->writeConstant($value);
         $IR=Module::call(Module::T_ECHO,strlen($value),$constant->ptr())."\n";
-        $this->module->writeOpLineIR($IR);
-        $this->module->getWriter()->writeUsedFunction(Module::T_ECHO);
+        $this->function->writeOpLineIR($IR);
+        $this->function->writeUsedFunction(Module::T_ECHO);
     }
 
     protected function writeVarEcho($varName) {

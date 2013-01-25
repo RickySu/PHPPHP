@@ -1,13 +1,13 @@
 <?php
 namespace PHPPHP\LLVMEngine\OpLines;
-use PHPPHP\LLVMEngine\Writer\ModuleWriter;
+use PHPPHP\LLVMEngine\Writer\FunctionWriter;
 use PHPPHP\Engine\OpLine as opCode;
 abstract class OpLine{
     /**
      *
-     * @var ModuleWriter
+     * @var FunctionWriter
      */
-    protected $module;
+    protected $function;
 
     /**
      *
@@ -19,8 +19,8 @@ abstract class OpLine{
         $this->opCode=$opCode;
     }
 
-    public function setModule(ModuleWriter $module){
-        $this->module=$module;
+    public function setFunction(FunctionWriter $function){
+        $this->function=$function;
     }
 
     public function write(){
@@ -32,10 +32,10 @@ abstract class OpLine{
 
     protected function writeDebugInfo($info=null){
         if($info===null){
-            $this->module->writeOpLineIR('');
+            $this->function->writeOpLineIR('');
             return;
         }
-        $this->module->writeOpLineIR("; $info");
+        $this->function->writeOpLineIR("; $info");
     }
 
 }

@@ -16,7 +16,7 @@ class ReturnOp extends OpLine{
     protected function writeReturnNull(){
         //'ret '.Zval::PtrIRDeclare()." null"
         $IR="br label %end_return";
-        $this->module->writeOpLineIR($IR);
+        $this->function->writeOpLineIR($IR);
     }
     protected function writeRetuenWithValue(){
 

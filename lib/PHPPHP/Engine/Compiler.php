@@ -134,6 +134,10 @@ class Compiler {
         return $opArray;
     }
 
+    public function getFunctionStore(){
+        return $this->functionStore;
+    }
+
     protected function compileTopLevelFunctions(array $ast) {
         foreach ($ast as $node) {
             if ($node instanceof \PHPParser_Node_Stmt_Function) {

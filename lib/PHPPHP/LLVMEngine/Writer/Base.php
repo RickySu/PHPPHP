@@ -19,6 +19,7 @@ abstract class Base {
     public function getWriter(){
         return $this->writer;
     }
+
     public function escapeString($str) {
         $output = '';
         $parsedBytes=unpack('c*', $str);
@@ -33,5 +34,5 @@ abstract class Base {
         return $output;
     }
 
-    abstract protected function writeDeclare();
+    //abstract protected function writeDeclare();
 }
