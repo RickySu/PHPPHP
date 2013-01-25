@@ -68,7 +68,7 @@ class FunctionWriter {
         $this->moduleWriter->writeFunctionIR($this->getEntryName(), $IR);
     }
 
-    protected function getRegisterSerial(){
+    public function getRegisterSerial(){
         return ++$this->registerSerial;
     }
 

@@ -9,7 +9,6 @@ class Value extends Structure {
 
     protected $structName="zvalue_value";
     protected $structureDefine;
-    protected $writer;
 
     protected function defineStructure() {
         $this->structureDefine = array(

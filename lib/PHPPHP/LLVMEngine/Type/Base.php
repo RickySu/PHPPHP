@@ -9,6 +9,8 @@ class Base implements TypeDefine{
     protected $size;
     protected $elements;
     protected $elementName;
+    protected $struct;
+    protected $position=0;
 
     public static function void($ptr=false,$elements=1,$elementName='') {
         return new self(($ptr?"i8$ptr":'void'),($ptr?PHP_INT_SIZE:4),$elements,$elementName);
@@ -35,9 +37,16 @@ class Base implements TypeDefine{
         return new self('double'.($ptr?$ptr:''),($ptr?PHP_INT_SIZE:8));
     }
 
+    /**
+     *
+     * @param \PHPPHP\LLVMEngine\Type\Structure $structure
+     * @param type $ptr
+     * @param type $elements
+     * @param type $elementName
+     * @return Base
+     */
     public static function structure(Structure $structure,$ptr=false,$elements=1,$elementName=''){
-        $structure->setWriter(new Writer());
-        $structure->writeDeclare();
+        $structure->analyzeStruct();
         $structureIRName=$structure->getStructureIRName();
         if($ptr){
             $size=PHP_INT_SIZE;
@@ -46,14 +55,19 @@ class Base implements TypeDefine{
         else {
             $size=$structure->getStructureIRSize();
         }
-        return new self($structureIRName,$size,$elements,$elements);
+        return new self($structureIRName,$size,$elements,$elementName,$structure);
     }
 
-    public function __construct($typeString,$size,$elements=1,$elementName=null) {
+    public function __construct($typeString,$size,$elements=1,$elementName=null,$struct=null) {
         $this->typeString=$typeString;
         $this->size=$size;
         $this->elements=$elements;
         $this->elementName=$elementName;
+        $this->struct=$struct;
+    }
+
+    public function getStructIR(){
+        return $this->struct;
     }
 
     public function __toString() {
@@ -67,6 +81,7 @@ class Base implements TypeDefine{
     public function elementName(){
         return $this->elementName;
     }
+
     public function ptr(){
         $typeString=strrev(trim($this->typeString));
         $typeString=trim(strrev(substr($typeString,1)));

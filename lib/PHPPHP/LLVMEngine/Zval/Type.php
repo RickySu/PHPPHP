@@ -5,7 +5,7 @@ namespace PHPPHP\LLVMEngine\Zval;
 use PHPPHP\LLVMEngine\Type\Base;
 use PHPPHP\LLVMEngine\Type\Structure;
 
-class Struct extends Structure {
+class Type extends Structure {
 
     protected $structName = "zval";
     protected $structureDefine;
@@ -20,7 +20,20 @@ class Struct extends Structure {
         $this->structureDefine = array(
             'type' => 'struct',
             'struct' => array(
-                'value' => Base::structure(new Value()),
+                'value' => array(
+                    'type' => 'union',
+                    'struct' => array(
+                        'lval' => Base::long(),
+                        'dval' => Base::double(),
+                        'str' => array(
+                            'type' => 'struct',
+                            'struct' => array(
+                                'val' => Base::char('*'),
+                                'len' => Base::int(),
+                            ),
+                        ),
+                    ),
+                ),
                 'refcount' => Base::int(),
                 'type' => Base::char(),
                 'is_ref' => Base::char(),

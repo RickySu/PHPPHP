@@ -2,17 +2,28 @@
 
 namespace PHPPHP\LLVMEngine;
 
-class Zval extends Writer\Base {
+class Zval {
 
-    protected static $ptr;
+    protected static $type;
 
-    public function writeDeclare() {
-        $this->writer->writeDeclare($value = new Zval\Value());
-        $this->writer->writeDeclare($ptr = new Zval\Struct());
-        self::$ptr = $ptr;
+    /**
+     *
+     * @return Type\Base
+     */
+    protected static function getType($ptr=''){
+        if(isset(self::$type[$ptr])){
+            return self::$type[$ptr];
+        }
+        self::$type[$ptr] = Type\Base::structure(new Zval\Type(),$ptr);
+        return self::$type[$ptr];
     }
 
-    public static function zval() {
+    public static function getDeclare() {
+        return self::getType()->getStructIR()->getIR();
+    }
+
+    public static function zval($ptr='') {
+        return self::getType($ptr);
     }
 
     public static function PtrIRAlign() {
@@ -20,7 +31,7 @@ class Zval extends Writer\Base {
     }
 
     public static function PtrIRDeclare() {
-        return self::$ptr->getStructureIRName() . '*';
+        return self::getType()->getStructIR()->getStructureIRName() . '*';
     }
 
 }

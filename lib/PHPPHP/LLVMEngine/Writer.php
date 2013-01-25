@@ -45,13 +45,8 @@ class Writer {
         $this->functionIRs[$moduleName][$functionName] = $IR;
     }
 
-    public function writeDeclare(Writer\Base $base) {
-        $base->setWriter($this);
-        $base->writeDeclare();
-    }
-
     public function assignStructureDeclare() {
-        $this->writeDeclare(new Zval());
+        $this->baseIRDeclare=array_merge($this->baseIRDeclare,Zval::getDeclare());
     }
 
     /**

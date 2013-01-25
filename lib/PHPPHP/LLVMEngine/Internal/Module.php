@@ -8,14 +8,20 @@ use PHPPHP\LLVMEngine\Zval;
 final class Module {
 
     const T_ECHO = 'PHPLLVM_T_ECHO';
+    const T_ECHO_ZVAL = 'PHPLLVM_T_ECHO_ZVAL';
     const ZVAL_LIST_GC = 'ZVAL_LIST_GC';
     const ZVAL_INIT ='ZVAL_INIT';
+    const ZVAL_ASSIGN_INTEGER='ZVAL_ASSIGN_INTEGER';
+    const ZVAL_ASSIGN_DOUBLE='ZVAL_ASSIGN_DOUBLE';
 
     public static function Define() {
         return array(
             self::T_ECHO => array(Base::void(), array(Base::int(), Base::char('*'))),
+            self::T_ECHO_ZVAL => array(Base::void(),array(Zval::zval('*'))),
             self::ZVAL_LIST_GC => array(Base::void(), array(Base::void('*'))),
-            self::ZVAL_INIT => array('%struct.zval*',array()),
+            self::ZVAL_INIT => array(Zval::zval('*'),array()),
+            self::ZVAL_ASSIGN_INTEGER => array(Base::void(),array(Zval::zval('*'),Base::int())),
+            self::ZVAL_ASSIGN_DOUBLE => array(Base::void(),array(Zval::zval('*'),Base::double())),
         );
     }
 
@@ -28,7 +34,7 @@ final class Module {
         $bitcodeCompiler = new BitcodeCompiler(array(
             self::T_ECHO . '.c',
             self::ZVAL_LIST_GC.'.c',
-            self::ZVAL_INIT.'.c',
+            'zval.c',
             ));
         return $bitcodeCompiler->compileAll();
     }
