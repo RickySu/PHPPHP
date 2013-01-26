@@ -24,33 +24,39 @@ class Assign extends OpLine {
         $this->writeDebugInfo("$varName <= ($valueType)");
         switch($valueType){
             case 'integer':
-                $this->writeIntegerAssign($varName, $value);
+                $this->writeAssignInteger($varName, $value);
                 break;
             case 'double':
-                $this->writeIntegerDouble($varName, $value);
+                $this->writeAssignDouble($varName, $value);
+                break;
+            case 'string':
+                $this->writeAssignString($varName, $value);
                 break;
         }
     }
 
-    protected function writeIntegerAssign($varName,$value){
+    protected function writeAssignString($varName,$value){
         $varZval=$this->function->getZvalIR($varName);
-        $ZvalIR=LLVMZval::zval()->getStructIR();
-        $fromRegister='%'.$this->function->getRegisterSerial();
         $this->writeDebugInfo("Init Zval");
-        $this->function->writeOpLineIR("$fromRegister = load ".LLVMZval::zval('**')." $varZval, align ".LLVMZval::zval('*')->size());
+        $this->writeDebugInfo("Assign String $value");
+        $constant=$this->function->writeConstant($value);
+        $this->function->writeOpLineIR(InternalModule::call(InternalModule::ZVAL_ASSIGN_STRING,$varZval,strlen($value),$constant->ptr()));
+        $this->function->writeUsedFunction(InternalModule::ZVAL_ASSIGN_STRING);
+    }
+
+    protected function writeAssignInteger($varName,$value){
+        $varZval=$this->function->getZvalIR($varName);
+        $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Assign Integer $value");
-        $this->function->writeOpLineIR(InternalModule::call(InternalModule::ZVAL_ASSIGN_INTEGER,$fromRegister,$value));
+        $this->function->writeOpLineIR(InternalModule::call(InternalModule::ZVAL_ASSIGN_INTEGER,$varZval,$value));
         $this->function->writeUsedFunction(InternalModule::ZVAL_ASSIGN_INTEGER);
     }
 
-    protected function writeIntegerDouble($varName,$value){
+    protected function writeAssignDouble($varName,$value){
         $varZval=$this->function->getZvalIR($varName);
-        $ZvalIR=LLVMZval::zval()->getStructIR();
-        $fromRegister='%'.$this->function->getRegisterSerial();
         $this->writeDebugInfo("Init Zval");
-        $this->function->writeOpLineIR("$fromRegister = load ".LLVMZval::zval('**')." $varZval, align ".LLVMZval::zval('*')->size());
         $this->writeDebugInfo("Assign Float $value");
-        $this->function->writeOpLineIR(InternalModule::call(InternalModule::ZVAL_ASSIGN_DOUBLE,$fromRegister,$value));
+        $this->function->writeOpLineIR(InternalModule::call(InternalModule::ZVAL_ASSIGN_DOUBLE,$varZval,$value));
         $this->function->writeUsedFunction(InternalModule::ZVAL_ASSIGN_DOUBLE);
     }
 

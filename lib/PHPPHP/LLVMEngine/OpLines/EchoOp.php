@@ -19,7 +19,7 @@ class EchoOp extends OpLine{
         $valueType = gettype($value);
         $this->writeDebugInfo("echo ($valueType)");
         $constant=$this->function->writeConstant($value);
-        $IR=InternalModule::call(InternalModule::T_ECHO,strlen($value),$constant->ptr())."\n";
+        $IR=InternalModule::call(InternalModule::T_ECHO,strlen($value),$constant->ptr());
         $this->function->writeOpLineIR($IR);
         $this->function->writeUsedFunction(InternalModule::T_ECHO);
     }
@@ -28,10 +28,8 @@ class EchoOp extends OpLine{
         $this->writeDebugInfo("echo (var) $varName");
         $varZval=$this->function->getZvalIR($varName);
         $this->writeDebugInfo("use $varZval");
-        $fromRegister='%'.$this->function->getRegisterSerial();
         $this->writeDebugInfo("Init Zval");
-        $this->function->writeOpLineIR("$fromRegister = load ".LLVMZval::zval('**')." $varZval, align ".LLVMZval::zval('*')->size());
-        $this->function->writeOpLineIR(InternalModule::call(InternalModule::T_ECHO_ZVAL,$fromRegister));
+        $this->function->writeOpLineIR(InternalModule::call(InternalModule::T_ECHO_ZVAL,$varZval));
         $this->function->writeUsedFunction(InternalModule::T_ECHO_ZVAL);
     }
 

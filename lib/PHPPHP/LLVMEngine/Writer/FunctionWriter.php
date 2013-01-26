@@ -82,9 +82,8 @@ class FunctionWriter {
         $IR[]="store ".Zval::PtrIRDeclare()." null , ".Zval::PtrIRDeclare()."* %retval, align ".Zval::PtrIRAlign();
 
         //prepare var list
-        $voidType=StringType::void('*');
-        $IR[]="%zvallist = alloca $voidType, align {$voidType->size()}";
-        $IR[]="store $voidType null, $voidType* %zvallist, align {$voidType->size()}";
+        $IR[]="%zvallist = ".InternalModule::call(InternalModule::ZVAL_LIST_INIT);
+        $this->moduleWriter->writeUsedFunction(InternalModule::ZVAL_LIST_INIT);
         return $IR;
     }
 
@@ -94,11 +93,8 @@ class FunctionWriter {
         $IR[]="end_return:";
 
         //zval list gc
-        $zvallistRegister="%{$this->getRegisterSerial()}";
-        $voidType=StringType::void('*');
         $IR[]=";prepare var list gc";
-        $IR[]="$zvallistRegister = load $voidType* %zvallist, align {$voidType->size()}";
-        $IR[]=InternalModule::call(InternalModule::ZVAL_LIST_GC,$zvallistRegister);
+        $IR[]=InternalModule::call(InternalModule::ZVAL_LIST_GC,'%zvallist');
         $this->moduleWriter->writeUsedFunction(InternalModule::ZVAL_LIST_GC);
 
         //return
@@ -132,11 +128,7 @@ class FunctionWriter {
         }
         $varZval="%PHPVar_$varName";
         $this->varList[$varName]=$varZval;
-        $voidType=StringType::void('*');
-        $varZvalRegister="%{$this->getRegisterSerial()}";
-        $this->opLinesIR[]="$varZval = alloca ".Zval::PtrIRDeclare().", align ".Zval::PtrIRAlign();
-        $this->opLinesIR[]="$varZvalRegister = ".InternalModule::call(InternalModule::ZVAL_INIT);
-        $this->opLinesIR[]="store ".Zval::PtrIRDeclare()." $varZvalRegister, ".Zval::PtrIRDeclare()."* $varZval, align ".Zval::PtrIRAlign();
+        $this->opLinesIR[]="$varZval = ".InternalModule::call(InternalModule::ZVAL_INIT,'%zvallist');
         $this->moduleWriter->writeUsedFunction(InternalModule::ZVAL_INIT);
         return $this->varList[$varName];
     }

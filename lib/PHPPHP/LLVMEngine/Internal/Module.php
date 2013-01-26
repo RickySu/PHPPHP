@@ -9,19 +9,23 @@ final class Module {
 
     const T_ECHO = 'PHPLLVM_T_ECHO';
     const T_ECHO_ZVAL = 'PHPLLVM_T_ECHO_ZVAL';
+    const ZVAL_LIST_INIT='ZVAL_LIST_INIT';
     const ZVAL_LIST_GC = 'ZVAL_LIST_GC';
     const ZVAL_INIT ='ZVAL_INIT';
     const ZVAL_ASSIGN_INTEGER='ZVAL_ASSIGN_INTEGER';
     const ZVAL_ASSIGN_DOUBLE='ZVAL_ASSIGN_DOUBLE';
+    const ZVAL_ASSIGN_STRING='ZVAL_ASSIGN_STRING';
 
     public static function Define() {
         return array(
             self::T_ECHO => array(Base::void(), array(Base::int(), Base::char('*'))),
             self::T_ECHO_ZVAL => array(Base::void(),array(Zval::zval('*'))),
+            self::ZVAL_LIST_INIT => array(Base::void('*'), array()),
             self::ZVAL_LIST_GC => array(Base::void(), array(Base::void('*'))),
-            self::ZVAL_INIT => array(Zval::zval('*'),array()),
+            self::ZVAL_INIT => array(Zval::zval('*'),array(Base::void('*'))),
             self::ZVAL_ASSIGN_INTEGER => array(Base::void(),array(Zval::zval('*'),Base::int())),
             self::ZVAL_ASSIGN_DOUBLE => array(Base::void(),array(Zval::zval('*'),Base::double())),
+            self::ZVAL_ASSIGN_STRING => array(Base::void(),array(Zval::zval('*'),Base::int(),Base::char('*'))),
         );
     }
 
@@ -33,7 +37,7 @@ final class Module {
     public static function getBitcode() {
         $bitcodeCompiler = new BitcodeCompiler(array(
             self::T_ECHO . '.c',
-            self::ZVAL_LIST_GC.'.c',
+            'ZVAL_GC.c',
             'zval.c',
             ));
         return $bitcodeCompiler->compileAll();

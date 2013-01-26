@@ -3,8 +3,11 @@
 #include<string.h>
 #include "zval.h"
 
-zval * ZVAL_INIT() {
-    return malloc(sizeof(zval));
+zval * ZVAL_INIT(zvallist *list) {
+    zval * zval;
+    zval=malloc(sizeof(zval));
+    list->zval[list->count++]=zval;
+    return zval;
 }
 
 void __attribute((fastcall)) ZVAL_ASSIGN_INTEGER(zval *zval,int val){
@@ -19,7 +22,7 @@ void __attribute((fastcall)) ZVAL_ASSIGN_DOUBLE(zval *zval,double val){
     zval->value.dval=val;
 }
 
-void __attribute((fastcall)) ZVAL_ASSIGN_STRING(zval *zval,char *val,int len){
+void __attribute((fastcall)) ZVAL_ASSIGN_STRING(zval *zval,int len,char *val){
     zval->refcount=1;
     zval->type=ZVAL_TYPE_STRING;
     zval->value.str.val=malloc(len);
