@@ -2,11 +2,18 @@
 #include<stdlib.h>
 #include<string.h>
 #include "zval.h"
+#include "ZVAL_GC.h"
 
-zval * ZVAL_INIT(zvallist *list) {
+zval * __attribute((fastcall)) ZVAL_INIT(zvallist *list) {
     zval * zval;
+    if(list->count == list->len){
+        return ZVAL_INIT(list->next);
+    }
     zval=malloc(sizeof(zval));
     list->zval[list->count++]=zval;
+    if(list->count == list->len){
+        list->next=ZVAL_LIST_INIT();
+    }
     return zval;
 }
 

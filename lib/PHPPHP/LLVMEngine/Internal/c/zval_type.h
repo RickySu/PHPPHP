@@ -14,6 +14,7 @@ struct _zvallist {
     int  len;
     int  count;
     zval **zval;
+    zvallist* next;
 };
 
 typedef union _zvalue_value {
