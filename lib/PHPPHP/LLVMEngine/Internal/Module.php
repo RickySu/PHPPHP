@@ -37,8 +37,8 @@ final class Module {
     public static function getBitcode() {
         $bitcodeCompiler = new BitcodeCompiler(array(
             self::T_ECHO . '.c',
-            'ZVAL_GC.c',
-            'zval.c',
+            'ZVAL_LIST.c',
+            'ZVAL.c',
             ));
         return $bitcodeCompiler->compileAll();
     }

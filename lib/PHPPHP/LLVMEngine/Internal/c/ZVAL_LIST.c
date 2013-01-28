@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include "ZVAL_GC.h"
+#include "ZVAL_LIST.h"
+#include "ZVAL.h"
 
 void __attribute((fastcall)) ZVAL_LIST_GC(zvallist *list) {
     if (list == NULL) {
@@ -11,20 +12,6 @@ void __attribute((fastcall)) ZVAL_LIST_GC(zvallist *list) {
     }
     ZVAL_LIST_GC(list->next);
     free(list);
-}
-
-void __attribute((fastcall)) ZVAL_GC(zval *zval) {
-    if (--zval->refcount) {
-        return;
-    }
-    switch (zval->type) {
-        case ZVAL_TYPE_STRING:
-            free(zval->value.str.val);
-            break;
-        default:
-            break;
-    }
-    free(zval);
 }
 
 zvallist * ZVAL_LIST_INIT() {
