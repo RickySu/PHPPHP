@@ -10,6 +10,7 @@ void __attribute((fastcall)) ZVAL_GC(zvallist *list, zval *zval);
 zval * __attribute((fastcall)) ZVAL_COPY_ON_WRITE(zvallist *list, zval *zval);
 zval * __attribute((fastcall)) ZVAL_ASSIGN_INTEGER(zvallist *list, zval *zval, int val);
 zval * __attribute((fastcall)) ZVAL_ASSIGN_DOUBLE(zvallist *list, zval *zval, double val);
-zval * __attribute((fastcall)) ZVAL_ASSIGN_STRING(zvallist *list, zval *zval, int len, char *val);
+zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_STRING(zvallist *list, zval *zval, int len, char *val);
+zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_ZVAL(zvallist *list, zval *zval1, zval *zval2);
 
 #endif

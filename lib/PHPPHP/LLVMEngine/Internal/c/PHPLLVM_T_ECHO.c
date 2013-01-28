@@ -7,6 +7,7 @@ void __attribute((fastcall)) PHPLLVM_T_ECHO(int length,char *string){
 
 void __attribute((fastcall)) PHPLLVM_T_ECHO_ZVAL(zval *zval){
     switch(zval->type){
+        case ZVAL_TYPE_BOOLEAN:
         case ZVAL_TYPE_INTEGER:
             printf("%ld",zval->value.lval);
             break;
@@ -16,7 +17,8 @@ void __attribute((fastcall)) PHPLLVM_T_ECHO_ZVAL(zval *zval){
         case ZVAL_TYPE_DOUBLE:
             printf("%.6g",zval->value.dval);
             break;
-        case ZVAL_TYPE_BOOLEAN:
+        case ZVAL_TYPE_NULL:
+        default:
             break;
     }
 }
