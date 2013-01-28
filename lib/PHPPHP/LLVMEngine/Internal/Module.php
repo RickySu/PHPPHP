@@ -12,9 +12,12 @@ final class Module {
     const ZVAL_LIST_INIT='ZVAL_LIST_INIT';
     const ZVAL_LIST_GC = 'ZVAL_LIST_GC';
     const ZVAL_INIT ='ZVAL_INIT';
+    const ZVAL_GC ='ZVAL_GC';
+    const ZVAL_GC_REGIST ='ZVAL_GC_REGIST';
     const ZVAL_ASSIGN_INTEGER='ZVAL_ASSIGN_INTEGER';
     const ZVAL_ASSIGN_DOUBLE='ZVAL_ASSIGN_DOUBLE';
     const ZVAL_ASSIGN_STRING='ZVAL_ASSIGN_STRING';
+
 
     public static function Define() {
         return array(
@@ -23,9 +26,11 @@ final class Module {
             self::ZVAL_LIST_INIT => array(Base::void('*'), array()),
             self::ZVAL_LIST_GC => array(Base::void(), array(Base::void('*'))),
             self::ZVAL_INIT => array(Zval::zval('*'),array(Base::void('*'))),
-            self::ZVAL_ASSIGN_INTEGER => array(Base::void(),array(Zval::zval('*'),Base::int())),
-            self::ZVAL_ASSIGN_DOUBLE => array(Base::void(),array(Zval::zval('*'),Base::double())),
-            self::ZVAL_ASSIGN_STRING => array(Base::void(),array(Zval::zval('*'),Base::int(),Base::char('*'))),
+            self::ZVAL_GC => array(Base::void(),array(Base::void('*'),Zval::zval('*'))),
+            self::ZVAL_GC_REGIST => array(Base::void(),array(Base::void('*'),Zval::zval('*'))),
+            self::ZVAL_ASSIGN_INTEGER => array(Zval::zval('*'),array(Base::void('*'),Zval::zval('*'),Base::int())),
+            self::ZVAL_ASSIGN_DOUBLE => array(Zval::zval('*'),array(Base::void('*'),Zval::zval('*'),Base::double())),
+            self::ZVAL_ASSIGN_STRING => array(Zval::zval('*'),array(Base::void('*'),Zval::zval('*'),Base::int(),Base::char('*'))),
         );
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace PHPPHP\LLVMEngine\Writer;
 
 use PHPPHP\LLVMEngine\Zval;
@@ -7,11 +8,13 @@ use PHPPHP\LLVMEngine\OpLines\OpLine;
 use PHPPHP\LLVMEngine\Type\Base as StringType;
 
 class FunctionWriter {
+
     protected $opLines = array();
     protected $opLinesIR = array();
     protected $registerSerial = 0;
     protected $functionName;
-    protected $varList=array();
+    protected $varList = array();
+
     /**
      *
      * @var ModuleWriter
@@ -19,11 +22,11 @@ class FunctionWriter {
     protected $moduleWriter;
 
     public function __construct($functionName) {
-        $this->functionName=  strtolower($functionName);
+        $this->functionName = strtolower($functionName);
     }
 
-    public function setModuleWriter(ModuleWriter $moduleWriter){
-        $this->moduleWriter=$moduleWriter;
+    public function setModuleWriter(ModuleWriter $moduleWriter) {
+        $this->moduleWriter = $moduleWriter;
     }
 
     public function getEntryName() {
@@ -47,89 +50,103 @@ class FunctionWriter {
         }
     }
 
-    public function writeOpLineIR($opLineIR){
-        $this->opLinesIR[]=$opLineIR;
+    public function writeOpLineIR($opLineIR) {
+        $this->opLinesIR[] = $opLineIR;
     }
 
-    protected function writeIR(){
+    protected function writeIR() {
         //write declare
-        $IR="declare ".Zval::PtrIRDeclare()." @{$this->getEntryName()}()";
-        $this->moduleWriter->writeFunctionIRDeclare($this->getEntryName(), $IR);
+        $EntryDeclareIR = "declare " . Zval::PtrIRDeclare() . " @{$this->getEntryName()}()";
+        $this->moduleWriter->writeFunctionIRDeclare($this->getEntryName(), $EntryDeclareIR);
 
         //write function content
-        $IR=";function {$this->functionName}\n";
-        $IR.="define ".Zval::PtrIRDeclare()." @{$this->getEntryName()}() nounwind uwtable {\n";
-        $IR.=implode("\n\t",$this->functionCtorIR())."\n";
-        foreach($this->opLinesIR as $opLineIR){
-            $IR.="\t$opLineIR\n";
+        $IR[] = ";function {$this->functionName}";
+        $IR[] = "define " . Zval::PtrIRDeclare() . " @{$this->getEntryName()}() nounwind uwtable {";
+        $IR[] = implode("\n\t", $this->functionCtorIR());
+        $this->writeOpLines();
+        foreach ($this->opLinesIR as $opLineIR) {
+            $IR[] = "\t$opLineIR";
         }
-        $IR.=implode("\n\t",$this->functionDtorIR())."\n";
-        $IR.="}";
-        $this->moduleWriter->writeFunctionIR($this->getEntryName(), $IR);
+        $IR[] = implode("\n\t", $this->functionDtorIR());
+        $IR[] = "}";
+        $this->moduleWriter->writeFunctionIR($this->getEntryName(), implode("\n", $IR));
     }
 
-    public function getRegisterSerial(){
-        return ++$this->registerSerial;
+    public function getRegisterSerial() {
+        $tmp = ++$this->registerSerial;
+        return "%r$tmp";
     }
 
-
-    protected function functionCtorIR(){
-        $IR[]='';
-        $IR[]=";function entry";
+    protected function functionCtorIR() {
+        $IR[] = '';
+        $IR[] = ";function entry";
 
         //prepare return value
-        $IR[]="%retval = alloca ".Zval::PtrIRDeclare().", align ".Zval::PtrIRAlign();
-        $IR[]="store ".Zval::PtrIRDeclare()." null , ".Zval::PtrIRDeclare()."* %retval, align ".Zval::PtrIRAlign();
+        $IR[] = "%retval = alloca " . Zval::PtrIRDeclare() . ", align " . Zval::PtrIRAlign();
+        $IR[] = "store " . Zval::PtrIRDeclare() . " null , " . Zval::PtrIRDeclare() . "* %retval, align " . Zval::PtrIRAlign();
 
         //prepare var list
-        $IR[]="%zvallist = ".InternalModule::call(InternalModule::ZVAL_LIST_INIT);
+        $IR[] = "%zvallist = " . InternalModule::call(InternalModule::ZVAL_LIST_INIT);
         $this->moduleWriter->writeUsedFunction(InternalModule::ZVAL_LIST_INIT);
         return $IR;
     }
 
-    protected function functionDtorIR(){
-        $IR[]="";
-        $IR[]=";function end";
-        $IR[]="end_return:";
+    protected function functionDtorIR() {
+        $IR[] = "";
+        $IR[] = ";function end";
+        $IR[] = "end_return:";
 
         //zval list gc
-        $IR[]=";prepare var list gc";
-        $IR[]=InternalModule::call(InternalModule::ZVAL_LIST_GC,'%zvallist');
+        $IR[] = ";prepare var list gc";
+        $IR[] = InternalModule::call(InternalModule::ZVAL_LIST_GC, '%zvallist');
         $this->moduleWriter->writeUsedFunction(InternalModule::ZVAL_LIST_GC);
 
         //return
-        $returnRegister="%{$this->getRegisterSerial()}";
-        $IR[]=";prepare return value";
-        $IR[]="$returnRegister = load ".Zval::PtrIRDeclare()."* %retval, align ".Zval::PtrIRAlign();
-        $IR[]="ret %struct.zval* $returnRegister";
+        $returnRegister = $this->getRegisterSerial();
+        $IR[] = ";prepare return value";
+        $IR[] = "$returnRegister = load " . Zval::PtrIRDeclare() . "* %retval, align " . Zval::PtrIRAlign();
+        $IR[] = "ret %struct.zval* $returnRegister";
         return $IR;
     }
 
-    public function writeConstant($constant){
+    public function writeConstant($constant) {
         return $this->moduleWriter->writeConstant($constant);
     }
 
-    public function writeUsedFunction($functionName){
+    public function writeUsedFunction($functionName) {
         $this->moduleWriter->writeUsedFunction($functionName);
     }
 
-    public function getModuleWriter(){
+    public function getModuleWriter() {
         return $this->moduleWriter;
     }
 
     public function write() {
-        $this->writeOpLines();
         $this->writeIR();
     }
 
-    public function getZvalIR($varName){
-        if(isset($this->varList[$varName])){
+    public function isZvalIRDefined($varName) {
+        return isset($this->varList[$varName]);
+    }
+
+    public function getZvalIR($varName, $initZval = true,$isTmp=false) {
+        if($isTmp){
+            $varZval = "%PHPVarTemp_$varName";
+        }
+        else{
+            $varZval = "%PHPVar_$varName";
+        }
+        if (isset($this->varList[$varName])) {
             return $this->varList[$varName];
         }
-        $varZval="%PHPVar_$varName";
-        $this->varList[$varName]=$varZval;
-        $this->opLinesIR[]="$varZval = ".InternalModule::call(InternalModule::ZVAL_INIT,'%zvallist');
-        $this->moduleWriter->writeUsedFunction(InternalModule::ZVAL_INIT);
+        $this->varList[$varName] = $varZval;
+        $this->opLinesIR[] = "$varZval = alloca " . Zval::zval('*');
+        if ($initZval) {
+            $tmpRegister = $this->getRegisterSerial();
+            $this->opLinesIR[] = "$tmpRegister = " . InternalModule::call(InternalModule::ZVAL_INIT, '%zvallist');
+            $this->opLinesIR[] = "store " . Zval::zval('*') . " $tmpRegister, " . Zval::zval('**') . " $varZval, align " . Zval::zval('*')->size();
+            $this->moduleWriter->writeUsedFunction(InternalModule::ZVAL_INIT);
+        }
         return $this->varList[$varName];
     }
 

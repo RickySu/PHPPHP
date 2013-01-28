@@ -8,7 +8,7 @@ void __attribute((fastcall)) ZVAL_LIST_GC(zvallist *list) {
         return;
     }
     for (int i = 0; i < list->count; i++) {
-        ZVAL_GC(list->zval[i]);
+        ZVAL_GC(NULL,list->zval[i]);
     }
     ZVAL_LIST_GC(list->next);
     free(list);
