@@ -59,14 +59,19 @@ class FunctionWriter {
         $EntryDeclareIR = "declare " . Zval::PtrIRDeclare() . " @{$this->getEntryName()}()";
         $this->moduleWriter->writeFunctionIRDeclare($this->getEntryName(), $EntryDeclareIR);
 
+        $opLineIRs=array();
+        $this->writeOpLines();
+        foreach ($this->opLinesIR as $opLineIR) {
+            $opLineIRs[] = "\t$opLineIR";
+        }
+
         //write function content
         $IR[] = ";function {$this->functionName}";
         $IR[] = "define " . Zval::PtrIRDeclare() . " @{$this->getEntryName()}() nounwind uwtable {";
         $IR[] = implode("\n\t", $this->functionCtorIR());
-        $this->writeOpLines();
-        foreach ($this->opLinesIR as $opLineIR) {
-            $IR[] = "\t$opLineIR";
-        }
+        $varIRDeclare="\n\t".implode("\n\t",$this->writeVarDeclare());
+        $IR[]=$varIRDeclare;
+        $IR=array_merge($IR,$opLineIRs);
         $IR[] = implode("\n\t", $this->functionDtorIR());
         $IR[] = "}";
         $this->moduleWriter->writeFunctionIR($this->getEntryName(), implode("\n", $IR));
@@ -129,6 +134,15 @@ class FunctionWriter {
         return isset($this->varList[$varName]);
     }
 
+    protected function writeVarDeclare(){
+        $IR=array(";declare used Var");
+        foreach($this->varList as $varZval){
+            $IR[]="$varZval = alloca " . Zval::zval('*');
+            $IR[]="store ".Zval::zval('*')." null, ".Zval::zval('**')." $varZval, align ".Zval::zval('*')->size();
+        }
+        return $IR;
+    }
+
     public function getZvalIR($varName, $initZval = true,$isTmp=false) {
         if($isTmp){
             $varZval = "%PHPVarTemp_$varName";
@@ -140,7 +154,6 @@ class FunctionWriter {
             return $this->varList[$varName];
         }
         $this->varList[$varName] = $varZval;
-        $this->opLinesIR[] = "$varZval = alloca " . Zval::zval('*');
         if ($initZval) {
             $tmpRegister = $this->getRegisterSerial();
             $this->opLinesIR[] = "$tmpRegister = " . InternalModule::call(InternalModule::ZVAL_INIT, '%zvallist');

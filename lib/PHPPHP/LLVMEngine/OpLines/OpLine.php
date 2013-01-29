@@ -2,6 +2,8 @@
 namespace PHPPHP\LLVMEngine\OpLines;
 use PHPPHP\LLVMEngine\Writer\FunctionWriter;
 use PHPPHP\Engine\OpLine as opCode;
+use PHPPHP\LLVMEngine\Zval as LLVMZval;
+
 abstract class OpLine{
     /**
      *
@@ -38,4 +40,12 @@ abstract class OpLine{
         $this->function->writeOpLineIR("; $info");
     }
 
+    protected function writeGetRefCountIR($ZvalPtr){
+        $refCountRegisterPtr = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR(LLVMZval::zval()->getStructIR()->getElementPtrIR($refCountRegisterPtr, $ZvalPtr, 'refcount'));
+        $refCountRegister = $this->function->getRegisterSerial();
+        $refCountType = LLVMZval::zval()->getStructIR()->getElement('refcount');
+        $this->function->writeOpLineIR("$refCountRegister = load $refCountType* $refCountRegisterPtr, align " . $refCountType->size());
+        return array($refCountRegister,$refCountRegisterPtr);
+    }
 }

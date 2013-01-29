@@ -87,4 +87,5 @@ class ModuleWriter extends Base {
     public function writeFunctionIR($entryName,$IR){
         $this->writer->writeFunctionIR($this->getModuleName(), $entryName, $IR);
     }
+
 }

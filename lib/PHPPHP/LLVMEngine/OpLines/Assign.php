@@ -12,7 +12,6 @@ class Assign extends OpLine {
         parent::write();
         $op1Var = $this->opCode->op1->getImmediateZval();
         $op2Var = $this->opCode->op2->getImmediateZval();
-        print_r($op2Var);
         if ($op1Var instanceof Zval\Value) {
             if (!isset($op1Var->TempVarName)) {
                 $op1VarName = substr($this->function->getRegisterSerial(), 1);
@@ -94,14 +93,13 @@ class Assign extends OpLine {
         $op2ZvalPtr = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$op2ZvalPtr = load " . LLVMZval::zval('**') . " $op2Zval, align " . LLVMZval::zval('*')->size());
         $this->function->writeOpLineIR("store " . LLVMZval::zval('*') . " $op2ZvalPtr, " . LLVMZval::zval('**') . " $op1Zval, align " . LLVMZval::zval('*')->size());
-        $tmpIntegerRegisterPtr = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR(LLVMZval::zval()->getStructIR()->getElementPtrIR($tmpIntegerRegisterPtr, $op2ZvalPtr, 'refcount'));
-        $tmpIntegerRegister = $this->function->getRegisterSerial();
-        $tmpIntegerRegisterAdded = $this->function->getRegisterSerial();
+
+        list($refCountRegister, $refCountRegisterPtr) = $this->writeGetRefCountIR($op2ZvalPtr);
+
         $refCountType = LLVMZval::zval()->getStructIR()->getElement('refcount');
-        $this->function->writeOpLineIR("$tmpIntegerRegister = load $refCountType* $tmpIntegerRegisterPtr, align " . $refCountType->size());
-        $this->function->writeOpLineIR("$tmpIntegerRegisterAdded = add $refCountType $tmpIntegerRegister, 1");
-        $this->function->writeOpLineIR("store $refCountType $tmpIntegerRegisterAdded, $refCountType* $tmpIntegerRegisterPtr, align " . $refCountType->size());
+        $refCountRegisterAdded = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR("$refCountRegisterAdded = add $refCountType $refCountRegister, 1");
+        $this->function->writeOpLineIR("store $refCountType $refCountRegisterAdded, $refCountType* $refCountRegisterPtr, align " . $refCountType->size());
     }
 
 }
