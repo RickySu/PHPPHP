@@ -1,21 +1,24 @@
 #include<stdio.h>
 #include "PHPLLVM_T_ECHO.h"
+#include "dtoa.h"
 
-void __attribute((fastcall)) PHPLLVM_T_ECHO(int length,char *string){
+void __attribute((fastcall)) PHPLLVM_T_ECHO(int length, char *string) {
     printf("%.*s", length, string);
 }
 
-void __attribute((fastcall)) PHPLLVM_T_ECHO_ZVAL(zval *zval){
-    switch(zval->type){
+void __attribute((fastcall)) PHPLLVM_T_ECHO_ZVAL(zval *zval) {
+    char buffer[128];
+    switch (zval->type) {
         case ZVAL_TYPE_BOOLEAN:
         case ZVAL_TYPE_INTEGER:
-            printf("%ld",zval->value.lval);
+            printf("%ld", zval->value.lval);
             break;
         case ZVAL_TYPE_STRING:
-            printf("%.*s",zval->value.str.len,zval->value.str.val);
+            printf("%.*s", zval->value.str.len, zval->value.str.val);
             break;
         case ZVAL_TYPE_DOUBLE:
-            printf("%.6g",zval->value.dval);
+            php_gcvt(zval->value.dval, DTOA_DISPLAY_DIGITS, '.', 'e', buffer);
+            printf("%s", buffer);
             break;
         case ZVAL_TYPE_NULL:
         default:

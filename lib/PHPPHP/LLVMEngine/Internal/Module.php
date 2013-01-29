@@ -48,6 +48,8 @@ final class Module {
             self::T_ECHO . '.c',
             'ZVAL_LIST.c',
             'ZVAL.c',
+            'dtoa.c',
+            'cvt.c',
             ));
         return $bitcodeCompiler->compileAll();
     }

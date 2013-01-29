@@ -3,6 +3,7 @@
 #include<string.h>
 #include "ZVAL.h"
 #include "ZVAL_LIST.h"
+#include "dtoa.h"
 
 zval * __attribute((fastcall)) ZVAL_INIT(zvallist *list) {
     zval * aZval;
@@ -103,7 +104,7 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_STRING(zvallist *list, zval *z
 }
 
 zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_ZVAL(zvallist *list, zval *zval1, zval *zval2) {
-    char tmpString[100];
+    char tmpString[128];
     int newlen;
     char *newval;
     switch (zval2->type) {
@@ -117,7 +118,7 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_ZVAL(zvallist *list, zval *zva
             newlen += zval1->value.str.len;
             break;
         case ZVAL_TYPE_DOUBLE:
-            sprintf(tmpString, "%.6g", zval2->value.dval);
+            php_gcvt(zval2->value.dval, DTOA_DISPLAY_DIGITS, '.', 'e', tmpString);
             newlen = strlen(tmpString);
             newval = malloc(newlen + zval1->value.str.len);
             memcpy(newval, zval1->value.str.val, zval1->value.str.len);
