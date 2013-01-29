@@ -41,24 +41,24 @@ class Assign extends OpLine {
 
     protected function writeImmediateValueAssign($op1Zval, $value) {
         $this->writeDebugInfo("$op1Zval <= ({$value->getType()})");
+        $op1ZvalPtr = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR("$op1ZvalPtr = load " . LLVMZval::zval('**') . " $op1Zval, align " . LLVMZval::zval('*')->size());
         switch ($value->getType()) {
             case 'integer':
-                $this->writeAssignInteger($op1Zval, $value->getValue());
+                $this->writeAssignInteger($op1Zval, $op1ZvalPtr, $value->getValue());
                 break;
             case 'double':
-                $this->writeAssignDouble($op1Zval, $value->getValue());
+                $this->writeAssignDouble($op1Zval, $op1ZvalPtr, $value->getValue());
                 break;
             case 'string':
-                $this->writeAssignString($op1Zval, $value->getValue());
+                $this->writeAssignString($op1Zval, $op1ZvalPtr, $value->getValue());
                 break;
         }
     }
 
-    protected function writeAssignString($varZval, $value) {
+    protected function writeAssignString($varZval, $varZvalPtr, $value) {
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Assign String $value");
-        $varZvalPtr = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$varZvalPtr = load " . LLVMZval::zval('**') . " $varZval, align " . LLVMZval::zval('*')->size());
         $returnZValRegister = $this->function->getRegisterSerial();
         $constant = $this->function->writeConstant($value);
         $this->function->writeOpLineIR("$returnZValRegister = " . InternalModule::call(InternalModule::ZVAL_ASSIGN_STRING, '%zvallist', $varZvalPtr, strlen($value), $constant->ptr()));
@@ -66,23 +66,19 @@ class Assign extends OpLine {
         $this->function->writeOpLineIR("store " . LLVMZval::zval('*') . " $returnZValRegister, " . LLVMZval::zval('**') . " $varZval, align " . LLVMZval::zval('*')->size());
     }
 
-    protected function writeAssignInteger($varZval, $value) {
+    protected function writeAssignInteger($varZval, $varZvalPtr, $value) {
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Assign Integer $value");
-        $varZvalPtr = $this->function->getRegisterSerial();
         $returnZValRegister = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$varZvalPtr = load " . LLVMZval::zval('**') . " $varZval, align " . LLVMZval::zval('*')->size());
         $this->function->writeOpLineIR("$returnZValRegister = " . InternalModule::call(InternalModule::ZVAL_ASSIGN_INTEGER, '%zvallist', $varZvalPtr, $value));
         $this->function->writeUsedFunction(InternalModule::ZVAL_ASSIGN_INTEGER);
         $this->function->writeOpLineIR("store " . LLVMZval::zval('*') . " $returnZValRegister, " . LLVMZval::zval('**') . " $varZval, align " . LLVMZval::zval('*')->size());
     }
 
-    protected function writeAssignDouble($varZval, $value) {
+    protected function writeAssignDouble($varZval, $varZvalPtr, $value) {
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Assign Float $value");
-        $varZvalPtr = $this->function->getRegisterSerial();
         $returnZValRegister = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$varZvalPtr = load " . LLVMZval::zval('**') . " $varZval, align " . LLVMZval::zval('*')->size());
         $this->function->writeOpLineIR("$returnZValRegister = " . InternalModule::call(InternalModule::ZVAL_ASSIGN_DOUBLE, '%zvallist', $varZvalPtr, $value));
         $this->function->writeUsedFunction(InternalModule::ZVAL_ASSIGN_DOUBLE);
         $this->function->writeOpLineIR("store " . LLVMZval::zval('*') . " $returnZValRegister, " . LLVMZval::zval('**') . " $varZval, align " . LLVMZval::zval('*')->size());
@@ -90,16 +86,57 @@ class Assign extends OpLine {
 
     protected function writeVarAssign($op1Zval, $op2Zval) {
         $this->writeDebugInfo("$op1Zval <= (var) $op2Zval");
+        $op1ZvalPtr = $this->function->getRegisterSerial();
         $op2ZvalPtr = $this->function->getRegisterSerial();
+        $cmpResult = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR("$op1ZvalPtr = load " . LLVMZval::zval('**') . " $op1Zval, align " . LLVMZval::zval('*')->size());
         $this->function->writeOpLineIR("$op2ZvalPtr = load " . LLVMZval::zval('**') . " $op2Zval, align " . LLVMZval::zval('*')->size());
-        $this->function->writeOpLineIR("store " . LLVMZval::zval('*') . " $op2ZvalPtr, " . LLVMZval::zval('**') . " $op1Zval, align " . LLVMZval::zval('*')->size());
 
+        $LabelTrue="{$this->function->getRegisterSerial()}_label_true";
+        $LabelFalse="{$this->function->getRegisterSerial()}_label_false";
+
+        //check $op1Zval is initialized?
+
+        $this->function->writeOpLineIR("$cmpResult = icmp ne ".LLVMZval::zval('*')." $op1ZvalPtr, null");
+        $this->function->writeOpLineIR("br i1 $cmpResult, label $LabelTrue, label $LabelFalse");
+
+        $this->function->writeOpLineIR(substr($LabelTrue,1).':');
+        //$op1Zval need GC
+        $this->function->writeOpLineIR(InternalModule::call(InternalModule::ZVAL_GC, '%zvallist', $op1ZvalPtr));
+        $this->function->writeUsedFunction(InternalModule::ZVAL_GC);
+        $this->function->writeOpLineIR("br label $LabelFalse");
+
+        $this->function->writeOpLineIR(substr($LabelFalse,1).':');
+
+        list($isRefRegister, $isRefRegisterPtr) = $this->writeGetIsRefIR($op2ZvalPtr);
+        $cmpResult = $this->function->getRegisterSerial();
+        $LabelTrue="{$this->function->getRegisterSerial()}_label_true";
+        $LabelElse="{$this->function->getRegisterSerial()}_label_else";
+        $LabelEndif="{$this->function->getRegisterSerial()}_label_endif";
+        $this->function->writeOpLineIR("$cmpResult = icmp eq ".LLVMZval::zval()->getStructIR()->getElement('is_ref')." $isRefRegister, 1");
+        $this->function->writeOpLineIR("br i1 $cmpResult, label $LabelTrue, label $LabelElse");
+
+        $this->function->writeOpLineIR(substr($LabelTrue,1).':');
+        //need copy on write
+        $op1ZvalPtr = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR("$op1ZvalPtr = ".InternalModule::call(InternalModule::ZVAL_COPY, '%zvallist', $op2ZvalPtr));
+        $this->function->writeUsedFunction(InternalModule::ZVAL_COPY);
+        $this->function->writeOpLineIR("store " . LLVMZval::zval('*') . " $op1ZvalPtr, " . LLVMZval::zval('**') . " $op1Zval, align " . LLVMZval::zval('*')->size());
+
+        $this->function->writeOpLineIR("br label $LabelEndif");
+
+        $this->function->writeOpLineIR(substr($LabelElse,1).':');
+        //not is_ref
         list($refCountRegister, $refCountRegisterPtr) = $this->writeGetRefCountIR($op2ZvalPtr);
 
         $refCountType = LLVMZval::zval()->getStructIR()->getElement('refcount');
         $refCountRegisterAdded = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$refCountRegisterAdded = add $refCountType $refCountRegister, 1");
         $this->function->writeOpLineIR("store $refCountType $refCountRegisterAdded, $refCountType* $refCountRegisterPtr, align " . $refCountType->size());
+        $this->function->writeOpLineIR("store " . LLVMZval::zval('*') . " $op2ZvalPtr, " . LLVMZval::zval('**') . " $op1Zval, align " . LLVMZval::zval('*')->size());
+        $this->function->writeOpLineIR("br label $LabelEndif");
+
+        $this->function->writeOpLineIR(substr($LabelEndif,1).':');
     }
 
 }

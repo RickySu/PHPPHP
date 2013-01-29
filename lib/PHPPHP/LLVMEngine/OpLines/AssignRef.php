@@ -40,11 +40,6 @@ class AssignRef extends OpLine {
         $this->function->writeUsedFunction(InternalModule::ZVAL_ASSIGN_REF);
         $this->function->writeOpLineIR("store ".LLVMZval::zval('*')." $newop1ZvalPtr, ".LLVMZval::zval('**')." $op1Zval, align ".LLVMZval::zval('*')->size());
         $this->function->writeOpLineIR("store ".LLVMZval::zval('*')." $newop1ZvalPtr, ".LLVMZval::zval('**')." $op2Zval, align ".LLVMZval::zval('*')->size());
-//        $op2ZvalPtr = $this->function->getRegisterSerial();
-//        $this->function->writeOpLineIR("$op2ZvalPtr = load " . LLVMZval::zval('**') . " $op2Zval, align " . LLVMZval::zval('*')->size());
-
-
-
     }
 
 }

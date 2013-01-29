@@ -24,6 +24,9 @@ void __attribute((fastcall)) ZVAL_GC_REGISTER(zvallist *list, zval *zval) {
 void __attribute((fastcall)) ZVAL_GC(zvallist *list, zval *zval) {
     int i;
     if (--zval->refcount) {
+        if (zval->refcount == 1) {
+            zval->is_ref = 0;
+        }
         return;
     }
     if (list) {
@@ -47,7 +50,7 @@ void __attribute((fastcall)) ZVAL_GC(zvallist *list, zval *zval) {
     free(zval);
 }
 
-zval * __attribute((fastcall)) ZVAL_COPY_ON_WRITE(zvallist *list, zval *oldzval) {
+zval * __attribute((fastcall)) ZVAL_COPY(zvallist *list, zval *oldzval) {
     zval *newzval;
     newzval = ZVAL_INIT(list);
     newzval = malloc(sizeof (zval));
@@ -59,6 +62,12 @@ zval * __attribute((fastcall)) ZVAL_COPY_ON_WRITE(zvallist *list, zval *oldzval)
         newzval->value.str.len = oldzval->value.str.len;
         memcpy(newzval->value.str.val, oldzval->value.str.val, oldzval->value.str.len);
     }
+    return newzval;
+}
+
+zval * __attribute((fastcall)) ZVAL_COPY_ON_WRITE(zvallist *list, zval *oldzval) {
+    zval *newzval;
+    newzval = ZVAL_COPY(list, oldzval);
     ZVAL_GC(list, oldzval);
     return newzval;
 }

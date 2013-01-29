@@ -118,7 +118,7 @@ abstract class Structure implements TypeDefine {
         $fromRegister = array_shift($args);
         $Position=implode(', i32 ',call_user_func_array(array($this,'getElementPosition'), $args));
         $define=call_user_func_array(array($this,'getElement'), $args);
-        return "$toRegister = getelementptr inbounds {$this->structureIRName}* $fromRegister, {$define} 0, i32 $Position";
+        return "$toRegister = getelementptr inbounds {$this->structureIRName}* $fromRegister, i32 0, i32 $Position";
     }
 
 }

@@ -40,6 +40,15 @@ abstract class OpLine{
         $this->function->writeOpLineIR("; $info");
     }
 
+    protected function writeGetIsRefIR($ZvalPtr){
+        $isRefRegisterPtr = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR(LLVMZval::zval()->getStructIR()->getElementPtrIR($isRefRegisterPtr, $ZvalPtr, 'is_ref'));
+        $isRefRegister = $this->function->getRegisterSerial();
+        $isRefType = LLVMZval::zval()->getStructIR()->getElement('is_ref');
+        $this->function->writeOpLineIR("$isRefRegister = load $isRefType* $isRefRegisterPtr, align " . $isRefType->size());
+        return array($isRefRegister,$isRefRegisterPtr);
+    }
+
     protected function writeGetRefCountIR($ZvalPtr){
         $refCountRegisterPtr = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR(LLVMZval::zval()->getStructIR()->getElementPtrIR($refCountRegisterPtr, $ZvalPtr, 'refcount'));
@@ -48,4 +57,5 @@ abstract class OpLine{
         $this->function->writeOpLineIR("$refCountRegister = load $refCountType* $refCountRegisterPtr, align " . $refCountType->size());
         return array($refCountRegister,$refCountRegisterPtr);
     }
+
 }

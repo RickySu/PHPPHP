@@ -12,7 +12,7 @@ class AssignConcat extends Assign {
         parent::write();
     }
 
-    protected function writeAssignString($varZval, $value) {
+    protected function writeAssignString($varZval, $varZvalPtr, $value) {
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Concat Assign String $value");
         $this->writeDebugInfo("assign $varZval.=$value");
@@ -25,13 +25,13 @@ class AssignConcat extends Assign {
         $this->function->writeOpLineIR("store " . LLVMZval::zval('*') . " $returnZValRegister, " . LLVMZval::zval('**') . " $varZval, align " . LLVMZval::zval('*')->size());
     }
 
-    protected function writeAssignInteger($varZval, $value) {
+    protected function writeAssignInteger($varZval, $varZvalPtr, $value) {
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Concat Assign Integer $value");
         $this->writeAssignString($varZval, "$value");
     }
 
-    protected function writeAssignDouble($varZval, $value) {
+    protected function writeAssignDouble($varZval, $varZvalPtr, $value) {
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Concat Assign Double $value");
         $this->writeAssignString($varZval, "$value");
