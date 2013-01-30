@@ -44,7 +44,15 @@ class Concat extends Assign {
             $this->function->writeUsedFunction(InternalModule::ZVAL_ASSIGN_CONCAT_STRING);
             $this->function->writeOpLineIR("store " . LLVMZval::zval('*') . " $returnResultZvalPtr, " . LLVMZval::zval('**') . " $resultZval, align " . LLVMZval::zval('*')->size());
         } elseif (($op1Value === null) && ($op2Value === null)) {
-
+            $op1Zval = $this->function->getZvalIR($op1Var->getName());
+            $resultZvalPtr = $this->writeVarAssign($resultZval, $op1Zval);
+            $op2Zval = $this->function->getZvalIR($op2Var->getName());
+            $op2ZvalPtr = $this->function->getRegisterSerial();
+            $this->function->writeOpLineIR("$op2ZvalPtr = load " . LLVMZval::zval('**') . " $op2Zval, align " . LLVMZval::zval('*')->size());
+            $returnResultZvalPtr = $this->function->getRegisterSerial();
+            $this->function->writeOpLineIR("$returnResultZvalPtr = " . InternalModule::call(InternalModule::ZVAL_ASSIGN_CONCAT_ZVAL, '%zvallist', $resultZvalPtr, $op2ZvalPtr));
+            $this->function->writeUsedFunction(InternalModule::ZVAL_ASSIGN_CONCAT_ZVAL);
+            $this->function->writeOpLineIR("store " . LLVMZval::zval('*') . " $returnResultZvalPtr, " . LLVMZval::zval('**') . " $resultZval, align " . LLVMZval::zval('*')->size());
         }
     }
 
