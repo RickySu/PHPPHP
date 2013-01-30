@@ -14,6 +14,7 @@ class FunctionWriter {
     protected $registerSerial = 0;
     protected $functionName;
     protected $varList = array();
+    protected $internalVarList = array();
 
     /**
      *
@@ -135,7 +136,12 @@ class FunctionWriter {
     }
 
     protected function writeVarDeclare(){
-        $IR=array(";declare used Var");
+        $IR=array(";declare internal var");
+        foreach($this->internalVarList as $interlanVar => $type){
+            $IR[]="$interlanVar = alloca $type";
+        }
+        $IR[]='';
+        $IR[]=";declare used var";
         foreach($this->varList as $varZval){
             $IR[]="$varZval = alloca " . Zval::zval('*');
             $IR[]="store ".Zval::zval('*')." null, ".Zval::zval('**')." $varZval, align ".Zval::zval('*')->size();
@@ -161,6 +167,15 @@ class FunctionWriter {
             $this->moduleWriter->writeUsedFunction(InternalModule::ZVAL_INIT);
         }
         return $this->varList[$varName];
+    }
+
+    public function getInternalVar($varName,$type){
+        $interlanVar="%PHPVarInternal_$varName";
+        if(isset($this->internalVarList[$interlanVar])){
+            return $interlanVar;
+        }
+        $this->internalVarList[$interlanVar]=$type;
+        return $interlanVar;
     }
 
 }

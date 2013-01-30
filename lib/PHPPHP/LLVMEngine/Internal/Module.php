@@ -22,6 +22,7 @@ final class Module {
     const ZVAL_ASSIGN_CONCAT_STRING='ZVAL_ASSIGN_CONCAT_STRING';
     const ZVAL_ASSIGN_CONCAT_ZVAL='ZVAL_ASSIGN_CONCAT_ZVAL';
     const ZVAL_ASSIGN_REF='ZVAL_ASSIGN_REF';
+    const ZVAL_STRING_VALUE='ZVAL_STRING_VALUE';
 
     public static function Define() {
         return array(
@@ -40,6 +41,7 @@ final class Module {
             self::ZVAL_ASSIGN_CONCAT_STRING => array(Zval::zval('*'),array(Base::void('*'),Zval::zval('*'),Base::int(),Base::char('*'))),
             self::ZVAL_ASSIGN_CONCAT_ZVAL => array(Zval::zval('*'),array(Base::void('*'),Zval::zval('*'),Zval::zval('*'))),
             self::ZVAL_ASSIGN_REF => array(Zval::zval('*'),array(Base::void('*'),Zval::zval('*'))),
+            self::ZVAL_STRING_VALUE => array(Base::void(),array(Zval::zval('*'),Base::int('*'),Base::char('**'))),
         );
     }
 

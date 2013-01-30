@@ -9,7 +9,6 @@ use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 class AssignRef extends OpLine {
 
     public function write() {
-        parent::write();
         $op1VarName = $this->opCode->op1->getImmediateZval()->getName();
         $op2VarName = $this->opCode->op2->getImmediateZval()->getName();
 

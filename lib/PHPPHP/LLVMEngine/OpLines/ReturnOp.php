@@ -5,7 +5,6 @@ use PHPPHP\LLVMEngine\Zval;
 class ReturnOp extends OpLine{
 
     public function write() {
-        parent::write();
         if($this->opCode->op1==null){
             $this->writeReturnNull();
         }

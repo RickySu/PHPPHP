@@ -9,7 +9,6 @@ use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 class Assign extends OpLine {
 
     public function write() {
-        parent::write();
         $op1Var = $this->opCode->op1->getImmediateZval();
         $op2Var = $this->opCode->op2->getImmediateZval();
         if ($op1Var instanceof Zval\Value) {
@@ -64,6 +63,7 @@ class Assign extends OpLine {
         $this->function->writeOpLineIR("$returnZValRegister = " . InternalModule::call(InternalModule::ZVAL_ASSIGN_STRING, '%zvallist', $varZvalPtr, strlen($value), $constant->ptr()));
         $this->function->writeUsedFunction(InternalModule::ZVAL_ASSIGN_STRING);
         $this->function->writeOpLineIR("store " . LLVMZval::zval('*') . " $returnZValRegister, " . LLVMZval::zval('**') . " $varZval, align " . LLVMZval::zval('*')->size());
+        return $returnZValRegister;
     }
 
     protected function writeAssignInteger($varZval, $varZvalPtr, $value) {
@@ -73,6 +73,7 @@ class Assign extends OpLine {
         $this->function->writeOpLineIR("$returnZValRegister = " . InternalModule::call(InternalModule::ZVAL_ASSIGN_INTEGER, '%zvallist', $varZvalPtr, $value));
         $this->function->writeUsedFunction(InternalModule::ZVAL_ASSIGN_INTEGER);
         $this->function->writeOpLineIR("store " . LLVMZval::zval('*') . " $returnZValRegister, " . LLVMZval::zval('**') . " $varZval, align " . LLVMZval::zval('*')->size());
+        return $returnZValRegister;
     }
 
     protected function writeAssignDouble($varZval, $varZvalPtr, $value) {
@@ -82,6 +83,7 @@ class Assign extends OpLine {
         $this->function->writeOpLineIR("$returnZValRegister = " . InternalModule::call(InternalModule::ZVAL_ASSIGN_DOUBLE, '%zvallist', $varZvalPtr, $value));
         $this->function->writeUsedFunction(InternalModule::ZVAL_ASSIGN_DOUBLE);
         $this->function->writeOpLineIR("store " . LLVMZval::zval('*') . " $returnZValRegister, " . LLVMZval::zval('**') . " $varZval, align " . LLVMZval::zval('*')->size());
+        return $returnZValRegister;
     }
 
     protected function writeVarAssign($op1Zval, $op2Zval) {
@@ -137,6 +139,7 @@ class Assign extends OpLine {
         $this->function->writeOpLineIR("br label $LabelEndif");
 
         $this->function->writeOpLineIR(substr($LabelEndif,1).':');
+        return $op2ZvalPtr;
     }
 
 }

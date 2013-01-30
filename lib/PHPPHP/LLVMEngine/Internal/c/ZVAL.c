@@ -128,14 +128,16 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_STRING(zvallist *list, zval *zval, in
 zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_STRING(zvallist *list, zval *zval, int len, char *val) {
     int newlen;
     char *newval;
+    if (!zval->is_ref && zval->refcount > 1)
+        zval = ZVAL_COPY_ON_WRITE(list, zval);
+    zval->refcount = 1;
+    ZVAL_CONVERT_STRING(zval);
     newlen = zval->value.str.len + len;
     newval = malloc(newlen);
     memcpy(newval, zval->value.str.val, zval->value.str.len);
     memcpy(&newval[zval->value.str.len], val, len);
-    if (!zval->is_ref && zval->refcount > 1)
-        zval = ZVAL_COPY_ON_WRITE(list, zval);
-    zval->refcount = 1;
     zval->type = ZVAL_TYPE_STRING;
+
     if (zval->value.str.val) {
         free(zval->value.str.val);
     }
@@ -216,7 +218,7 @@ void __attribute((fastcall)) ZVAL_STRING_VALUE(zval *zval, int *len, char **str)
             zval->_convertion_cache.str.val = malloc(buffersize);
             zval->_convertion_cache.str.len = snprintf(zval->_convertion_cache.str.val, buffersize, "%ld", zval->value.lval);
             *str = zval->_convertion_cache.str.val;
-            *len=zval->_convertion_cache.str.len;
+            *len = zval->_convertion_cache.str.len;
             break;
         case ZVAL_TYPE_DOUBLE:
             freeConvertionCacheBuffer(zval);
@@ -237,4 +239,22 @@ void __attribute((fastcall)) ZVAL_STRING_VALUE(zval *zval, int *len, char **str)
         default:
             break;
     }
+}
+
+void __attribute((fastcall)) ZVAL_CONVERT_STRING(zval *zval) {
+    int len;
+    char * val;
+    char oldType;
+    zvalue_value oldValue;
+    if (zval->type == ZVAL_TYPE_STRING) {
+        return;
+    }
+    oldType = zval->type;
+    memcpy(&oldValue, &zval->value, sizeof (zvalue_value));
+    ZVAL_STRING_VALUE(zval, &len, &val);
+    zval->type = ZVAL_TYPE_STRING;
+    zval->value.str.val = val;
+    zval->value.str.len = len;
+    zval->_convertion_cache_type=oldType;
+    memcpy(&zval->_convertion_cache,&oldValue, sizeof (zvalue_value));
 }
