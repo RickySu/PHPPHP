@@ -6,9 +6,12 @@ use PHPPHP\Engine\Zval;
 use PHPPHP\LLVMEngine\Zval as LLVMZval;
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 
-class Concat extends Assign {
+class Concat extends OpLine {
+
+    use Parts\VarAssign;
 
     public function write() {
+        parent::write();
         $op1Var = $this->opCode->op1->getImmediateZval();
         $op2Var = $this->opCode->op2->getImmediateZval();
 

@@ -30,9 +30,7 @@ abstract class OpLine {
         $this->function = $function;
     }
 
-    abstract public function write();
-
-    public function writeInitDebug(){
+    public function write(){
         $className = explode('\\', get_class($this));
         $className = $className[count($className) - 1];
         $this->writeDebugInfo();
