@@ -60,7 +60,6 @@ void __attribute((fastcall)) ZVAL_GC(zvallist *list, zval *zval) {
 zval * __attribute((fastcall)) ZVAL_COPY(zvallist *list, zval *oldzval) {
     zval *newzval;
     newzval = ZVAL_INIT(list);
-    newzval = malloc(sizeof (zval));
     memcpy(newzval, oldzval, sizeof (zval));
     newzval->is_ref = 0;
     newzval->refcount = 1;
