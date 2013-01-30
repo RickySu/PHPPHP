@@ -56,7 +56,7 @@ class FunctionWriter {
 
     protected function writeIR() {
         //write declare
-        $EntryDeclareIR = "declare " . Zval::PtrIRDeclare() . " @{$this->getEntryName()}()";
+        $EntryDeclareIR = "declare " . Zval::zval('*') . " @{$this->getEntryName()}()";
         $this->moduleWriter->writeFunctionIRDeclare($this->getEntryName(), $EntryDeclareIR);
 
         $opLineIRs=array();
@@ -67,7 +67,7 @@ class FunctionWriter {
 
         //write function content
         $IR[] = ";function {$this->functionName}";
-        $IR[] = "define " . Zval::PtrIRDeclare() . " @{$this->getEntryName()}() nounwind uwtable {";
+        $IR[] = "define " . Zval::zval('*') . " @{$this->getEntryName()}() nounwind uwtable {";
         $IR[] = implode("\n\t", $this->functionCtorIR());
         $varIRDeclare="\n\t".implode("\n\t",$this->writeVarDeclare());
         $IR[]=$varIRDeclare;
@@ -87,8 +87,8 @@ class FunctionWriter {
         $IR[] = ";function entry";
 
         //prepare return value
-        $IR[] = "%retval = alloca " . Zval::PtrIRDeclare() . ", align " . Zval::PtrIRAlign();
-        $IR[] = "store " . Zval::PtrIRDeclare() . " null , " . Zval::PtrIRDeclare() . "* %retval, align " . Zval::PtrIRAlign();
+        $IR[] = "%retval = alloca " . Zval::zval('*') . ", align " . Zval::zval('*')->size();
+        $IR[] = "store " . Zval::zval('*') . " null , " . Zval::zval('**') . " %retval, align " . Zval::zval('*')->size();
 
         //prepare var list
         $IR[] = "%zvallist = " . InternalModule::call(InternalModule::ZVAL_LIST_INIT);
@@ -109,7 +109,7 @@ class FunctionWriter {
         //return
         $returnRegister = $this->getRegisterSerial();
         $IR[] = ";prepare return value";
-        $IR[] = "$returnRegister = load " . Zval::PtrIRDeclare() . "* %retval, align " . Zval::PtrIRAlign();
+        $IR[] = "$returnRegister = load " . Zval::zval('*') . "* %retval, align " . Zval::zval('*')->size();
         $IR[] = "ret %struct.zval* $returnRegister";
         return $IR;
     }
