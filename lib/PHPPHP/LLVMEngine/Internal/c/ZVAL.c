@@ -5,6 +5,12 @@
 #include "ZVAL_LIST.h"
 #include "dtoa.h"
 
+void __attribute((fastcall)) freeConvertionCacheBuffer(zval *zval) {
+    if (zval->_convertion_cache_type == ZVAL_TYPE_STRING) {
+        free(zval->_convertion_cache.str.val);
+    }
+}
+
 zval * __attribute((fastcall)) ZVAL_INIT(zvallist *list) {
     zval * aZval;
     aZval = malloc(sizeof (zval));
@@ -47,6 +53,7 @@ void __attribute((fastcall)) ZVAL_GC(zvallist *list, zval *zval) {
         default:
             break;
     }
+    freeConvertionCacheBuffer(zval);
     free(zval);
 }
 
@@ -138,26 +145,19 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_STRING(zvallist *list, zval *z
 }
 
 zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_ZVAL(zvallist *list, zval *zval1, zval *zval2) {
-    char tmpString[128];
+    char *tmpString;
+    int tmpLen;
     int newlen;
     char *newval;
     switch (zval2->type) {
         case ZVAL_TYPE_BOOLEAN:
         case ZVAL_TYPE_INTEGER:
-            sprintf(tmpString, "%ld", zval2->value.lval);
-            newlen = strlen(tmpString);
-            newval = malloc(newlen + zval1->value.str.len);
-            memcpy(newval, zval1->value.str.val, zval1->value.str.len);
-            memcpy(&newval[zval1->value.str.len], tmpString, newlen);
-            newlen += zval1->value.str.len;
-            break;
         case ZVAL_TYPE_DOUBLE:
-            php_gcvt(zval2->value.dval, DTOA_DISPLAY_DIGITS, '.', 'e', tmpString);
-            newlen = strlen(tmpString);
-            newval = malloc(newlen + zval1->value.str.len);
+            ZVAL_STRING_VALUE(zval2, &tmpLen, &tmpString);
+            newlen = zval1->value.str.len + tmpLen;
+            newval = malloc(newlen);
             memcpy(newval, zval1->value.str.val, zval1->value.str.len);
-            memcpy(&newval[zval1->value.str.len], tmpString, newlen);
-            newlen += zval1->value.str.len;
+            memcpy(&newval[zval1->value.str.len], tmpString, tmpLen);
             break;
         case ZVAL_TYPE_STRING:
             newlen = zval1->value.str.len + zval2->value.str.len;
@@ -203,4 +203,38 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_REF(zvallist *list, zval *zval) {
     zval->is_ref = 1;
     zval->refcount++;
     return zval;
+}
+
+void __attribute((fastcall)) ZVAL_STRING_VALUE(zval *zval, int *len, char **str) {
+    int buffersize;
+    switch (zval->type) {
+        case ZVAL_TYPE_BOOLEAN:
+        case ZVAL_TYPE_INTEGER:
+            freeConvertionCacheBuffer(zval);
+            zval->_convertion_cache_type = ZVAL_TYPE_STRING;
+            buffersize = (sizeof (long) *8 / 3) + 1 + 1;
+            zval->_convertion_cache.str.val = malloc(buffersize);
+            zval->_convertion_cache.str.len = snprintf(zval->_convertion_cache.str.val, buffersize, "%ld", zval->value.lval);
+            *str = zval->_convertion_cache.str.val;
+            *len=zval->_convertion_cache.str.len;
+            break;
+        case ZVAL_TYPE_DOUBLE:
+            freeConvertionCacheBuffer(zval);
+            zval->_convertion_cache_type = ZVAL_TYPE_STRING;
+            buffersize = 64;
+            zval->_convertion_cache.str.val = malloc(buffersize);
+            php_gcvt(zval->value.dval, DTOA_DISPLAY_DIGITS, '.', 'e', zval->_convertion_cache.str.val);
+            zval->_convertion_cache.str.len = strlen(zval->_convertion_cache.str.val);
+            *len = zval->_convertion_cache.str.len;
+            *str = zval->_convertion_cache.str.val;
+            break;
+        case ZVAL_TYPE_STRING:
+            *str = zval->value.str.val;
+            *len = zval->value.str.len;
+            return;
+        case ZVAL_TYPE_NULL:
+            *len = 0;
+        default:
+            break;
+    }
 }

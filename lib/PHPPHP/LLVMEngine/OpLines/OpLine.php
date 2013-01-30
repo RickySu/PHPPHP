@@ -58,7 +58,7 @@ abstract class OpLine{
         return array($refCountRegister,$refCountRegisterPtr);
     }
 
-    public function gcVarZval($varZval,$emptyVarZval=true){
+    protected function gcVarZval($varZval,$emptyVarZval=true){
         $varZvalPtr = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$varZvalPtr = load " . LLVMZval::zval('**') . " $varZval, align " . LLVMZval::zval('*')->size());
         $this->function->writeOpLineIR(InternalModule::call(InternalModule::ZVAL_GC,'%zvallist',$varZvalPtr));
@@ -66,5 +66,9 @@ abstract class OpLine{
         if($emptyVarZval){
             $this->function->writeUsedFunction("store " . LLVMZval::zval('*') . " null , " . LLVMZval::zval('**') . " $varZval, align " . Zval::PtrIRAlign());
         }
+    }
+
+    protected function getStringValue($varZval){
+        
     }
 }

@@ -27,11 +27,22 @@ typedef union _zvalue_value {
     } str;
 } zvalue_value;
 
+typedef union {
+    long lval;
+    double dval;
+    struct {
+        char *val;
+        int len;
+    } str;
+} __convertion_cache;
+
 struct _zval_struct {
         zvalue_value value;             /* value */
         int  refcount;
         char type;                     /* active type */
         char is_ref;
+        char _convertion_cache_type;
+        __convertion_cache _convertion_cache;
 };
 
 #endif
