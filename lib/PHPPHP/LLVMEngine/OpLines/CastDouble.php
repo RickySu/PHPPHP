@@ -6,7 +6,7 @@ use PHPPHP\Engine\Zval;
 use PHPPHP\LLVMEngine\Zval as LLVMZval;
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 
-class CastString extends OpLine {
+class CastDouble extends OpLine {
 
     use Parts\Convert;
     use Parts\VarAssign;
@@ -18,14 +18,16 @@ class CastString extends OpLine {
             $resultVarName = substr($this->function->getRegisterSerial(), 1);
             $this->opCode->result->getImmediateZval()->TempVarName = $resultVarName;
         }
+
         if($op1Var instanceof Zval\Value){
             $resultZval = $this->function->getZvalIR($resultVarName, true, true);
-            $this->writeImmediateValueAssign($resultZval, (string)$op1Var->getValue());
+            $this->writeImmediateValueAssign($resultZval, (double)$op1Var->getValue());
             return;
         }
+
         $resultZval = $this->function->getZvalIR($resultVarName, false, true);
         $op1Zval = $this->function->getZvalIR($op1Var->getName());
-        $this->convertString($resultZval,$op1Zval);
+        $this->convertDouble($resultZval,$op1Zval);
     }
 
 }

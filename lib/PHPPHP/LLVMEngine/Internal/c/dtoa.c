@@ -186,7 +186,7 @@
  *	used for input more than STRTOD_DIGLIM digits long (default 40).
  */
 
-#include "dtoa.h"
+#include "h/dtoa.h"
 
 typedef int int32_t;
 typedef unsigned int uint32_t;

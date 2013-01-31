@@ -1,6 +1,6 @@
 #include<stdio.h>
-#include "PHPLLVM_T_ECHO.h"
-#include "dtoa.h"
+#include "h/PHPLLVM_T_ECHO.h"
+#include "h/dtoa.h"
 
 void __attribute((fastcall)) PHPLLVM_T_ECHO(int length, char *string) {
     printf("%.*s", length, string);

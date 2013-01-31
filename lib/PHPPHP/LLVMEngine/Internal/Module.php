@@ -24,6 +24,10 @@ final class Module {
     const ZVAL_ASSIGN_REF='ZVAL_ASSIGN_REF';
     const ZVAL_STRING_VALUE='ZVAL_STRING_VALUE';
     const ZVAL_CONVERT_STRING='ZVAL_CONVERT_STRING';
+    const ZVAL_INTEGER_VALUE='ZVAL_INTEGER_VALUE';
+    const ZVAL_CONVERT_INTEGER='ZVAL_CONVERT_INTEGER';
+    const ZVAL_DOUBLE_VALUE='ZVAL_DOUBLE_VALUE';
+    const ZVAL_CONVERT_DOUBLE='ZVAL_CONVERT_DOUBLE';
 
     public static function Define() {
         return array(
@@ -44,6 +48,11 @@ final class Module {
             self::ZVAL_ASSIGN_REF => array(Zval::zval('*'),array(Base::void('*'),Zval::zval('*'))),
             self::ZVAL_STRING_VALUE => array(Base::void(),array(Zval::zval('*'),Base::int('*'),Base::char('**'))),
             self::ZVAL_CONVERT_STRING => array(Base::void(),array(Zval::zval('*'))),
+            self::ZVAL_INTEGER_VALUE => array(Base::int(),array(Zval::zval('*'))),
+            self::ZVAL_CONVERT_INTEGER => array(Base::void(),array(Zval::zval('*'))),
+            self::ZVAL_DOUBLE_VALUE => array(Base::double(),array(Zval::zval('*'))),
+            self::ZVAL_CONVERT_DOUBLE => array(Base::void(),array(Zval::zval('*'))),
+
         );
     }
 

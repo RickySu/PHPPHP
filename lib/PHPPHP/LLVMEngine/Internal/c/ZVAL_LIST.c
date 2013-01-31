@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include "ZVAL_LIST.h"
-#include "ZVAL.h"
+#include "h/ZVAL_LIST.h"
+#include "h/ZVAL.h"
 
 void __attribute((fastcall)) ZVAL_LIST_GC(zvallist *list) {
     if (list == NULL) {

@@ -1,9 +1,9 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#include "ZVAL.h"
-#include "ZVAL_LIST.h"
-#include "dtoa.h"
+#include "h/ZVAL.h"
+#include "h/ZVAL_LIST.h"
+#include "h/dtoa.h"
 
 void __attribute((fastcall)) freeConvertionCacheBuffer(zval *zval) {
     if (zval->_convertion_cache_type == ZVAL_TYPE_STRING) {
@@ -67,6 +67,11 @@ zval * __attribute((fastcall)) ZVAL_COPY(zvallist *list, zval *oldzval) {
         newzval->value.str.val = malloc(oldzval->value.str.len);
         newzval->value.str.len = oldzval->value.str.len;
         memcpy(newzval->value.str.val, oldzval->value.str.val, oldzval->value.str.len);
+    }
+    if (newzval->_convertion_cache_type == ZVAL_TYPE_STRING) {
+        newzval->_convertion_cache.str.val = malloc(oldzval->_convertion_cache.str.len);
+        newzval->_convertion_cache.str.len = oldzval->_convertion_cache.str.len;
+        memcpy(newzval->_convertion_cache.str.val, oldzval->_convertion_cache.str.val, oldzval->_convertion_cache.str.len);
     }
     return newzval;
 }
@@ -206,6 +211,15 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_REF(zvallist *list, zval *zval) {
 
 void __attribute((fastcall)) ZVAL_STRING_VALUE(zval *zval, int *len, char **str) {
     int buffersize;
+    if (len == NULL || str == NULL) {
+        str = &zval->_convertion_cache.str.val;
+        len = &zval->_convertion_cache.str.len;
+    }
+    if (zval->_convertion_cache_type == ZVAL_TYPE_STRING) {
+        *str = zval->_convertion_cache.str.val;
+        *len = zval->_convertion_cache.str.len;
+        return;
+    }
     switch (zval->type) {
         case ZVAL_TYPE_BOOLEAN:
         case ZVAL_TYPE_INTEGER:
@@ -252,7 +266,100 @@ void __attribute((fastcall)) ZVAL_CONVERT_STRING(zval *zval) {
     zval->type = ZVAL_TYPE_STRING;
     zval->value.str.val = val;
     zval->value.str.len = len;
-    zval->_convertion_cache_type=oldType;
-    memcpy(&zval->_convertion_cache,&oldValue, sizeof (zvalue_value));
+    zval->_convertion_cache_type = oldType;
+    memcpy(&zval->_convertion_cache, &oldValue, sizeof (zvalue_value));
     zval->type = ZVAL_TYPE_STRING;
+}
+
+long __attribute((fastcall)) ZVAL_INTEGER_VALUE(zval *zval) {
+    char *tmpBuffer;
+    long returnVal;
+    if (zval->_convertion_cache_type == ZVAL_TYPE_INTEGER) {
+        return zval->_convertion_cache.lval;
+    }
+    switch (zval->type) {
+        case ZVAL_TYPE_BOOLEAN:
+        case ZVAL_TYPE_INTEGER:
+            return zval->value.lval;
+        case ZVAL_TYPE_DOUBLE:
+            freeConvertionCacheBuffer(zval);
+            zval->_convertion_cache_type = ZVAL_TYPE_INTEGER;
+            zval->_convertion_cache.lval = (long) zval->value.dval;
+            return zval->_convertion_cache.lval;
+        case ZVAL_TYPE_STRING:
+            freeConvertionCacheBuffer(zval);
+            tmpBuffer=malloc(zval->value.str.len+1);
+            memcpy(tmpBuffer,zval->value.str.val,zval->value.str.len);
+            tmpBuffer[zval->value.str.len]='\0';
+            returnVal=atol(tmpBuffer);
+            free(tmpBuffer);
+            zval->_convertion_cache_type = ZVAL_TYPE_INTEGER;
+            zval->_convertion_cache.lval = returnVal;
+            return returnVal;
+        case ZVAL_TYPE_NULL:
+            return 0;
+        default:
+            return 0;
+    }
+}
+
+void __attribute((fastcall)) ZVAL_CONVERT_INTEGER(zval *zval) {
+    char oldType;
+    zvalue_value oldValue;
+    if (zval->type == ZVAL_TYPE_INTEGER) {
+        return;
+    }
+    oldType = zval->type;
+    memcpy(&oldValue, &zval->value, sizeof (zvalue_value));
+    zval->type = ZVAL_TYPE_INTEGER;
+    zval->value.lval=ZVAL_INTEGER_VALUE(zval);
+    zval->_convertion_cache_type = oldType;
+    memcpy(&zval->_convertion_cache, &oldValue, sizeof (zvalue_value));
+}
+
+
+double __attribute((fastcall)) ZVAL_DOUBLE_VALUE(zval *zval) {
+    char *tmpBuffer;
+    double returnVal;
+    if (zval->_convertion_cache_type == ZVAL_TYPE_DOUBLE) {
+        return zval->_convertion_cache.dval;
+    }
+    switch (zval->type) {
+        case ZVAL_TYPE_BOOLEAN:
+        case ZVAL_TYPE_INTEGER:
+            freeConvertionCacheBuffer(zval);
+            zval->_convertion_cache_type = ZVAL_TYPE_DOUBLE;
+            zval->_convertion_cache.dval = (double) zval->value.lval;
+            return zval->_convertion_cache.dval;
+        case ZVAL_TYPE_DOUBLE:
+            return zval->value.dval;
+        case ZVAL_TYPE_STRING:
+            freeConvertionCacheBuffer(zval);
+            tmpBuffer=malloc(zval->value.str.len+1);
+            memcpy(tmpBuffer,zval->value.str.val,zval->value.str.len);
+            tmpBuffer[zval->value.str.len]='\0';
+            returnVal=strtod(tmpBuffer,0);
+            free(tmpBuffer);
+            zval->_convertion_cache_type = ZVAL_TYPE_DOUBLE;
+            zval->_convertion_cache.dval = returnVal;
+            return returnVal;
+        case ZVAL_TYPE_NULL:
+            return 0;
+        default:
+            return 0;
+    }
+}
+
+void __attribute((fastcall)) ZVAL_CONVERT_DOUBLE(zval *zval) {
+    char oldType;
+    zvalue_value oldValue;
+    if (zval->type == ZVAL_TYPE_DOUBLE) {
+        return;
+    }
+    oldType = zval->type;
+    memcpy(&oldValue, &zval->value, sizeof (zvalue_value));
+    zval->type = ZVAL_TYPE_DOUBLE;
+    zval->value.dval=ZVAL_DOUBLE_VALUE(zval);
+    zval->_convertion_cache_type = oldType;
+    memcpy(&zval->_convertion_cache, &oldValue, sizeof (zvalue_value));
 }

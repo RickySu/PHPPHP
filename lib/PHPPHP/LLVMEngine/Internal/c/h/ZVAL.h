@@ -17,5 +17,9 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_ZVAL(zvallist *list, zval *zva
 zval * __attribute((fastcall)) ZVAL_ASSIGN_REF(zvallist *list, zval *zval);
 void __attribute((fastcall)) ZVAL_STRING_VALUE(zval *zval,int *len,char **str);
 void __attribute((fastcall)) ZVAL_CONVERT_STRING(zval *zval);
+long __attribute((fastcall)) ZVAL_INTEGER_VALUE(zval *zval);
+void __attribute((fastcall)) ZVAL_CONVERT_INTEGER(zval *zval);
+double __attribute((fastcall)) ZVAL_DOUBLE_VALUE(zval *zval);
+void __attribute((fastcall)) ZVAL_CONVERT_DOUBLE(zval *zval);
 
 #endif

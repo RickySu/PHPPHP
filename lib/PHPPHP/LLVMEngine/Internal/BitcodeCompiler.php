@@ -4,7 +4,7 @@ namespace PHPPHP\LLVMEngine\Internal;
 
 class BitcodeCompiler {
 
-    protected $files=array();
+    protected $files = array();
     protected $sourcePath;
     protected $outputPath;
     protected $sourceFiles;
