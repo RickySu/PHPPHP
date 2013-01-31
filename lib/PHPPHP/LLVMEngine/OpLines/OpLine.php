@@ -66,7 +66,7 @@ abstract class OpLine {
     protected function gcVarZval($varZval, $emptyVarZval = true) {
         $varZvalPtr = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$varZvalPtr = load " . LLVMZval::zval('**') . " $varZval, align " . LLVMZval::zval('*')->size());
-        $this->function->writeOpLineIR(InternalModule::call(InternalModule::ZVAL_GC, '%zvallist', $varZvalPtr));
+        $this->function->writeOpLineIR(InternalModule::call(InternalModule::ZVAL_GC, LLVMZval::ZVAL_GC_LIST, $varZvalPtr));
         $this->function->writeUsedFunction(InternalModule::ZVAL_GC);
         if ($emptyVarZval) {
             $this->function->writeUsedFunction("store " . LLVMZval::zval('*') . " null , " . LLVMZval::zval('**') . " $varZval, align " . Zval::PtrIRAlign());

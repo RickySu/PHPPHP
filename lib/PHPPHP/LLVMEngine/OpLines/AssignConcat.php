@@ -12,43 +12,36 @@ class AssignConcat extends Assign {
         parent::write();
     }
 
-    protected function writeAssignString($varZval, $varZvalPtr, $value) {
+    protected function writeAssignString(LLVMZval $varZval, $value) {
+        if($value===''){
+            return;
+        }
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Concat Assign String $value");
         $this->writeDebugInfo("assign $varZval.=$value");
-        $varZvalPtr = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$varZvalPtr = load " . LLVMZval::zval('**') . " $varZval, align " . LLVMZval::zval('*')->size());
-        $returnZValRegister = $this->function->getRegisterSerial();
         $constant = $this->function->writeConstant($value);
-        $this->function->writeOpLineIR("$returnZValRegister = " . InternalModule::call(InternalModule::ZVAL_ASSIGN_CONCAT_STRING, '%zvallist', $varZvalPtr, strlen($value), $constant->ptr()));
-        $this->function->writeUsedFunction(InternalModule::ZVAL_ASSIGN_CONCAT_STRING);
-        $this->function->writeOpLineIR("store " . LLVMZval::zval('*') . " $returnZValRegister, " . LLVMZval::zval('**') . " $varZval, align " . LLVMZval::zval('*')->size());
+        $varZvalPtr=$this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_CONCAT_STRING,LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister(), strlen($value), $constant->ptr());
+        $varZval->savePtrRegister($varZvalPtr);
     }
 
-    protected function writeAssignInteger($varZval, $varZvalPtr, $value) {
+    protected function writeAssignInteger(LLVMZval $varZval, $value) {
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Concat Assign Integer $value");
         $this->writeAssignString($varZval, "$value");
     }
 
-    protected function writeAssignDouble($varZval, $varZvalPtr, $value) {
+    protected function writeAssignDouble(LLVMZval $varZval, $value) {
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Concat Assign Double $value");
         $this->writeAssignString($varZval, "$value");
     }
 
-    protected function writeVarAssign($op1Zval, $op2Zval) {
+    protected function writeVarAssign(LLVMZval $op1Zval,LLVMZval $op2Zval) {
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Concat Assign Zval $op2Zval");
         $this->writeDebugInfo("assign $op1Zval.=$op2Zval");
-        $op1ZvalPtr = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$op1ZvalPtr = load " . LLVMZval::zval('**') . " $op1Zval, align " . LLVMZval::zval('*')->size());
-        $op2ZvalPtr = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$op2ZvalPtr = load " . LLVMZval::zval('**') . " $op2Zval, align " . LLVMZval::zval('*')->size());
-        $returnZValRegister = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$returnZValRegister = " . InternalModule::call(InternalModule::ZVAL_ASSIGN_CONCAT_ZVAL, '%zvallist', $op1ZvalPtr, $op2ZvalPtr));
-        $this->function->writeUsedFunction(InternalModule::ZVAL_ASSIGN_CONCAT_ZVAL);
-        $this->function->writeOpLineIR("store " . LLVMZval::zval('*') . " $returnZValRegister, " . LLVMZval::zval('**') . " $op1Zval, align " . LLVMZval::zval('*')->size());
+        $op1ZvalPtr=$this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_CONCAT_ZVAL,LLVMZval::ZVAL_GC_LIST, $op1Zval->getPtrRegister(), $op2Zval->getPtrRegister());
+        $op1Zval->savePtrRegister($op1ZvalPtr);
     }
 
 }

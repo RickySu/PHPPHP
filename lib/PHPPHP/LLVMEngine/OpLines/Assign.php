@@ -13,6 +13,7 @@ class Assign extends OpLine {
         parent::write();
         $op1Var = $this->opCode->op1->getImmediateZval();
         $op2Var = $this->opCode->op2->getImmediateZval();
+
         if ($op1Var instanceof Zval\Value) {
             if (!isset($op1Var->TempVarName)) {
                 $op1VarName = substr($this->function->getRegisterSerial(), 1);
@@ -23,9 +24,10 @@ class Assign extends OpLine {
             $op1Zval = $this->function->getZvalIR($op1VarName, true, true);
         } else {
             $op1VarName = $op1Var->getName();
-        }
-        if ($op2Var instanceof Zval\Value) {
             $op1Zval = $this->function->getZvalIR($op1VarName);
+        }
+
+        if ($op2Var instanceof Zval\Value) {
             if (isset($op2Var->TempVarName)) {
                 $op2VarName = $op2Var->TempVarName;
                 $op2Zval = $this->function->getZvalIR($op2VarName, true, true);
@@ -34,7 +36,6 @@ class Assign extends OpLine {
                 $this->writeImmediateValueAssign($op1Zval, $op2Var->getValue());
             }
         } else {
-            $op1Zval = $this->function->getZvalIR($op1VarName, false);
             $op2Zval = $this->function->getZvalIR($op2Var->getName());
             $this->writeVarAssign($op1Zval, $op2Zval);
         }

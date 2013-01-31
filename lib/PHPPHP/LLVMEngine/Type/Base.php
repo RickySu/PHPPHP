@@ -37,6 +37,10 @@ class Base implements TypeDefine{
         return new self('double'.($ptr?$ptr:''),($ptr?PHP_INT_SIZE:8));
     }
 
+    public static function null($ptr=false,$elements=1,$elementName=''){
+        return new self('null',0);
+    }
+
     /**
      *
      * @param \PHPPHP\LLVMEngine\Type\Structure $structure

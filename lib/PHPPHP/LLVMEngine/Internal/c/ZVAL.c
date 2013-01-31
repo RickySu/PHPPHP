@@ -16,6 +16,7 @@ zval * __attribute((fastcall)) ZVAL_INIT(zvallist *list) {
     aZval = malloc(sizeof (zval));
     memset(aZval, 0, sizeof (zval));
     ZVAL_GC_REGISTER(list, aZval);
+    aZval->refcount = 1;
     return aZval;
 }
 
@@ -35,6 +36,7 @@ void __attribute((fastcall)) ZVAL_GC(zvallist *list, zval *zval) {
         }
         return;
     }
+
     if (list) {
         do {
             for (i = 0; i < list->count; i++) {
@@ -48,7 +50,9 @@ void __attribute((fastcall)) ZVAL_GC(zvallist *list, zval *zval) {
     }
     switch (zval->type) {
         case ZVAL_TYPE_STRING:
-            free(zval->value.str.val);
+            if (zval->value.str.len) {
+                free(zval->value.str.val);
+            }
             break;
         default:
             break;
@@ -59,19 +63,26 @@ void __attribute((fastcall)) ZVAL_GC(zvallist *list, zval *zval) {
 
 zval * __attribute((fastcall)) ZVAL_COPY(zvallist *list, zval *oldzval) {
     zval *newzval;
+    if (oldzval == NULL) {
+        return NULL;
+    }
     newzval = ZVAL_INIT(list);
     memcpy(newzval, oldzval, sizeof (zval));
     newzval->is_ref = 0;
     newzval->refcount = 1;
     if (newzval->type == ZVAL_TYPE_STRING) {
-        newzval->value.str.val = malloc(oldzval->value.str.len);
         newzval->value.str.len = oldzval->value.str.len;
-        memcpy(newzval->value.str.val, oldzval->value.str.val, oldzval->value.str.len);
+        if (newzval->value.str.len) {
+            newzval->value.str.val = malloc(oldzval->value.str.len);
+            memcpy(newzval->value.str.val, oldzval->value.str.val, oldzval->value.str.len);
+        }
     }
     if (newzval->_convertion_cache_type == ZVAL_TYPE_STRING) {
-        newzval->_convertion_cache.str.val = malloc(oldzval->_convertion_cache.str.len);
         newzval->_convertion_cache.str.len = oldzval->_convertion_cache.str.len;
-        memcpy(newzval->_convertion_cache.str.val, oldzval->_convertion_cache.str.val, oldzval->_convertion_cache.str.len);
+        if (newzval->_convertion_cache.str.len){
+            newzval->_convertion_cache.str.val = malloc(oldzval->_convertion_cache.str.len);
+            memcpy(newzval->_convertion_cache.str.val, oldzval->_convertion_cache.str.val, oldzval->_convertion_cache.str.len);
+        }
     }
     return newzval;
 }
@@ -120,12 +131,14 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_STRING(zvallist *list, zval *zval, in
     }
     zval->refcount = 1;
     zval->type = ZVAL_TYPE_STRING;
-    if (zval->value.str.val) {
+    if (zval->value.str.len) {
         free(zval->value.str.val);
     }
-    zval->value.str.val = malloc(len);
     zval->value.str.len = len;
-    memcpy(zval->value.str.val, val, len);
+    if (zval->value.str.len) {
+        zval->value.str.val = malloc(len);
+        memcpy(zval->value.str.val, val, len);
+    }
     return zval;
 }
 
@@ -136,11 +149,15 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_STRING(zvallist *list, zval *z
         zval = ZVAL_COPY_ON_WRITE(list, zval);
     zval->refcount = 1;
     ZVAL_CONVERT_STRING(zval);
+    if (zval->value.str.len) {
+        memcpy(newval, zval->value.str.val, zval->value.str.len);
+    }
     newlen = zval->value.str.len + len;
-    newval = malloc(newlen);
-    memcpy(newval, zval->value.str.val, zval->value.str.len);
-    memcpy(&newval[zval->value.str.len], val, len);
-    if (zval->value.str.val) {
+    if (len) {
+        newval = malloc(newlen);
+        memcpy(&newval[zval->value.str.len], val, len);
+    }
+    if (zval->value.str.len) {
         free(zval->value.str.val);
     }
     zval->value.str.val = newval;
@@ -163,15 +180,27 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_ZVAL(zvallist *list, zval *zva
         case ZVAL_TYPE_DOUBLE:
             ZVAL_STRING_VALUE(zval2, &tmpLen, &tmpString);
             newlen = zval1->value.str.len + tmpLen;
-            newval = malloc(newlen);
-            memcpy(newval, zval1->value.str.val, zval1->value.str.len);
-            memcpy(&newval[zval1->value.str.len], tmpString, tmpLen);
+            if (newlen) {
+                newval = malloc(newlen);
+            }
+            if (zval1->value.str.len) {
+                memcpy(newval, zval1->value.str.val, zval1->value.str.len);
+            }
+            if (tmpLen) {
+                memcpy(&newval[zval1->value.str.len], tmpString, tmpLen);
+            }
             break;
         case ZVAL_TYPE_STRING:
             newlen = zval1->value.str.len + zval2->value.str.len;
-            newval = malloc(newlen);
-            memcpy(newval, zval1->value.str.val, zval1->value.str.len);
-            memcpy(&newval[zval1->value.str.len], zval2->value.str.val, zval2->value.str.len);
+            if(newlen) {
+                newval = malloc(newlen);
+            }
+            if (zval1->value.str.len) {
+                memcpy(newval, zval1->value.str.val, zval1->value.str.len);
+            }
+            if (zval2->value.str.len) {
+                memcpy(&newval[zval1->value.str.len], zval2->value.str.val, zval2->value.str.len);
+            }
             break;
         case ZVAL_TYPE_NULL:
         default:
@@ -257,6 +286,9 @@ void __attribute((fastcall)) ZVAL_CONVERT_STRING(zval *zval) {
     char * val;
     char oldType;
     zvalue_value oldValue;
+    if (zval == NULL) {
+        return;
+    }
     if (zval->type == ZVAL_TYPE_STRING) {
         return;
     }
@@ -288,10 +320,10 @@ long __attribute((fastcall)) ZVAL_INTEGER_VALUE(zval *zval) {
             return zval->_convertion_cache.lval;
         case ZVAL_TYPE_STRING:
             freeConvertionCacheBuffer(zval);
-            tmpBuffer=malloc(zval->value.str.len+1);
-            memcpy(tmpBuffer,zval->value.str.val,zval->value.str.len);
-            tmpBuffer[zval->value.str.len]='\0';
-            returnVal=atol(tmpBuffer);
+            tmpBuffer = malloc(zval->value.str.len + 1);
+            memcpy(tmpBuffer, zval->value.str.val, zval->value.str.len);
+            tmpBuffer[zval->value.str.len] = '\0';
+            returnVal = atol(tmpBuffer);
             free(tmpBuffer);
             zval->_convertion_cache_type = ZVAL_TYPE_INTEGER;
             zval->_convertion_cache.lval = returnVal;
@@ -306,17 +338,19 @@ long __attribute((fastcall)) ZVAL_INTEGER_VALUE(zval *zval) {
 void __attribute((fastcall)) ZVAL_CONVERT_INTEGER(zval *zval) {
     char oldType;
     zvalue_value oldValue;
+    if (zval == NULL) {
+        return;
+    }
     if (zval->type == ZVAL_TYPE_INTEGER) {
         return;
     }
     oldType = zval->type;
     memcpy(&oldValue, &zval->value, sizeof (zvalue_value));
     zval->type = ZVAL_TYPE_INTEGER;
-    zval->value.lval=ZVAL_INTEGER_VALUE(zval);
+    zval->value.lval = ZVAL_INTEGER_VALUE(zval);
     zval->_convertion_cache_type = oldType;
     memcpy(&zval->_convertion_cache, &oldValue, sizeof (zvalue_value));
 }
-
 
 double __attribute((fastcall)) ZVAL_DOUBLE_VALUE(zval *zval) {
     char *tmpBuffer;
@@ -335,10 +369,10 @@ double __attribute((fastcall)) ZVAL_DOUBLE_VALUE(zval *zval) {
             return zval->value.dval;
         case ZVAL_TYPE_STRING:
             freeConvertionCacheBuffer(zval);
-            tmpBuffer=malloc(zval->value.str.len+1);
-            memcpy(tmpBuffer,zval->value.str.val,zval->value.str.len);
-            tmpBuffer[zval->value.str.len]='\0';
-            returnVal=strtod(tmpBuffer,0);
+            tmpBuffer = malloc(zval->value.str.len + 1);
+            memcpy(tmpBuffer, zval->value.str.val, zval->value.str.len);
+            tmpBuffer[zval->value.str.len] = '\0';
+            returnVal = strtod(tmpBuffer, 0);
             free(tmpBuffer);
             zval->_convertion_cache_type = ZVAL_TYPE_DOUBLE;
             zval->_convertion_cache.dval = returnVal;
@@ -353,13 +387,16 @@ double __attribute((fastcall)) ZVAL_DOUBLE_VALUE(zval *zval) {
 void __attribute((fastcall)) ZVAL_CONVERT_DOUBLE(zval *zval) {
     char oldType;
     zvalue_value oldValue;
+    if (zval == NULL) {
+        return;
+    }
     if (zval->type == ZVAL_TYPE_DOUBLE) {
         return;
     }
     oldType = zval->type;
     memcpy(&oldValue, &zval->value, sizeof (zvalue_value));
     zval->type = ZVAL_TYPE_DOUBLE;
-    zval->value.dval=ZVAL_DOUBLE_VALUE(zval);
+    zval->value.dval = ZVAL_DOUBLE_VALUE(zval);
     zval->_convertion_cache_type = oldType;
     memcpy(&zval->_convertion_cache, &oldValue, sizeof (zvalue_value));
 }
