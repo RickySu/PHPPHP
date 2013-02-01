@@ -94,7 +94,7 @@ zval * __attribute((fastcall)) ZVAL_COPY_ON_WRITE(zvallist *list, zval *oldzval)
     return newzval;
 }
 
-zval * __attribute((fastcall)) ZVAL_ASSIGN_INTEGER(zvallist *list, zval *zval, int val) {
+zval * __attribute((fastcall)) ZVAL_ASSIGN_INTEGER(zvallist *list, zval *zval, long val) {
     if (!zval->is_ref) {
         if (zval->refcount > 1) {
             ZVAL_GC(list, zval);
@@ -418,35 +418,62 @@ int __attribute((fastcall)) ZVAL_TYPE_GUESS(zval *zval) {
     return ZVAL_TYPE_DOUBLE;
 }
 
+int __attribute((fastcall)) ZVAL_TYPE_CAST_SINGLE(int type, zval *zvalop1, type_cast *value_op1) {
+    int targetType;
+    if (type == ZVAL_TYPE_DOUBLE) {
+        targetType = 1;
+    } else {
+        targetType = 0;
+    }
+    switch (zvalop1->type) {
+        case ZVAL_TYPE_STRING:
+            if (ZVAL_TYPE_GUESS(zvalop1) == ZVAL_TYPE_INTEGER) {
+                targetType |= 0;
+            } else {
+                targetType |= 1;
+            }
+            break;
+        case ZVAL_TYPE_DOUBLE:
+            targetType |= 1;
+            break;
+        case ZVAL_TYPE_BOOLEAN:
+        case ZVAL_TYPE_NULL:
+        case ZVAL_TYPE_INTEGER:
+            targetType |= 0;
+            break;
+    }
+    if (targetType) { //double type
+        value_op1->dval = ZVAL_DOUBLE_VALUE(zvalop1);
+        return ZVAL_TYPE_DOUBLE;
+    }
+    value_op1->lval = ZVAL_INTEGER_VALUE(zvalop1);
+    return ZVAL_TYPE_INTEGER;
+}
+
 int __attribute((fastcall)) ZVAL_TYPE_CAST(zval *zvalop1, zval *zvalop2, type_cast *value_op1, type_cast *value_op2) {
     int i, targetType = 0;
     zval * list[2];
     list[0] = zvalop1;
     list[1] = zvalop2;
     for (i = 0; i < 2; i++) {
-        if (list[i]) {
-            switch (list[i]->type) {
-                case ZVAL_TYPE_STRING:
-                    if (ZVAL_TYPE_GUESS(list[i]) == ZVAL_TYPE_INTEGER) {
-                        targetType |= 0;
-                    } else {
-                        targetType |= 1;
-                    }
-                    break;
-                case ZVAL_TYPE_DOUBLE:
-                    targetType |= 1;
-                    break;
-                case ZVAL_TYPE_BOOLEAN:
-                case ZVAL_TYPE_NULL:
-                case ZVAL_TYPE_INTEGER:
+        switch (list[i]->type) {
+            case ZVAL_TYPE_STRING:
+                if (ZVAL_TYPE_GUESS(list[i]) == ZVAL_TYPE_INTEGER) {
                     targetType |= 0;
-                    break;
-            }
-        } else {
-            targetType |= 0;
+                } else {
+                    targetType |= 1;
+                }
+                break;
+            case ZVAL_TYPE_DOUBLE:
+                targetType |= 1;
+                break;
+            case ZVAL_TYPE_BOOLEAN:
+            case ZVAL_TYPE_NULL:
+            case ZVAL_TYPE_INTEGER:
+                targetType |= 0;
+                break;
         }
     }
-    printf("type %d\n", targetType);
     if (targetType) { //double type
         value_op1->dval = ZVAL_DOUBLE_VALUE(zvalop1);
         value_op2->dval = ZVAL_DOUBLE_VALUE(zvalop2);

@@ -30,6 +30,7 @@ final class Module {
     const ZVAL_DOUBLE_VALUE = 'ZVAL_DOUBLE_VALUE';
     const ZVAL_CONVERT_DOUBLE = 'ZVAL_CONVERT_DOUBLE';
     const ZVAL_TYPE_CAST = 'ZVAL_TYPE_CAST';
+    const ZVAL_TYPE_CAST_SINGLE = 'ZVAL_TYPE_CAST_SINGLE';
 
     public static function Define() {
         return array(
@@ -42,7 +43,7 @@ final class Module {
             self::ZVAL_GC_REGIST => array(Base::void(), array(Base::void('*'), Zval::zval('*'))),
             self::ZVAL_COPY_ON_WRITE => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'))),
             self::ZVAL_COPY => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'))),
-            self::ZVAL_ASSIGN_INTEGER => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::int())),
+            self::ZVAL_ASSIGN_INTEGER => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::long())),
             self::ZVAL_ASSIGN_DOUBLE => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::double())),
             self::ZVAL_ASSIGN_STRING => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::int(), Base::char('*'))),
             self::ZVAL_ASSIGN_CONCAT_STRING => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::int(), Base::char('*'))),
@@ -55,6 +56,7 @@ final class Module {
             self::ZVAL_DOUBLE_VALUE => array(Base::double(), array(Zval::zval('*'))),
             self::ZVAL_CONVERT_DOUBLE => array(Base::void(), array(Zval::zval('*'))),
             self::ZVAL_TYPE_CAST => array(Base::int(), array(Zval::zval('*'), Zval::zval('*'), TypeCast::typeCast('*'), TypeCast::typeCast('*'))),
+            self::ZVAL_TYPE_CAST_SINGLE => array(Base::int(), array(Base::int(), Zval::zval('*'), TypeCast::typeCast('*'))),
         );
     }
 
