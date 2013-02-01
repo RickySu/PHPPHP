@@ -13,7 +13,6 @@ class Assign extends OpLine {
         parent::write();
         $op1Var = $this->opCode->op1->getImmediateZval();
         $op2Var = $this->opCode->op2->getImmediateZval();
-
         if ($op1Var instanceof Zval\Value) {
             if (!isset($op1Var->TempVarName)) {
                 $op1VarName = substr($this->function->getRegisterSerial(), 1);

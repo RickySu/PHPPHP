@@ -8,9 +8,8 @@ abstract class Structure implements TypeDefine {
     protected $structureIRName;
     protected $IR = array();
 
-
     public function __toString() {
-        return implode("\n", $this->getIR())."\n";
+        return implode("\n", $this->getIR()) . "\n";
     }
 
     public function size() {
@@ -32,9 +31,9 @@ abstract class Structure implements TypeDefine {
         $struct = array();
         $structSize = 0;
 
-        $index=0;
+        $index = 0;
         foreach ($structure['struct'] as $name => $item) {
-            $structure['struct']["$name.pos"]=$index;
+            $structure['struct']["$name.pos"] = $index;
             if ($item instanceof Base) {
                 $struct[] = (string) $item;
                 $structSize+=$item->size();
@@ -53,9 +52,9 @@ abstract class Structure implements TypeDefine {
     protected function getDeclareStructureunion(array &$structure, $structureName) {
         $struct = '';
         $structSize = 0;
-        $index=0;
+        $index = 0;
         foreach ($structure['struct'] as $name => $item) {
-            $structure['struct']["$name.pos"]=0;
+            $structure['struct']["$name.pos"] = 0;
             if ($item instanceof Base) {
                 if ($item->size() > $structSize) {
                     $structSize = $item->size();
@@ -69,11 +68,12 @@ abstract class Structure implements TypeDefine {
                 }
             }
         }
-        $this->IR[]="%$structureName = type { $struct }";
+        $structure['effective.type'] = $struct;
+        $this->IR[] = "%$structureName = type { $struct }";
         return array($structSize, "%$structureName");
     }
 
-    public function analyzeStruct(){
+    public function analyzeStruct() {
         list($this->structureIRSize, $this->structureIRName) = $this->getDeclareStructure($this->structureDefine, $this->structName);
     }
 
@@ -89,35 +89,39 @@ abstract class Structure implements TypeDefine {
         return $this->structureIRName;
     }
 
-    public function getElementPosition(){
+    public function getElementPosition() {
         $args = func_get_args();
-        $position=0;
-        $define=&$this->structureDefine;
-        foreach($args as $index){
-            if(!is_array($position)){
-                $position=array();
+        $position = 0;
+        $define = &$this->structureDefine;
+        foreach ($args as $index) {
+            if (!is_array($position)) {
+                $position = array();
             }
-            $position[]=$define['struct']["$index.pos"];
-            $define=&$define['struct'][$index];
+            $position[] = $define['struct']["$index.pos"];
+            $define = &$define['struct'][$index];
         }
         return $position;
     }
 
-    public function getElement(){
+    public function getElement() {
         $args = func_get_args();
-        $define=&$this->structureDefine;
-        foreach($args as $index){
-            $define=&$define['struct'][$index];
+        $define = &$this->structureDefine;
+        foreach ($args as $index) {
+            $define = &$define['struct'][$index];
         }
         return $define;
     }
 
-    public function getElementPtrIR(){
+    public function getElementEffectiveType() {
+        return $this->structureDefine['effective.type'];
+    }
+
+    public function getElementPtrIR() {
         $args = func_get_args();
         $toRegister = array_shift($args);
         $fromRegister = array_shift($args);
-        $Position=implode(', i32 ',call_user_func_array(array($this,'getElementPosition'), $args));
-        $define=call_user_func_array(array($this,'getElement'), $args);
+        $Position = implode(', i32 ', call_user_func_array(array($this, 'getElementPosition'), $args));
+        $define = call_user_func_array(array($this, 'getElement'), $args);
         return "$toRegister = getelementptr inbounds {$this->structureIRName}* $fromRegister, i32 0, i32 $Position";
     }
 

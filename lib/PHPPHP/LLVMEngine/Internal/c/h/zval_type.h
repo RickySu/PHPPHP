@@ -17,7 +17,12 @@ struct _zvallist {
     zvallist* next;
 };
 
-typedef union _zvalue_value {
+typedef union {
+    long lval; /* long value */
+    double dval; /* double value */
+} type_cast;
+
+typedef union {
     long lval; /* long value */
     double dval; /* double value */
 

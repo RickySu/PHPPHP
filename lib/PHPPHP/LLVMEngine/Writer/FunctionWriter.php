@@ -6,6 +6,7 @@ use PHPPHP\LLVMEngine\Zval;
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 use PHPPHP\LLVMEngine\OpLines\OpLine;
 use PHPPHP\LLVMEngine\Type\Base as StringType;
+use PHPPHP\LLVMEngine\Type\TypeDefine;
 
 class FunctionWriter {
 
@@ -162,7 +163,7 @@ class FunctionWriter {
         return $zval;
     }
 
-    public function getInternalVar($varName, $type) {
+    public function getInternalVar($varName, TypeDefine $type) {
         $interlanVar = "%PHPVarInternal_$varName";
         if (isset($this->internalVarList[$interlanVar])) {
             return $interlanVar;

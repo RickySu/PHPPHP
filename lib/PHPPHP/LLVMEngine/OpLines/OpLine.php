@@ -63,23 +63,17 @@ abstract class OpLine {
         return array($refCountRegister, $refCountRegisterPtr);
     }
 
-    protected function gcVarZval($varZval, $emptyVarZval = true) {
-        $varZvalPtr = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$varZvalPtr = load " . LLVMZval::zval('**') . " $varZval, align " . LLVMZval::zval('*')->size());
-        $this->function->writeOpLineIR(InternalModule::call(InternalModule::ZVAL_GC, LLVMZval::ZVAL_GC_LIST, $varZvalPtr));
-        $this->function->writeUsedFunction(InternalModule::ZVAL_GC);
+    protected function gcVarZval(LLVMZval $varZval, $emptyVarZval = true) {
+        $this->function->InternalModuleCall(InternalModule::ZVAL_GC, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister());
         if ($emptyVarZval) {
-            $this->function->writeUsedFunction("store " . LLVMZval::zval('*') . " null , " . LLVMZval::zval('**') . " $varZval, align " . Zval::PtrIRAlign());
+            $varZval->savePtrRegister(BaseType::null());
         }
     }
 
-    protected function getStringValue($varZval) {
+    protected function getStringValue(LLVMZval $varZval) {
         $InternalVarInt = $this->function->getInternalVar('getStringValue_len', BaseType::int());
         $InternalVarCharPtr = $this->function->getInternalVar('getStringValue_val', BaseType::char('*'));
-        $varZvalPtr = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$varZvalPtr = load " . LLVMZval::zval('**') . " $varZval, align " . LLVMZval::zval('*')->size());
-        $this->function->writeOpLineIR(InternalModule::call(InternalModule::ZVAL_STRING_VALUE, $varZvalPtr,$InternalVarInt, $InternalVarCharPtr));
-        $this->function->writeUsedFunction(InternalModule::ZVAL_STRING_VALUE);
+        $this->function->InternalModuleCall(InternalModule::ZVAL_STRING_VALUE, $varZval->getPtrRegister(),$InternalVarInt, $InternalVarCharPtr);
         return array($InternalVarInt,$InternalVarCharPtr);
     }
 

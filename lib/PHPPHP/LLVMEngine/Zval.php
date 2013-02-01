@@ -33,14 +33,6 @@ class Zval {
         return self::getType($ptr);
     }
 
-    public static function PtrIRAlign() {
-        return PHP_INT_SIZE;
-    }
-
-    public static function PtrIRDeclare() {
-        return self::getType()->getStructIR()->getStructureIRName() . '*';
-    }
-
     public function __construct($varName, $initZval, $isTmp, $IRWriter) {
         $this->varName = $varName;
         $this->isTmp = $isTmp;

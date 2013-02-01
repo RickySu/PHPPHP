@@ -47,6 +47,7 @@ class Writer {
 
     public function assignStructureDeclare() {
         $this->baseIRDeclare=array_merge($this->baseIRDeclare,Zval::getDeclare());
+        $this->baseIRDeclare=array_merge($this->baseIRDeclare,TypeCast::getDeclare());
     }
 
     /**

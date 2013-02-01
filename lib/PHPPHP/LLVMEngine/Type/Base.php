@@ -34,11 +34,11 @@ class Base implements TypeDefine{
     }
 
     public static function double($ptr=false,$elements=1,$elementName=''){
-        return new self('double'.($ptr?$ptr:''),($ptr?PHP_INT_SIZE:8));
+        return new self('double'.($ptr?$ptr:''),($ptr?PHP_INT_SIZE:8),$elements,$elementName);
     }
 
     public static function null($ptr=false,$elements=1,$elementName=''){
-        return new self('null',0);
+        return new self('null',0,$elements,$elementName);
     }
 
     /**
