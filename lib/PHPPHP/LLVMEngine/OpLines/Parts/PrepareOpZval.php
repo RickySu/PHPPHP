@@ -20,7 +20,7 @@ trait PrepareOpZval {
         } else {
             $op1Zval = $this->function->getZvalIR($op1Var->getName());
         }
-        die;
+
         if ($op2Var instanceof Zval\Value) {
             $op2Zval = $this->makeTempZval($op2Var->getValue());
         } else {

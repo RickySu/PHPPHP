@@ -149,12 +149,12 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_STRING(zvallist *list, zval *z
         zval = ZVAL_COPY_ON_WRITE(list, zval);
     zval->refcount = 1;
     ZVAL_CONVERT_STRING(zval);
+    newlen = zval->value.str.len + len;
+    newval = malloc(newlen);
     if (zval->value.str.len) {
         memcpy(newval, zval->value.str.val, zval->value.str.len);
     }
-    newlen = zval->value.str.len + len;
     if (len) {
-        newval = malloc(newlen);
         memcpy(&newval[zval->value.str.len], val, len);
     }
     if (zval->value.str.len) {

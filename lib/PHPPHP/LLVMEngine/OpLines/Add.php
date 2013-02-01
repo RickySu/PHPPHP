@@ -25,9 +25,7 @@ class Add extends OpLine {
                 };
 
         $this->prepareOpZval($op1Zval, $op2Zval);
-        print_r($op1Zval);die;
-        $this->function->InternalModuleCall(InternalModule::T_ECHO_ZVAL, $op1Zval->getPtrRegister());
-        return;
+
         if ($op1Zval instanceof LLVMZval && $op2Zval instanceof LLVMZval) {
             $this->TypeCast($op1Zval, $op2Zval, $writeIntegerAdd, $writeDoubleAdd);
         } else {

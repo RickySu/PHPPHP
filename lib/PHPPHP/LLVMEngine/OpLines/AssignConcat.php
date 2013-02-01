@@ -13,9 +13,6 @@ class AssignConcat extends Assign {
     }
 
     protected function writeAssignString(LLVMZval $varZval, $value) {
-        if($value===''){
-            return;
-        }
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Concat Assign String $value");
         $this->writeDebugInfo("assign $varZval.=$value");
