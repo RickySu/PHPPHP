@@ -31,6 +31,7 @@ final class Module {
     const ZVAL_CONVERT_DOUBLE = 'ZVAL_CONVERT_DOUBLE';
     const ZVAL_TYPE_CAST = 'ZVAL_TYPE_CAST';
     const ZVAL_TYPE_CAST_SINGLE = 'ZVAL_TYPE_CAST_SINGLE';
+    const ZVAL_TYPE_GUESS='ZVAL_TYPE_GUESS';
 
     public static function Define() {
         return array(
@@ -57,6 +58,7 @@ final class Module {
             self::ZVAL_CONVERT_DOUBLE => array(Base::void(), array(Zval::zval('*'))),
             self::ZVAL_TYPE_CAST => array(Base::int(), array(Zval::zval('*'), Zval::zval('*'), TypeCast::typeCast('*'), TypeCast::typeCast('*'))),
             self::ZVAL_TYPE_CAST_SINGLE => array(Base::int(), array(Base::int(), Zval::zval('*'), TypeCast::typeCast('*'))),
+            self::ZVAL_TYPE_GUESS => array(Base::int(), array(Zval::zval('*'))),
         );
     }
 

@@ -8,8 +8,7 @@ use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 
 class Add extends OpLine {
 
-    use Parts\VarAssign,
-        Parts\TypeCast,
+    use Parts\TypeCast,
         Parts\PrepareOpZval;
 
     protected $tmpZval = array();
