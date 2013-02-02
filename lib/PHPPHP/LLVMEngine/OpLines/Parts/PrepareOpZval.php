@@ -7,33 +7,33 @@ use PHPPHP\LLVMEngine\Zval as LLVMZval;
 
 trait PrepareOpZval {
 
-    protected function prepareOpZval(&$op1Zval, &$op2Zval) {
-        $op1Var = $this->opCode->op1->getImmediateZval();
-        $op2Var = $this->opCode->op2->getImmediateZval();
-        if (($op1Var instanceof Zval\Value) && ($op2Var instanceof Zval\Value) && !isset($op1Var->TempVarName) && !isset($op2Var->TempVarName)) {
-            $op1Zval = $op1Var->getValue();
-            $op2Zval = $op2Var->getValue();
-            return;
+    protected function prepareOpZval() {
+        $isAllValueOpZval = true;
+        $opZvals = array();
+        $opVars = func_get_args();
+        foreach ($opVars as $index => $opVar) {
+            $opVar=$opVars[$index]=$opVars[$index]->getImmediateZval();
+            $isAllValueOpZval = $isAllValueOpZval && ($opVar instanceof Zval\Value);
         }
-        if ($op1Var instanceof Zval\Value) {
-            if (isset($op1Var->TempVarName)) {
-                $op1Zval = $this->function->getZvalIR($op1Var->TempVarName, true, true);
-            } else {
-                $op1Zval = $this->makeTempZval($op1Var->getValue());
+        if ($isAllValueOpZval) {
+            foreach ($opVars as $opVar) {
+                $opZvals[] = $opVar->getValue();
             }
-        } else {
-            $op1Zval = $this->function->getZvalIR($op1Var->getName());
+            return $opZvals;
         }
-
-        if ($op2Var instanceof Zval\Value) {
-            if (isset($op2Var->TempVarName)) {
-                $op2Zval = $this->function->getZvalIR($op2Var->TempVarName, true, true);
+        foreach ($opVars as $opVar) {
+            if ($opVar instanceof Zval\Value) {
+                if (isset($opVar->TempVarName)) {
+                    $opZval = $this->function->getZvalIR($opVar->TempVarName, true, true);
+                } else {
+                    $opZval = $this->makeTempZval($opVar->getValue());
+                }
             } else {
-                $op2Zval = $this->makeTempZval($op2Var->getValue());
+                $opZval = $this->function->getZvalIR($opVar->getName());
             }
-        } else {
-            $op2Zval = $this->function->getZvalIR($op2Var->getName());
+            $opZvals[] = $opZval;
         }
+        return $opZvals;
     }
 
     protected function gcTempZval() {

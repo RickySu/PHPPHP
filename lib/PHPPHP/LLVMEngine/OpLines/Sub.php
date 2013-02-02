@@ -23,7 +23,7 @@ class Sub extends OpLine {
                     $this->writeDoubleSub($resultZval, $typeCastOp1ValueRegister, $typeCastOp2ValueRegister);
                 };
 
-        $this->prepareOpZval($op1Zval, $op2Zval);
+        list($op1Zval, $op2Zval) = $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
         if ($op1Zval instanceof LLVMZval && $op2Zval instanceof LLVMZval) {
             $this->TypeCast($op1Zval, $op2Zval, $writeIntegerSub, $writeDoubleSub);
         } else {

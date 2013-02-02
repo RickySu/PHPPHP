@@ -13,7 +13,7 @@ class Concat extends OpLine {
 
     public function write() {
         parent::write();
-        $this->prepareOpZval($op1Zval, $op2Zval);
+        list($op1Zval, $op2Zval) = $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
         $resultZval = $this->prepareResultZval();
         $this->writeVarAssign($resultZval, $op1Zval);
         $resultZvalPtr =$this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_CONCAT_ZVAL, LLVMZval::ZVAL_GC_LIST, $resultZval->getPtrRegister(), $op2Zval->getPtrRegister());
