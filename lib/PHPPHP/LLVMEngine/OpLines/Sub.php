@@ -7,8 +7,7 @@ use PHPPHP\LLVMEngine\Type\Base as BaseType;
 
 class Sub extends OpLine {
 
-    use Parts\VarAssign,
-        Parts\TypeCast,
+    use Parts\TypeCast,
         Parts\PrepareOpZval;
 
     protected $tmpZval = array();

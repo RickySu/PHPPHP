@@ -7,13 +7,15 @@ use PHPPHP\LLVMEngine\Zval as LLVMZval;
 
 trait PrepareOpZval {
 
+    use VarAssign;
+
     protected function prepareOpZval() {
         $isAllValueOpZval = true;
         $opZvals = array();
         $opVars = func_get_args();
         foreach ($opVars as $index => $opVar) {
-            $opVar=$opVars[$index]=$opVars[$index]->getImmediateZval();
-            $isAllValueOpZval = $isAllValueOpZval && ($opVar instanceof Zval\Value);
+            $opVar = $opVars[$index] = $opVars[$index]->getImmediateZval();
+            $isAllValueOpZval = $isAllValueOpZval && ($opVar instanceof Zval\Value) && (!isset($opVar->TempVarName));
         }
         if ($isAllValueOpZval) {
             foreach ($opVars as $opVar) {
