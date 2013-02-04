@@ -23,8 +23,6 @@ class Assign extends OpLine {
         if ($op2Zval instanceof LLVMZval) {
             $this->writeVarAssign($op1Zval, $op2Zval);
         } else {
-            print_r($this->opCode->op1);
-            print_r($this->opCode->result);
             $this->writeImmediateValueAssign($op1Zval, $op2Zval);
         }
     }
