@@ -17,6 +17,7 @@ final class Module {
     const ZVAL_GC_REGIST = 'ZVAL_GC_REGIST';
     const ZVAL_COPY_ON_WRITE = 'ZVAL_COPY_ON_WRITE';
     const ZVAL_COPY = 'ZVAL_COPY';
+    const ZVAL_ASSIGN_BOOLEAN = 'ZVAL_ASSIGN_BOOLEAN';
     const ZVAL_ASSIGN_INTEGER = 'ZVAL_ASSIGN_INTEGER';
     const ZVAL_ASSIGN_DOUBLE = 'ZVAL_ASSIGN_DOUBLE';
     const ZVAL_ASSIGN_STRING = 'ZVAL_ASSIGN_STRING';
@@ -45,6 +46,7 @@ final class Module {
             self::ZVAL_COPY_ON_WRITE => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'))),
             self::ZVAL_COPY => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'))),
             self::ZVAL_ASSIGN_INTEGER => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::long())),
+            self::ZVAL_ASSIGN_BOOLEAN => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::long())),
             self::ZVAL_ASSIGN_DOUBLE => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::double())),
             self::ZVAL_ASSIGN_STRING => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::int(), Base::char('*'))),
             self::ZVAL_ASSIGN_CONCAT_STRING => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::int(), Base::char('*'))),

@@ -107,6 +107,10 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_INTEGER(zvallist *list, zval *zval, l
     return zval;
 }
 
+zval * __attribute((fastcall)) ZVAL_ASSIGN_BOOLEAN(zvallist *list, zval *zval, long val) {
+    return ZVAL_ASSIGN_INTEGER(list, zval, (val==0?0:1));
+}
+
 zval * __attribute((fastcall)) ZVAL_ASSIGN_DOUBLE(zvallist *list, zval *zval, double val) {
     if (!zval->is_ref) {
         if (zval->refcount > 1) {
