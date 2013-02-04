@@ -25,7 +25,7 @@ class AssignShiftRight extends OpLine {
                 };
 
         if ($op1Zval instanceof LLVMZval && $op2Zval instanceof LLVMZval) {
-            $this->TypeCast($op1Zval, $op2Zval, $writeIntegerAssignShiftRight, $writeDoubleAssignShiftRight);
+            $this->TypeCastNumber($op1Zval, $op2Zval, $writeIntegerAssignShiftRight, $writeDoubleAssignShiftRight);
         } else {
             $this->writeImmediateValueAssign($resultZval, $op1Zval >> $op2Zval);
         }

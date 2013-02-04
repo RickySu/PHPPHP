@@ -26,7 +26,7 @@ class AssignBitwiseAnd extends OpLine {
                 };
 
         if ($op1Zval instanceof LLVMZval && $op2Zval instanceof LLVMZval) {
-            $this->TypeCast($op1Zval, $op2Zval, $writeIntegerAssignBitwiseAnd, $writeDoubleAssignBitwiseAnd);
+            $this->TypeCastNumber($op1Zval, $op2Zval, $writeIntegerAssignBitwiseAnd, $writeDoubleAssignBitwiseAnd);
         } else {
             $this->writeImmediateValueAssign($resultZval, $op1Zval & $op2Zval);
         }

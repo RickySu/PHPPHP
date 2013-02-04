@@ -27,7 +27,7 @@ class BitwiseOr extends OpLine {
         list($op1Zval, $op2Zval) = $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
 
         if ($op1Zval instanceof LLVMZval && $op2Zval instanceof LLVMZval) {
-            $this->TypeCast($op1Zval, $op2Zval, $writeIntegerBitwiseOr, $writeDoubleBitwiseOr);
+            $this->TypeCastNumber($op1Zval, $op2Zval, $writeIntegerBitwiseOr, $writeDoubleBitwiseOr);
         } else {
             $this->writeImmediateValueAssign($resultZval, $op1Zval | $op2Zval);
         }

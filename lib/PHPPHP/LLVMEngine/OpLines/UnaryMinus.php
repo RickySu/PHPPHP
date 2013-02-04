@@ -24,7 +24,7 @@ class UnaryMinus extends OpLine {
         list($op1Zval) = $this->prepareOpZval($this->opCode->op1);
 
         if ($op1Zval instanceof LLVMZval) {
-            $this->TypeCastSingle($op1Zval, $writeIntegerSub, $writeDoubleSub);
+            $this->TypeCastNumberSingle($op1Zval, $writeIntegerSub, $writeDoubleSub);
         } else {
             $this->writeImmediateValueAssign($resultZval, -$op1Zval);
         }

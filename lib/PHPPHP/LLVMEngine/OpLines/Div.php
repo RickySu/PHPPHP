@@ -31,12 +31,12 @@ class Div extends OpLine {
             $op2TempZval = $this->function->getZvalIR(self::OP2ZVALDIVTEMP, true, true);
             $this->convertDouble($op1TempZval, $op1Zval);
             $this->convertDouble($op2TempZval, $op2Zval);
-            $this->TypeCast($op1TempZval, $op2TempZval, function() {
+            $this->TypeCastNumber($op1TempZval, $op2TempZval, function() {
 
                     }, $writeDoubleDiv);
             $this->gcVarZval($op1TempZval);
             $this->gcVarZval($op2TempZval);
-            $GuessType = $this->function->InternalModuleCall(InternalModule::ZVAL_TYPE_GUESS, $resultZval->getPtrRegister());
+            $GuessType = $this->function->InternalModuleCall(InternalModule::ZVAL_TYPE_GUESS_NUMBER, $resultZval->getPtrRegister());
 
             $IfSerial = substr($this->function->getRegisterSerial(), 1);
             $LabelIfInteger = "Label_IfInteger_$IfSerial";

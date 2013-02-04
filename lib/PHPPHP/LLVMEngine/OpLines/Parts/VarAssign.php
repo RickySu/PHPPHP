@@ -22,6 +22,11 @@ trait VarAssign {
             case 'string':
                 $this->writeAssignString($op1Zval, $value);
                 break;
+            case 'boolean':
+                $this->writeAssignBoolean($op1Zval, $value);
+                break;
+            default:
+                break;
         }
     }
 
@@ -42,7 +47,13 @@ trait VarAssign {
         $varZval->savePtrRegister($returnZValRegister);
         return $returnZValRegister;
     }
-
+    protected function writeAssignBoolean(LLVMZval $varZval, $value) {
+        $this->writeDebugInfo("Init Zval");
+        $this->writeDebugInfo("Assign Boolean $value");
+        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_BOOLEAN, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister(), $value);
+        $varZval->savePtrRegister($returnZValRegister);
+        return $returnZValRegister;
+    }
     protected function writeAssignDouble(LLVMZval $varZval, $value) {
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Assign Float $value");

@@ -30,9 +30,11 @@ final class Module {
     const ZVAL_CONVERT_INTEGER = 'ZVAL_CONVERT_INTEGER';
     const ZVAL_DOUBLE_VALUE = 'ZVAL_DOUBLE_VALUE';
     const ZVAL_CONVERT_DOUBLE = 'ZVAL_CONVERT_DOUBLE';
-    const ZVAL_TYPE_CAST = 'ZVAL_TYPE_CAST';
-    const ZVAL_TYPE_CAST_SINGLE = 'ZVAL_TYPE_CAST_SINGLE';
-    const ZVAL_TYPE_GUESS='ZVAL_TYPE_GUESS';
+    const ZVAL_TYPE_CAST_NUMBER = 'ZVAL_TYPE_CAST_NUMBER';
+    const ZVAL_TYPE_CAST_NUMBER_SINGLE = 'ZVAL_TYPE_CAST_NUMBER_SINGLE';
+    const ZVAL_TYPE_GUESS_NUMBER='ZVAL_TYPE_GUESS_NUMBER';
+    const ZVAL_EQUAL='ZVAL_EQUAL';
+    const ZVAL_EQUAL_EXACT='ZVAL_EQUAL_EXACT';
 
     public static function Define() {
         return array(
@@ -58,9 +60,11 @@ final class Module {
             self::ZVAL_CONVERT_INTEGER => array(Base::void(), array(Zval::zval('*'))),
             self::ZVAL_DOUBLE_VALUE => array(Base::double(), array(Zval::zval('*'))),
             self::ZVAL_CONVERT_DOUBLE => array(Base::void(), array(Zval::zval('*'))),
-            self::ZVAL_TYPE_CAST => array(Base::int(), array(Zval::zval('*'), Zval::zval('*'), TypeCast::typeCast('*'), TypeCast::typeCast('*'))),
-            self::ZVAL_TYPE_CAST_SINGLE => array(Base::int(), array(Base::int(), Zval::zval('*'), TypeCast::typeCast('*'))),
-            self::ZVAL_TYPE_GUESS => array(Base::int(), array(Zval::zval('*'))),
+            self::ZVAL_TYPE_CAST_NUMBER => array(Base::int(), array(Zval::zval('*'), Zval::zval('*'), TypeCast::typeCast('*'), TypeCast::typeCast('*'))),
+            self::ZVAL_TYPE_CAST_NUMBER_SINGLE => array(Base::int(), array(Base::int(), Zval::zval('*'), TypeCast::typeCast('*'))),
+            self::ZVAL_TYPE_GUESS_NUMBER => array(Base::int(), array(Zval::zval('*'))),
+            self::ZVAL_EQUAL => array(Base::long(), array(Zval::zval('*'),Zval::zval('*'))),
+            self::ZVAL_EQUAL_EXACT => array(Base::long(), array(Zval::zval('*'),Zval::zval('*'))),
         );
     }
 

@@ -26,7 +26,7 @@ class AssignBitwiseXor extends OpLine {
                 };
 
         if ($op1Zval instanceof LLVMZval && $op2Zval instanceof LLVMZval) {
-            $this->TypeCast($op1Zval, $op2Zval, $writeIntegerAssignBitwiseXor, $writeDoubleAssignBitwiseXor);
+            $this->TypeCastNumber($op1Zval, $op2Zval, $writeIntegerAssignBitwiseXor, $writeDoubleAssignBitwiseXor);
         } else {
             $this->writeImmediateValueAssign($resultZval, $op1Zval ^ $op2Zval);
         }

@@ -108,7 +108,7 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_INTEGER(zvallist *list, zval *zval, l
 }
 
 zval * __attribute((fastcall)) ZVAL_ASSIGN_BOOLEAN(zvallist *list, zval *zval, long val) {
-    return ZVAL_ASSIGN_INTEGER(list, zval, (val==0?0:1));
+    return ZVAL_ASSIGN_INTEGER(list, zval, (val == 0 ? 0 : 1));
 }
 
 zval * __attribute((fastcall)) ZVAL_ASSIGN_DOUBLE(zvallist *list, zval *zval, double val) {
@@ -405,7 +405,36 @@ void __attribute((fastcall)) ZVAL_CONVERT_DOUBLE(zval *zval) {
     memcpy(&zval->_convertion_cache, &oldValue, sizeof (zvalue_value));
 }
 
+int __attribute((fastcall)) is_number(int len, char *val) {
+    char dotAssigned = 0;
+    char exponentAssigned = 0;
+    for (int i = 0; i < len; i++) {
+        if (val[i] < '0' || val[i] > '9') {
+            if ((val[i] == 'e' || val[i] == 'E') && exponentAssigned == 0) {
+                exponentAssigned = 1;
+                continue;
+            }
+            if (val[i] == '+' || val[i] == '-') {
+                continue;
+            }
+            if (val[i] == '.' && dotAssigned == 0) {
+                dotAssigned = 1;
+                continue;
+            }
+            return 0;
+        }
+    }
+    return 1;
+}
+
 int __attribute((fastcall)) ZVAL_TYPE_GUESS(zval *zval) {
+    if (zval->type == ZVAL_TYPE_STRING && (!is_number(zval->value.str.len, zval->value.str.val))) {
+        return ZVAL_TYPE_STRING;
+    }
+    return ZVAL_TYPE_GUESS_NUMBER(zval);
+}
+
+int __attribute((fastcall)) ZVAL_TYPE_GUESS_NUMBER(zval *zval) {
     double doubleVal;
     long integerVal;
     if (zval->_convertion_cache_type == ZVAL_TYPE_DOUBLE) {
@@ -423,6 +452,13 @@ int __attribute((fastcall)) ZVAL_TYPE_GUESS(zval *zval) {
 }
 
 int __attribute((fastcall)) ZVAL_TYPE_CAST_SINGLE(int type, zval *zvalop1, type_cast *value_op1) {
+    if (ZVAL_TYPE_GUESS(zvalop1) == ZVAL_TYPE_STRING) {
+        return ZVAL_TYPE_STRING;
+    }
+    return ZVAL_TYPE_CAST_NUMBER_SINGLE(type, zvalop1, value_op1);
+}
+
+int __attribute((fastcall)) ZVAL_TYPE_CAST_NUMBER_SINGLE(int type, zval *zvalop1, type_cast *value_op1) {
     int targetType;
     if (type == ZVAL_TYPE_DOUBLE) {
         targetType = 1;
@@ -431,7 +467,7 @@ int __attribute((fastcall)) ZVAL_TYPE_CAST_SINGLE(int type, zval *zvalop1, type_
     }
     switch (zvalop1->type) {
         case ZVAL_TYPE_STRING:
-            if (ZVAL_TYPE_GUESS(zvalop1) == ZVAL_TYPE_INTEGER) {
+            if (ZVAL_TYPE_GUESS_NUMBER(zvalop1) == ZVAL_TYPE_INTEGER) {
                 targetType |= 0;
             } else {
                 targetType |= 1;
@@ -455,6 +491,13 @@ int __attribute((fastcall)) ZVAL_TYPE_CAST_SINGLE(int type, zval *zvalop1, type_
 }
 
 int __attribute((fastcall)) ZVAL_TYPE_CAST(zval *zvalop1, zval *zvalop2, type_cast *value_op1, type_cast *value_op2) {
+    if (ZVAL_TYPE_GUESS(zvalop1) == ZVAL_TYPE_STRING || ZVAL_TYPE_GUESS(zvalop2) == ZVAL_TYPE_STRING) {
+        return ZVAL_TYPE_STRING;
+    }
+    return ZVAL_TYPE_CAST_NUMBER(zvalop1, zvalop2, value_op1, value_op2);
+}
+
+int __attribute((fastcall)) ZVAL_TYPE_CAST_NUMBER(zval *zvalop1, zval *zvalop2, type_cast *value_op1, type_cast *value_op2) {
     int i, targetType = 0;
     zval * list[2];
     list[0] = zvalop1;
@@ -462,7 +505,7 @@ int __attribute((fastcall)) ZVAL_TYPE_CAST(zval *zvalop1, zval *zvalop2, type_ca
     for (i = 0; i < 2; i++) {
         switch (list[i]->type) {
             case ZVAL_TYPE_STRING:
-                if (ZVAL_TYPE_GUESS(list[i]) == ZVAL_TYPE_INTEGER) {
+                if (ZVAL_TYPE_GUESS_NUMBER(list[i]) == ZVAL_TYPE_INTEGER) {
                     targetType |= 0;
                 } else {
                     targetType |= 1;
@@ -486,4 +529,44 @@ int __attribute((fastcall)) ZVAL_TYPE_CAST(zval *zvalop1, zval *zvalop2, type_ca
     value_op1->lval = ZVAL_INTEGER_VALUE(zvalop1);
     value_op2->lval = ZVAL_INTEGER_VALUE(zvalop2);
     return ZVAL_TYPE_INTEGER;
+}
+
+long __attribute((fastcall)) ZVAL_EQUAL(zval *zvalop1, zval *zvalop2) {
+    int op1len, op2len;
+    char *op1val, *op2val;
+    type_cast value_op1, value_op2;
+    if (ZVAL_TYPE_GUESS(zvalop1) == ZVAL_TYPE_STRING || ZVAL_TYPE_GUESS(zvalop2) == ZVAL_TYPE_STRING) {
+        ZVAL_STRING_VALUE(zvalop1, &op1len, &op1val);
+        ZVAL_STRING_VALUE(zvalop2, &op2len, &op2val);
+        if (op1len != op2len) {
+            return 0;
+        }
+        return (strncmp(op1val, op2val, op1len) == 0);
+    }
+    switch (ZVAL_TYPE_CAST_NUMBER(zvalop1, zvalop2, &value_op1, &value_op2)) {
+        case ZVAL_TYPE_DOUBLE:
+            return (value_op1.dval == value_op2.dval);
+        default:
+            return (value_op1.lval == value_op2.lval);
+    }
+}
+
+long __attribute((fastcall)) ZVAL_EQUAL_EXACT(zval *zvalop1, zval *zvalop2) {
+    if (zvalop1->type != zvalop2->type) {
+        return 0;
+    }
+    switch (zvalop1->type) {
+        case ZVAL_TYPE_STRING:
+            if (zvalop1->value.str.len != zvalop2->value.str.len) {
+                return 0;
+            }
+            return (strncmp(zvalop1->value.str.val, zvalop2->value.str.val, zvalop1->value.str.len) == 0);
+        case ZVAL_TYPE_BOOLEAN:
+        case ZVAL_TYPE_INTEGER:
+            return (zvalop1->value.lval==zvalop2->value.lval);
+        case ZVAL_TYPE_DOUBLE:
+            return (zvalop1->value.dval==zvalop2->value.dval);
+        default:
+            return 0;
+    }
 }
