@@ -20,5 +20,5 @@ class AssignConcat extends OpLine {
         }
         $op1Zval->savePtrRegister($op1ZvalPtr);
     }
-    
+
 }

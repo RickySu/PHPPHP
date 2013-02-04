@@ -213,7 +213,7 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_ZVAL(zvallist *list, zval *zva
         default:
             break;
     }
-    if (zval1->value.str.val) {
+    if (zval1->value.str.len) {
         free(zval1->value.str.val);
     }
     zval1->value.str.val = newval;
