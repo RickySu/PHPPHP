@@ -43,14 +43,14 @@ trait VarAssign {
     protected function writeAssignInteger(LLVMZval $varZval, $value) {
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Assign Integer $value");
-        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_INTEGER, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister(), $value);
+        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_INTEGER, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister(), ($value==''?0:$value));
         $varZval->savePtrRegister($returnZValRegister);
         return $returnZValRegister;
     }
     protected function writeAssignBoolean(LLVMZval $varZval, $value) {
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Assign Boolean $value");
-        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_BOOLEAN, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister(), $value);
+        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_BOOLEAN, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister(), ($value==''?0:$value));
         $varZval->savePtrRegister($returnZValRegister);
         return $returnZValRegister;
     }
@@ -60,7 +60,7 @@ trait VarAssign {
         if (is_double($value) && ($value == floor($value))) {
             $value.='.0';
         }
-        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_DOUBLE, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister(), $value);
+        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_DOUBLE, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister(), ($value==''?0:$value));
         $varZval->savePtrRegister($returnZValRegister);
         return $returnZValRegister;
     }

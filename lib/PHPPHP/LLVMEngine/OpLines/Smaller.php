@@ -28,7 +28,7 @@ class Smaller extends OpLine {
         if ($op1Zval instanceof LLVMZval && $op2Zval instanceof LLVMZval) {
             $this->TypeCastNumber($op1Zval, $op2Zval, $writeIntegerSmaller, $writeDoubleSmaller);
         } else {
-            $this->writeImmediateValueAssign($resultZval, (int)($op1Zval < $op2Zval));
+            $this->writeImmediateValueAssign($resultZval, $op1Zval < $op2Zval);
         }
         $this->gcTempZval();
     }
@@ -45,7 +45,7 @@ class Smaller extends OpLine {
     protected function writeDoubleSmaller(LLVMZval $resultZval, $typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
         $resultZvalRegister = $this->function->getRegisterSerial();
         $resultZvalBitcastRegister = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$resultZvalRegister = fcmp slt " . BaseType::double() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
+        $this->function->writeOpLineIR("$resultZvalRegister = fcmp olt " . BaseType::double() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $this->function->writeOpLineIR("$resultZvalBitcastRegister = zext i1 $resultZvalRegister to ".BaseType::long());
         $this->writeAssignBoolean($resultZval, $resultZvalBitcastRegister);
         return $resultZvalRegister;

@@ -28,7 +28,7 @@ class SmallerOrEqual extends OpLine {
         if ($op1Zval instanceof LLVMZval && $op2Zval instanceof LLVMZval) {
             $this->TypeCastNumber($op1Zval, $op2Zval, $writeIntegerSmallerOrEqual, $writeDoubleSmallerOrEqual);
         } else {
-            $this->writeImmediateValueAssign($resultZval, (int)($op1Zval <= $op2Zval));
+            $this->writeImmediateValueAssign($resultZval, $op1Zval <= $op2Zval);
         }
         $this->gcTempZval();
     }
