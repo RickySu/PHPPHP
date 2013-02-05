@@ -28,6 +28,7 @@ class UnaryMinus extends OpLine {
         } else {
             $this->writeImmediateValueAssign($resultZval, -$op1Zval);
         }
+        $this->gcTempZval();
     }
 
     protected function writeIntegerSub(LLVMZval $resultZval, $typeCastOp1ValueRegister) {

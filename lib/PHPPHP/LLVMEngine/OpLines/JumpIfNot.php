@@ -16,7 +16,6 @@ class JumpIfNot extends OpLine {
 
         if ($op1Zval instanceof LLVMZval) {
             $this->testNULL($op1Zval);
-
             $this->writeIfNot($op1Zval);
 
         } else {
@@ -34,6 +33,7 @@ class JumpIfNot extends OpLine {
         $isZeroEndifLabel=substr($this->function->getRegisterSerial(),1)."_Endif";
         $this->function->writeOpLineIR("br i1 $isZero, label  %$isZeroLabel, label %$isZeroEndifLabel");
         $this->function->writeOpLineIR("$isZeroLabel:");
+        $this->gcTempZval();
         $this->function->writeJumpLabelIR($this->opCode->op2);
         $this->function->writeOpLineIR("br label %$isZeroEndifLabel");
         $this->function->writeOpLineIR("$isZeroEndifLabel:");
@@ -47,6 +47,7 @@ class JumpIfNot extends OpLine {
         $isNULLEndifLabel=substr($this->function->getRegisterSerial(),1)."_Endif";
         $this->function->writeOpLineIR("br i1 $isNULL, label  %$isNULLLabel, label %$isNULLEndifLabel");
         $this->function->writeOpLineIR("$isNULLLabel:");
+        $this->gcTempZval();
         $this->function->writeJumpLabelIR($this->opCode->op2);
         $this->function->writeOpLineIR("br label %$isNULLEndifLabel");
         $this->function->writeOpLineIR("$isNULLEndifLabel:");

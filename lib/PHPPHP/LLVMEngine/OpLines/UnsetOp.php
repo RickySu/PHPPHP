@@ -11,7 +11,7 @@ class UnsetOp extends OpLine {
     use Parts\TypeCast,
         Parts\PrepareOpZval;
 
-    protected $tmpZval = array();
+    
 
     public function write() {
         parent::write();
@@ -23,6 +23,7 @@ class UnsetOp extends OpLine {
         }
         $op1Zval=$this->function->getZvalIR($op1Var->getName(),false);
         $this->gcVarZval($op1Zval);
+        $this->gcTempZval();
     }
 
 }

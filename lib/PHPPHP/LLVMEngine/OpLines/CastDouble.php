@@ -22,12 +22,14 @@ class CastDouble extends OpLine {
         if($op1Var instanceof Zval\Value){
             $resultZval = $this->function->getZvalIR($resultVarName, true, true);
             $this->writeImmediateValueAssign($resultZval, (double)$op1Var->getValue());
+            $this->gcTempZval();
             return;
         }
 
         $resultZval = $this->function->getZvalIR($resultVarName, false, true);
         $op1Zval = $this->function->getZvalIR($op1Var->getName());
         $this->convertDouble($resultZval,$op1Zval);
+        $this->gcTempZval();
     }
 
 }

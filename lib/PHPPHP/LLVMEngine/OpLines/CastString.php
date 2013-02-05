@@ -26,6 +26,7 @@ class CastString extends OpLine {
         $resultZval = $this->function->getZvalIR($resultVarName, false, true);
         $op1Zval = $this->function->getZvalIR($op1Var->getName());
         $this->convertString($resultZval,$op1Zval);
+        $this->gcTempZval();
     }
 
 }

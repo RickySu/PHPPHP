@@ -22,12 +22,14 @@ class CastInt extends OpLine {
         if($op1Var instanceof Zval\Value){
             $resultZval = $this->function->getZvalIR($resultVarName, true, true);
             $this->writeImmediateValueAssign($resultZval, (int)$op1Var->getValue());
+            $this->gcTempZval();
             return;
         }
 
         $resultZval = $this->function->getZvalIR($resultVarName, false, true);
         $op1Zval = $this->function->getZvalIR($op1Var->getName());
         $this->convertInteger($resultZval,$op1Zval);
+        $this->gcTempZval();
     }
 
 }

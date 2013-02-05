@@ -22,6 +22,7 @@ class UnaryPlus extends OpLine {
         } else {
             $this->writeImmediateValueAssign($resultZval, $op1Zval);
         }
+        $this->gcTempZval();
     }
 
 }

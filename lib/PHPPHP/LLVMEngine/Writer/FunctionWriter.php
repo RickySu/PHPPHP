@@ -129,6 +129,8 @@ class FunctionWriter {
         //prepare var list
         $IR[] = Zval::ZVAL_GC_LIST . ' = ' . InternalModule::call(InternalModule::ZVAL_LIST_INIT);
         $this->moduleWriter->writeUsedFunction(InternalModule::ZVAL_LIST_INIT);
+        $IR[] = Zval::ZVAL_TEMP_GC_LIST . ' = ' . InternalModule::call(InternalModule::ZVAL_TEMP_LIST_INIT);
+        $this->moduleWriter->writeUsedFunction(InternalModule::ZVAL_TEMP_LIST_INIT);
         return $IR;
     }
 
@@ -141,6 +143,8 @@ class FunctionWriter {
         $IR[] = ";prepare var list gc";
         $IR[] = InternalModule::call(InternalModule::ZVAL_LIST_GC, Zval::ZVAL_GC_LIST);
         $this->moduleWriter->writeUsedFunction(InternalModule::ZVAL_LIST_GC);
+        $IR[] = InternalModule::call(InternalModule::ZVAL_TEMP_LIST_GC, Zval::ZVAL_TEMP_GC_LIST);
+        $this->moduleWriter->writeUsedFunction(InternalModule::ZVAL_TEMP_LIST_GC);
 
         //return
         $returnRegister = $this->getRegisterSerial();

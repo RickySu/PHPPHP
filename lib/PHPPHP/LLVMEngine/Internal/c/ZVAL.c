@@ -4,6 +4,7 @@
 #include "h/ZVAL.h"
 #include "h/ZVAL_LIST.h"
 #include "h/dtoa.h"
+int zvalcount=0;
 
 void __attribute((fastcall)) freeConvertionCacheBuffer(zval *zval) {
     if (zval->_convertion_cache_type == ZVAL_TYPE_STRING) {
@@ -11,18 +12,28 @@ void __attribute((fastcall)) freeConvertionCacheBuffer(zval *zval) {
     }
 }
 
+zval * __attribute((fastcall)) ZVAL_TEMP_INIT(zvallist *list) {
+    ZVAL_TEMP_LIST_GC_MIN(list);
+    return ZVAL_INIT(list);
+}
+
 zval * __attribute((fastcall)) ZVAL_INIT(zvallist *list) {
     zval * aZval;
     aZval = malloc(sizeof (zval));
     memset(aZval, 0, sizeof (zval));
-    ZVAL_GC_REGISTER(list, aZval);
+    zvalcount++;
+    printf("%d,new zval:%p %p\n",zvalcount,aZval,list);
+    getchar();
+    if (list) {
+        ZVAL_GC_REGISTER(list, aZval);
+    }
     aZval->refcount = 1;
     return aZval;
 }
 
 void __attribute((fastcall)) ZVAL_GC_REGISTER(zvallist *list, zval *zval) {
     if (list->count == list->len) {
-        list->next=ZVAL_LIST_INIT();
+        list->next = ZVAL_LIST_INIT();
         ZVAL_GC_REGISTER(list->next, zval);
         return;
     }
@@ -37,18 +48,24 @@ void __attribute((fastcall)) ZVAL_GC(zvallist *list, zval *zval) {
         }
         return;
     }
-
+    zvalcount--;
+    printf("%d gc zval:%p\n",zvalcount,zval);
+    getchar();
     if (list) {
         do {
-            for (i = 0; i < list->count; i++) {
+            i=0;
+            while(i < list->count) {
                 if (list->zval[i] == zval) {
                     list->zval[i] = list->zval[list->count - 1];
                     list->count--;
+                    break;
                 }
+                i++;
             }
             list = list->next;
         } while (list);
     }
+
     switch (zval->type) {
         case ZVAL_TYPE_STRING:
             if (zval->value.str.len) {
@@ -96,6 +113,9 @@ zval * __attribute((fastcall)) ZVAL_COPY_ON_WRITE(zvallist *list, zval *oldzval)
 }
 
 zval * __attribute((fastcall)) ZVAL_ASSIGN_INTEGER(zvallist *list, zval *zval, long val) {
+    if (!zval) {
+        zval = ZVAL_INIT(list);
+    }
     if (!zval->is_ref) {
         if (zval->refcount > 1) {
             ZVAL_GC(list, zval);
@@ -116,6 +136,9 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_BOOLEAN(zvallist *list, zval *varZval
 }
 
 zval * __attribute((fastcall)) ZVAL_ASSIGN_DOUBLE(zvallist *list, zval *zval, double val) {
+    if (!zval) {
+        zval = ZVAL_INIT(list);
+    }
     if (!zval->is_ref) {
         if (zval->refcount > 1) {
             ZVAL_GC(list, zval);
@@ -130,6 +153,9 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_DOUBLE(zvallist *list, zval *zval, do
 }
 
 zval * __attribute((fastcall)) ZVAL_ASSIGN_STRING(zvallist *list, zval *zval, int len, char *val) {
+    if (!zval) {
+        zval = ZVAL_INIT(list);
+    }
     if (!zval->is_ref) {
         if (zval->refcount > 1) {
             ZVAL_GC(list, zval);
@@ -137,17 +163,13 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_STRING(zvallist *list, zval *zval, in
         }
         zval->refcount = 1;
     }
-    if(zval->type){
-
-    }
 
     if (zval->type == ZVAL_TYPE_STRING && zval->value.str.len) {
-
         free(zval->value.str.val);
     }
+
     zval->refcount = 1;
     zval->type = ZVAL_TYPE_STRING;
-
     zval->value.str.len = len;
     if (zval->value.str.len) {
         zval->value.str.val = malloc(len);
@@ -160,6 +182,9 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_STRING(zvallist *list, zval *zval, in
 zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_STRING(zvallist *list, zval *zval, int len, char *val) {
     int newlen;
     char *newval;
+    if (!zval) {
+        zval = ZVAL_INIT(list);
+    }
     if (!zval->is_ref && zval->refcount > 1)
         zval = ZVAL_COPY_ON_WRITE(list, zval);
     zval->refcount = 1;
@@ -185,7 +210,9 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_ZVAL(zvallist *list, zval *zva
     int tmpLen;
     int newlen;
     char *newval;
-
+    if (!zval1) {
+        zval1 = ZVAL_INIT(list);
+    }
     if (zval1->refcount > 1)
         zval1 = ZVAL_COPY_ON_WRITE(list, zval1);
     zval1->refcount = 1;
@@ -227,7 +254,7 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_ZVAL(zvallist *list, zval *zva
     if (zval1->value.str.len) {
         free(zval1->value.str.val);
     }
-    
+
     zval1->value.str.val = newval;
     zval1->value.str.len = newlen;
     return zval1;
@@ -235,6 +262,9 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_ZVAL(zvallist *list, zval *zva
 
 zval * __attribute((fastcall)) ZVAL_ASSIGN_REF(zvallist *list, zval *zval) {
     char *newval;
+    if (!zval) {
+        return NULL;
+    }
     if (!zval->is_ref && zval->refcount > 1) { //Copy on Write
         switch (zval->type) {
             case ZVAL_TYPE_BOOLEAN:
@@ -259,8 +289,8 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_REF(zvallist *list, zval *zval) {
 
 void __attribute((fastcall)) ZVAL_STRING_VALUE(zval *zval, int *len, char **str) {
     int buffersize;
-    if(zval==NULL){
-        *len=0;
+    if (zval == NULL) {
+        *len = 0;
         return;
     }
     if (len == NULL || str == NULL) {
@@ -327,7 +357,7 @@ void __attribute((fastcall)) ZVAL_CONVERT_STRING(zval *zval) {
 long __attribute((fastcall)) ZVAL_INTEGER_VALUE(zval *zval) {
     char *tmpBuffer;
     long returnVal;
-    if(zval==NULL){
+    if (zval == NULL) {
         return 0;
     }
     if (zval->_convertion_cache_type == ZVAL_TYPE_INTEGER) {
@@ -592,8 +622,7 @@ long __attribute((fastcall)) ZVAL_EQUAL_EXACT(zval *zvalop1, zval *zvalop2) {
     }
 }
 
-void __attribute((fastcall)) single_debug(int a)
-{
-    printf("single debug %d\n",a);
- //   getchar();
+void __attribute((fastcall)) single_debug(int a) {
+    printf("single debug %d\n", a);
+    //   getchar();
 }

@@ -28,6 +28,7 @@ class EmptyOp extends OpLine {
         } else {
             $this->writeImmediateValueAssign($resultZval, empty($op1Zval));
         }
+        $this->gcTempZval();
     }
 
     protected function writeIntegerEmptyOp(LLVMZval $resultZval, $typeCastOp1ValueRegister) {

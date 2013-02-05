@@ -19,6 +19,7 @@ class AssignConcat extends OpLine {
             $op1ZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_CONCAT_ZVAL, LLVMZval::ZVAL_GC_LIST, $op1Zval->getPtrRegister(), $op2Zval->getPtrRegister());
         }
         $op1Zval->savePtrRegister($op1ZvalPtr);
+        $this->gcTempZval();
     }
 
 }

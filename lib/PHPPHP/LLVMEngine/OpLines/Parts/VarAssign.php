@@ -49,7 +49,7 @@ trait VarAssign {
         $this->writeDebugInfo("Assign String $value");
         $returnZValRegister = $this->function->getRegisterSerial();
         $constant = $this->function->writeConstant($value);
-        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_STRING, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister(), strlen($value), $constant->ptr());
+        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_STRING,$varZval->getGCList(), $varZval->getPtrRegister(), strlen($value), $constant->ptr());
         $varZval->savePtrRegister($returnZValRegister);
         return $returnZValRegister;
     }
@@ -57,7 +57,7 @@ trait VarAssign {
     protected function writeAssignInteger(LLVMZval $varZval, $value) {
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Assign Integer $value");
-        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_INTEGER, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister(), ($value == '' ? 0 : $value));
+        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_INTEGER, $varZval->getGCList(), $varZval->getPtrRegister(), ($value == '' ? 0 : $value));
         $varZval->savePtrRegister($returnZValRegister);
         return $returnZValRegister;
     }
@@ -65,7 +65,7 @@ trait VarAssign {
     protected function writeAssignBoolean(LLVMZval $varZval, $value) {
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Assign Boolean $value");
-        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_BOOLEAN, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister(), ($value == '' ? 0 : $value));
+        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_BOOLEAN, $varZval->getGCList(), $varZval->getPtrRegister(), ($value == '' ? 0 : $value));
         $varZval->savePtrRegister($returnZValRegister);
         return $returnZValRegister;
     }
@@ -76,7 +76,7 @@ trait VarAssign {
         if (is_double($value) && ($value == floor($value))) {
             $value.='.0';
         }
-        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_DOUBLE, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister(), ($value == '' ? 0 : $value));
+        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_DOUBLE, $varZval->getGCList(), $varZval->getPtrRegister(), ($value == '' ? 0 : $value));
         $varZval->savePtrRegister($returnZValRegister);
         return $returnZValRegister;
     }
@@ -97,7 +97,7 @@ trait VarAssign {
         $this->function->writeOpLineIR(substr($LabelTrue, 1) . ':');
 
         //$op1Zval need GC
-        $this->function->InternalModuleCall(InternalModule::ZVAL_GC, LLVMZval::ZVAL_GC_LIST, $op1ZvalPtr);
+        $this->function->InternalModuleCall(InternalModule::ZVAL_GC, $op1Zval->getGCList(), $op1ZvalPtr);
         $this->function->writeOpLineIR("br label $LabelFalse");
 
         $this->function->writeOpLineIR(substr($LabelFalse, 1) . ':');
@@ -113,7 +113,7 @@ trait VarAssign {
 
         $this->function->writeOpLineIR(substr($LabelTrue, 1) . ':');
         //need copy on write
-        $op1ZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_COPY, LLVMZval::ZVAL_GC_LIST, $op2ZvalPtr);
+        $op1ZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_COPY, $op2Zval->getGCList(), $op2ZvalPtr);
         $op1Zval->savePtrRegister($op1ZvalPtr);
 
         $this->function->writeOpLineIR("br label $LabelEndif");

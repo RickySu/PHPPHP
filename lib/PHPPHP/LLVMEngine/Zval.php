@@ -8,10 +8,11 @@ class Zval {
 
     protected static $type;
     protected $varName;
-    protected $isTmp;
+    protected $isTemp;
     protected $IRWriter;
 
     const ZVAL_GC_LIST = '%zval_gc_list';
+    const ZVAL_TEMP_GC_LIST = '%zval_temp_gc_list';
     const ZVAL_TEMP_OP = 'zval_temp_op';
 
     /**
@@ -34,18 +35,32 @@ class Zval {
         return self::getType($ptr);
     }
 
-    public function __construct($varName, $initZval, $isTmp, $IRWriter) {
+    public function getGCList(){
+        if($this->isTemp){
+            return self::ZVAL_TEMP_GC_LIST;
+        }
+        return self::ZVAL_GC_LIST;
+    }
+    public function __construct($varName, $initZval, $isTemp, $IRWriter) {
         $this->varName = $varName;
-        $this->isTmp = $isTmp;
+        $this->isTemp = $isTemp;
         $this->IRWriter = $IRWriter;
         if ($initZval) {
-            $ptrRegister=$this->IRWriter->InternalModuleCall(InternalModule::ZVAL_INIT, self::ZVAL_GC_LIST);
+            if ($isTemp) {
+                $ptrRegister = $this->IRWriter->InternalModuleCall(InternalModule::ZVAL_TEMP_INIT,self::ZVAL_TEMP_GC_LIST);
+            }else{
+                $ptrRegister = $this->IRWriter->InternalModuleCall(InternalModule::ZVAL_INIT, self::ZVAL_GC_LIST);
+            }
             $this->savePtrRegister($ptrRegister);
         }
     }
 
+    public function isTemp(){
+        return $this->isTemp;
+    }
+
     public function getIRRegister() {
-        return "%PHPVar" . ($this->isTmp ? '_tmp' : '') . "_{$this->varName}";
+        return "%PHPVar" . ($this->isTemp ? '_temp' : '') . "_{$this->varName}";
     }
 
     public function __toString() {
@@ -57,7 +72,7 @@ class Zval {
     }
 
     public function getPtrRegister() {
-        $returnRegister=$this->IRWriter->getRegisterSerial();
+        $returnRegister = $this->IRWriter->getRegisterSerial();
         $this->IRWriter->writeOpLineIR("$returnRegister = load " . self::zval('**') . " {$this->getIRRegister()}, align " . self::zval('*')->size());
         return $returnRegister;
     }

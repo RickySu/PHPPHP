@@ -22,6 +22,7 @@ abstract class OpLine {
      */
     protected $opCode;
     protected $opIndex;
+    protected $tmpZval = array();
 
     public function __construct(opCode $opCode, $opIndex) {
         $this->opCode = $opCode;
@@ -67,12 +68,15 @@ abstract class OpLine {
     }
 
     protected function gcVarZval(LLVMZval $varZval, $emptyVarZval = true) {
-        $this->function->InternalModuleCall(InternalModule::ZVAL_GC, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister());
+        if ($varZval->isTemp()) {
+            $this->function->InternalModuleCall(InternalModule::ZVAL_GC, 'null', $varZval->getPtrRegister());
+        } else {
+            $this->function->InternalModuleCall(InternalModule::ZVAL_GC, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister());
+        }
         if ($emptyVarZval) {
             $varZval->savePtrRegister(BaseType::null());
         }
         $this->writeDebugInfo("gc tmp zval $varZval\n");
-        echo "gc tmp zval $varZval\n";
     }
 
     protected function getStringValue(LLVMZval $varZval) {
@@ -83,9 +87,10 @@ abstract class OpLine {
     }
 
     public function __toString() {
-        $IR='';
+        $IR = '';
         $IR.=$this->function->getJumpLabelIR($this->opIndex);
         $IR.=$this->function->getJumpLabel($this->opIndex);
         return $IR;
     }
+
 }

@@ -22,6 +22,7 @@ class Concat extends OpLine {
         } else {
             $this->writeImmediateValueAssign($resultZval, $op1Zval . $op2Zval);
         }
+        $this->gcTempZval();
     }
 
 }

@@ -28,6 +28,7 @@ class BitwiseNot extends OpLine {
         } else {
             $this->writeImmediateValueAssign($resultZval, -$op1Zval);
         }
+        $this->gcTempZval();
     }
 
     protected function writeIntegerBitwiseNot(LLVMZval $resultZval, $typeCastOp1ValueRegister) {

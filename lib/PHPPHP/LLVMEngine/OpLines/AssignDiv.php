@@ -15,7 +15,7 @@ class AssignDiv extends OpLine {
         Parts\PrepareOpZval,
         Parts\Convert;
 
-    protected $tmpZval = array();
+    
 
     public function write() {
         parent::write();

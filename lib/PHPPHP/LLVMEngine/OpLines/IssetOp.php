@@ -11,7 +11,7 @@ class IssetOp extends OpLine {
     use Parts\TypeCast,
         Parts\PrepareOpZval;
 
-    protected $tmpZval = array();
+    
 
     public function write() {
         parent::write();
@@ -24,6 +24,7 @@ class IssetOp extends OpLine {
         }
         $op1Zval=$this->function->getZvalIR($op1Var->getName(),false);
         $this->testNULL($resultZval, $op1Zval);
+        $this->gcTempZval();
     }
 
     protected function testNULL(LLVMZval $resultZval, LLVMZval $op1Zval) {

@@ -12,6 +12,11 @@ final class Module {
     const T_ECHO_ZVAL = 'PHPLLVM_T_ECHO_ZVAL';
     const ZVAL_LIST_INIT = 'ZVAL_LIST_INIT';
     const ZVAL_LIST_GC = 'ZVAL_LIST_GC';
+
+    const ZVAL_TEMP_LIST_INIT = 'ZVAL_TEMP_LIST_INIT';
+    const ZVAL_TEMP_LIST_GC = 'ZVAL_TEMP_LIST_GC';
+    const ZVAL_TEMP_INIT='ZVAL_TEMP_INIT';
+
     const ZVAL_INIT = 'ZVAL_INIT';
     const ZVAL_GC = 'ZVAL_GC';
     const ZVAL_GC_REGIST = 'ZVAL_GC_REGIST';
@@ -40,6 +45,9 @@ final class Module {
         return array(
             self::T_ECHO => array(Base::void(), array(Base::int(), Base::char('*'))),
             self::T_ECHO_ZVAL => array(Base::void(), array(Zval::zval('*'))),
+            self::ZVAL_TEMP_LIST_INIT => array(Base::void('*'), array()),
+            self::ZVAL_TEMP_LIST_GC => array(Base::void(), array(Base::void('*'))),
+            self::ZVAL_TEMP_INIT => array(Zval::zval('*'), array(Base::void('*'))),
             self::ZVAL_LIST_INIT => array(Base::void('*'), array()),
             self::ZVAL_LIST_GC => array(Base::void(), array(Base::void('*'))),
             self::ZVAL_INIT => array(Zval::zval('*'), array(Base::void('*'))),

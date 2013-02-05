@@ -11,10 +11,11 @@ class Smaller extends OpLine {
     use Parts\TypeCast,
         Parts\PrepareOpZval;
 
-    protected $tmpZval = array();
+
 
     public function write() {
         parent::write();
+
         $resultZval = $this->prepareResultZval();
         $writeIntegerSmaller = function($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) use($resultZval) {
                     $this->writeIntegerSmaller($resultZval, $typeCastOp1ValueRegister, $typeCastOp2ValueRegister);

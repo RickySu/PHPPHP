@@ -13,16 +13,19 @@ trait PrepareOpZval {
         $isAllValueOpZval = true;
         $opZvals = array();
         $opVars = func_get_args();
+
         foreach ($opVars as $index => $opVar) {
             $opVar = $opVars[$index] = $opVars[$index]->getImmediateZval();
             $isAllValueOpZval = $isAllValueOpZval && ($opVar instanceof Zval\Value) && (!isset($opVar->TempVarName));
         }
+
         if ($isAllValueOpZval) {
             foreach ($opVars as $opVar) {
                 $opZvals[] = $opVar->getValue();
             }
             return $opZvals;
         }
+
         foreach ($opVars as $opVar) {
             if ($opVar instanceof Zval\Value) {
                 if (isset($opVar->TempVarName)) {
@@ -39,9 +42,6 @@ trait PrepareOpZval {
     }
 
     protected function gcTempZval() {
-        foreach ($this->tmpZval as $Zval) {
-            $this->gcVarZval($Zval);
-        }
     }
 
     /**
@@ -50,7 +50,6 @@ trait PrepareOpZval {
      */
     protected function makeTempZval($value) {
         $op1Zval = $this->function->getZvalIR(LLVMZval::ZVAL_TEMP_OP, true, true);
-        $this->tmpZval[] = $op1Zval;
         $this->writeImmediateValueAssign($op1Zval, $value);
         return $op1Zval;
     }

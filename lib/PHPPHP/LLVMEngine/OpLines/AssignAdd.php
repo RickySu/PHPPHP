@@ -11,7 +11,7 @@ class AssignAdd extends OpLine {
     use Parts\TypeCast,
         Parts\PrepareOpZval;
 
-    protected $tmpZval = array();
+    
 
     public function write() {
         parent::write();
