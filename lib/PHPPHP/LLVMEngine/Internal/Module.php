@@ -15,17 +15,17 @@ final class Module {
 
     const ZVAL_TEMP_LIST_INIT = 'ZVAL_TEMP_LIST_INIT';
     const ZVAL_TEMP_LIST_GC = 'ZVAL_TEMP_LIST_GC';
-    const ZVAL_TEMP_INIT='ZVAL_TEMP_INIT';
 
     const ZVAL_INIT = 'ZVAL_INIT';
     const ZVAL_GC = 'ZVAL_GC';
-    const ZVAL_GC_REGIST = 'ZVAL_GC_REGIST';
+    const ZVAL_GC_REGISTER = 'ZVAL_GC_REGISTER';
     const ZVAL_COPY_ON_WRITE = 'ZVAL_COPY_ON_WRITE';
     const ZVAL_COPY = 'ZVAL_COPY';
     const ZVAL_ASSIGN_BOOLEAN = 'ZVAL_ASSIGN_BOOLEAN';
     const ZVAL_ASSIGN_INTEGER = 'ZVAL_ASSIGN_INTEGER';
     const ZVAL_ASSIGN_DOUBLE = 'ZVAL_ASSIGN_DOUBLE';
     const ZVAL_ASSIGN_STRING = 'ZVAL_ASSIGN_STRING';
+    const ZVAL_ASSIGN_ZVAL = 'ZVAL_ASSIGN_ZVAL';
     const ZVAL_ASSIGN_CONCAT_STRING = 'ZVAL_ASSIGN_CONCAT_STRING';
     const ZVAL_ASSIGN_CONCAT_ZVAL = 'ZVAL_ASSIGN_CONCAT_ZVAL';
     const ZVAL_ASSIGN_REF = 'ZVAL_ASSIGN_REF';
@@ -47,18 +47,18 @@ final class Module {
             self::T_ECHO_ZVAL => array(Base::void(), array(Zval::zval('*'))),
             self::ZVAL_TEMP_LIST_INIT => array(Base::void('*'), array()),
             self::ZVAL_TEMP_LIST_GC => array(Base::void(), array(Base::void('*'))),
-            self::ZVAL_TEMP_INIT => array(Zval::zval('*'), array(Base::void('*'))),
             self::ZVAL_LIST_INIT => array(Base::void('*'), array()),
             self::ZVAL_LIST_GC => array(Base::void(), array(Base::void('*'))),
             self::ZVAL_INIT => array(Zval::zval('*'), array(Base::void('*'))),
             self::ZVAL_GC => array(Base::void(), array(Base::void('*'), Zval::zval('*'))),
-            self::ZVAL_GC_REGIST => array(Base::void(), array(Base::void('*'), Zval::zval('*'))),
+            self::ZVAL_GC_REGISTER => array(Base::void(), array(Base::void('*'), Zval::zval('*'))),
             self::ZVAL_COPY_ON_WRITE => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'))),
             self::ZVAL_COPY => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'))),
             self::ZVAL_ASSIGN_INTEGER => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::long())),
             self::ZVAL_ASSIGN_BOOLEAN => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::long())),
             self::ZVAL_ASSIGN_DOUBLE => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::double())),
             self::ZVAL_ASSIGN_STRING => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::int(), Base::char('*'))),
+            self::ZVAL_ASSIGN_ZVAL => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::void('*'), Zval::zval('*'))),
             self::ZVAL_ASSIGN_CONCAT_STRING => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::int(), Base::char('*'))),
             self::ZVAL_ASSIGN_CONCAT_ZVAL => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Zval::zval('*'))),
             self::ZVAL_ASSIGN_REF => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'))),

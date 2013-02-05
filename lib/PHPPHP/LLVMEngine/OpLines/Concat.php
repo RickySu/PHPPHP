@@ -17,7 +17,7 @@ class Concat extends OpLine {
         if ($op1Zval instanceof LLVMZval && $op2Zval instanceof LLVMZval) {
 
             $this->writeVarAssign($resultZval, $op1Zval);
-            $resultZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_CONCAT_ZVAL, LLVMZval::ZVAL_GC_LIST, $resultZval->getPtrRegister(), $op2Zval->getPtrRegister());
+            $resultZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_CONCAT_ZVAL, $resultZval->getGCList(), $resultZval->getPtrRegister(), $op2Zval->getPtrRegister());
             $resultZval->savePtrRegister($resultZvalPtr);
         } else {
             $this->writeImmediateValueAssign($resultZval, $op1Zval . $op2Zval);

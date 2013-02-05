@@ -4,26 +4,26 @@
 #include "h/ZVAL.h"
 #include "h/ZVAL_LIST.h"
 #include "h/dtoa.h"
-int zvalcount=0;
 
 void __attribute((fastcall)) freeConvertionCacheBuffer(zval *zval) {
     if (zval->_convertion_cache_type == ZVAL_TYPE_STRING) {
         free(zval->_convertion_cache.str.val);
+        zval->_convertion_cache.str.len = 0;
     }
-}
-
-zval * __attribute((fastcall)) ZVAL_TEMP_INIT(zvallist *list) {
-    ZVAL_TEMP_LIST_GC_MIN(list);
-    return ZVAL_INIT(list);
+    zval->_convertion_cache_type = ZVAL_TYPE_NULL;
 }
 
 zval * __attribute((fastcall)) ZVAL_INIT(zvallist *list) {
     zval * aZval;
+    if (list->isTemp) {
+        //printf("isTemp INIT\n");
+        ZVAL_TEMP_LIST_GC_MIN(list);
+    }
     aZval = malloc(sizeof (zval));
     memset(aZval, 0, sizeof (zval));
-    zvalcount++;
-    printf("%d,new zval:%p %p\n",zvalcount,aZval,list);
-    getchar();
+    //zvalcount++;
+    //printf("%d,new zval:%p %p\n", zvalcount, aZval, list);
+    //getchar();
     if (list) {
         ZVAL_GC_REGISTER(list, aZval);
     }
@@ -32,51 +32,71 @@ zval * __attribute((fastcall)) ZVAL_INIT(zvallist *list) {
 }
 
 void __attribute((fastcall)) ZVAL_GC_REGISTER(zvallist *list, zval *zval) {
-    if (list->count == list->len) {
-        list->next = ZVAL_LIST_INIT();
-        ZVAL_GC_REGISTER(list->next, zval);
-        return;
+    if (!list->isTemp) {
+        if (list->count == list->len) {
+            list->next = ZVAL_LIST_INIT();
+            ZVAL_GC_REGISTER(list->next, zval);
+            return;
+        }
     }
     list->zval[list->count++] = zval;
 }
 
-void __attribute((fastcall)) ZVAL_GC(zvallist *list, zval *zval) {
+void __attribute((fastcall)) ZVAL_TEMP_GC(zvallist *list, zval *varZval) {
+    int i, j;
+    //printf("gc temp %p\n", varZval);
+    for (i = 0; i < list->count; i++) {
+        if (list->zval[i] == varZval) {
+            for (j = i; j < list->count - 1; j++) {
+                list->zval[j] = list->zval[j + 1];
+            }
+            list->count--;
+            break;
+        }
+    }
+}
+
+void __attribute((fastcall)) ZVAL_GC(zvallist *list, zval *varZval) {
     int i;
-    if (--zval->refcount) {
-        if (zval->refcount == 1) {
-            zval->is_ref = 0;
+    if (--varZval->refcount) {
+        if (varZval->refcount == 1) {
+            varZval->is_ref = 0;
         }
         return;
     }
-    zvalcount--;
-    printf("%d gc zval:%p\n",zvalcount,zval);
-    getchar();
+    //zvalcount--;
+    //printf("%d gc zval:%p\n", zvalcount, varZval);
+    //getchar();
     if (list) {
-        do {
-            i=0;
-            while(i < list->count) {
-                if (list->zval[i] == zval) {
-                    list->zval[i] = list->zval[list->count - 1];
-                    list->count--;
-                    break;
+        if (list->isTemp) {
+            ZVAL_TEMP_GC(list, varZval);
+        } else {
+            do {
+                i = 0;
+                while (i < list->count) {
+                    if (list->zval[i] == varZval) {
+                        list->zval[i] = list->zval[list->count - 1];
+                        list->count--;
+                        break;
+                    }
+                    i++;
                 }
-                i++;
-            }
-            list = list->next;
-        } while (list);
+                list = list->next;
+            } while (list);
+        }
     }
 
-    switch (zval->type) {
+    switch (varZval->type) {
         case ZVAL_TYPE_STRING:
-            if (zval->value.str.len) {
-                free(zval->value.str.val);
+            if (varZval->value.str.len) {
+                free(varZval->value.str.val);
             }
             break;
         default:
             break;
     }
-    freeConvertionCacheBuffer(zval);
-    free(zval);
+    freeConvertionCacheBuffer(varZval);
+    free(varZval);
 }
 
 zval * __attribute((fastcall)) ZVAL_COPY(zvallist *list, zval *oldzval) {
@@ -116,6 +136,7 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_INTEGER(zvallist *list, zval *zval, l
     if (!zval) {
         zval = ZVAL_INIT(list);
     }
+    freeConvertionCacheBuffer(zval);
     if (!zval->is_ref) {
         if (zval->refcount > 1) {
             ZVAL_GC(list, zval);
@@ -130,6 +151,7 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_INTEGER(zvallist *list, zval *zval, l
 
 zval * __attribute((fastcall)) ZVAL_ASSIGN_BOOLEAN(zvallist *list, zval *varZval, long val) {
     zval *output;
+    freeConvertionCacheBuffer(varZval);
     output = ZVAL_ASSIGN_INTEGER(list, varZval, (val == 0 ? 0 : 1));
     output->type = ZVAL_TYPE_BOOLEAN;
     return output;
@@ -139,6 +161,7 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_DOUBLE(zvallist *list, zval *zval, do
     if (!zval) {
         zval = ZVAL_INIT(list);
     }
+    freeConvertionCacheBuffer(zval);
     if (!zval->is_ref) {
         if (zval->refcount > 1) {
             ZVAL_GC(list, zval);
@@ -156,6 +179,7 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_STRING(zvallist *list, zval *zval, in
     if (!zval) {
         zval = ZVAL_INIT(list);
     }
+    freeConvertionCacheBuffer(zval);
     if (!zval->is_ref) {
         if (zval->refcount > 1) {
             ZVAL_GC(list, zval);
@@ -177,6 +201,27 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_STRING(zvallist *list, zval *zval, in
     }
 
     return zval;
+}
+
+zval * __attribute((fastcall)) ZVAL_ASSIGN_ZVAL(zvallist *list1, zval *zval1, zvallist *list2, zval *zval2) {
+    //printf("zval2:%ld\n",zval2->value.lval);
+    //getchar();
+    if (zval1) {
+        ZVAL_GC(list1, zval1);
+    }
+
+    if (list1->isTemp ^ list2->isTemp) {
+        return ZVAL_COPY(list1, zval2);
+    }
+
+    if (zval2->is_ref) {
+        //need copy on write
+        return ZVAL_COPY(list1, zval2);
+    }
+
+    //inc ref_count
+    zval2->refcount++;
+    return zval2;
 }
 
 zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_STRING(zvallist *list, zval *zval, int len, char *val) {
@@ -623,6 +668,6 @@ long __attribute((fastcall)) ZVAL_EQUAL_EXACT(zval *zvalop1, zval *zvalop2) {
 }
 
 void __attribute((fastcall)) single_debug(int a) {
-    printf("single debug %d\n", a);
+    //printf("single debug %d\n", a);
     //   getchar();
 }

@@ -4,7 +4,7 @@
 
 void __attribute((fastcall)) PHPLLVM_T_ECHO(int length, char *string) {
     printf("%.*s", length, string);
-    getchar();
+    //getchar();
 }
 
 void __attribute((fastcall)) PHPLLVM_T_ECHO_ZVAL(zval *zval) {
@@ -29,5 +29,4 @@ void __attribute((fastcall)) PHPLLVM_T_ECHO_ZVAL(zval *zval) {
         default:
             break;
     }
-    getchar();
 }

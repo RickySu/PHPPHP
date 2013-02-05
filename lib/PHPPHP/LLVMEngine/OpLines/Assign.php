@@ -12,7 +12,6 @@ class Assign extends OpLine {
 
     public function write() {
         parent::write();
-        
         $op1Var = $this->opCode->op1->getImmediateZval();
         if ($op1Var instanceof Zval\Value) {
             if (!isset($op1Var->TempVarName)) {

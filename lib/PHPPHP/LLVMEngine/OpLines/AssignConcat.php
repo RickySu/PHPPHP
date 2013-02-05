@@ -14,9 +14,9 @@ class AssignConcat extends OpLine {
         parent::write();
         list($op1Zval, $op2Zval) = $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
         if (!($op2Zval instanceof LLVMZval)) {
-            $op1ZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_CONCAT_STRING, LLVMZval::ZVAL_GC_LIST, $op1Zval->getPtrRegister(), $op2Zval);
+            $op1ZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_CONCAT_STRING, $op1Zval->getGCList(), $op1Zval->getPtrRegister(), $op2Zval);
         } else {
-            $op1ZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_CONCAT_ZVAL, LLVMZval::ZVAL_GC_LIST, $op1Zval->getPtrRegister(), $op2Zval->getPtrRegister());
+            $op1ZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_CONCAT_ZVAL, $op1Zval->getGCList(), $op1Zval->getPtrRegister(), $op2Zval->getPtrRegister());
         }
         $op1Zval->savePtrRegister($op1ZvalPtr);
         $this->gcTempZval();

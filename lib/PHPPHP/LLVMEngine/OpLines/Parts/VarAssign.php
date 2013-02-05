@@ -46,10 +46,10 @@ trait VarAssign {
 
     protected function writeAssignString(LLVMZval $varZval, $value) {
         $this->writeDebugInfo("Init Zval");
-        $this->writeDebugInfo("Assign String $value");
+        $this->writeDebugInfo("Assign String ".  str_replace(array("\r","\n"), array('\\r','\\n'), $value));
         $returnZValRegister = $this->function->getRegisterSerial();
         $constant = $this->function->writeConstant($value);
-        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_STRING,$varZval->getGCList(), $varZval->getPtrRegister(), strlen($value), $constant->ptr());
+        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_STRING, $varZval->getGCList(), $varZval->getPtrRegister(), strlen($value), $constant->ptr());
         $varZval->savePtrRegister($returnZValRegister);
         return $returnZValRegister;
     }
@@ -83,54 +83,9 @@ trait VarAssign {
 
     protected function writeVarAssign(LLVMZval $op1Zval, LLVMZval $op2Zval) {
         $this->writeDebugInfo("$op1Zval <= (var) $op2Zval");
-        $op1ZvalPtr = $op1Zval->getPtrRegister();
-        $op2ZvalPtr = $op2Zval->getPtrRegister();
-        $cmpResult = $this->function->getRegisterSerial();
-        $LabelTrue = "{$this->function->getRegisterSerial()}_label_true";
-        $LabelFalse = "{$this->function->getRegisterSerial()}_label_false";
-
-        //check $op1Zval is initialized?
-
-        $this->function->writeOpLineIR("$cmpResult = icmp ne " . LLVMZval::zval('*') . " $op1ZvalPtr, null");
-        $this->function->writeOpLineIR("br i1 $cmpResult, label $LabelTrue, label $LabelFalse");
-
-        $this->function->writeOpLineIR(substr($LabelTrue, 1) . ':');
-
-        //$op1Zval need GC
-        $this->function->InternalModuleCall(InternalModule::ZVAL_GC, $op1Zval->getGCList(), $op1ZvalPtr);
-        $this->function->writeOpLineIR("br label $LabelFalse");
-
-        $this->function->writeOpLineIR(substr($LabelFalse, 1) . ':');
-
-        list($isRefRegister, $isRefRegisterPtr) = $this->writeGetIsRefIR($op2ZvalPtr);
-
-        $cmpResult = $this->function->getRegisterSerial();
-        $LabelTrue = "{$this->function->getRegisterSerial()}_label_true";
-        $LabelElse = "{$this->function->getRegisterSerial()}_label_else";
-        $LabelEndif = "{$this->function->getRegisterSerial()}_label_endif";
-        $this->function->writeOpLineIR("$cmpResult = icmp eq " . LLVMZval::zval()->getStructIR()->getElement('is_ref') . " $isRefRegister, 1");
-        $this->function->writeOpLineIR("br i1 $cmpResult, label $LabelTrue, label $LabelElse");
-
-        $this->function->writeOpLineIR(substr($LabelTrue, 1) . ':');
-        //need copy on write
-        $op1ZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_COPY, $op2Zval->getGCList(), $op2ZvalPtr);
+        $op1ZvalPtr=$this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_ZVAL, $op1Zval->getGCList(), $op1Zval->getPtrRegister(), $op2Zval->getGCList(), $op2Zval->getPtrRegister());
         $op1Zval->savePtrRegister($op1ZvalPtr);
-
-        $this->function->writeOpLineIR("br label $LabelEndif");
-
-        $this->function->writeOpLineIR(substr($LabelElse, 1) . ':');
-        //not is_ref
-        list($refCountRegister, $refCountRegisterPtr) = $this->writeGetRefCountIR($op2ZvalPtr);
-
-        $refCountType = LLVMZval::zval()->getStructIR()->getElement('refcount');
-        $refCountRegisterAdded = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$refCountRegisterAdded = add $refCountType $refCountRegister, 1");
-        $this->function->writeOpLineIR("store $refCountType $refCountRegisterAdded, $refCountType* $refCountRegisterPtr, align " . $refCountType->size());
-        $op1Zval->savePtrRegister($op2ZvalPtr);
-        $this->function->writeOpLineIR("br label $LabelEndif");
-
-        $this->function->writeOpLineIR(substr($LabelEndif, 1) . ':');
-        return $op2ZvalPtr;
+        return $op1ZvalPtr;
     }
 
 }

@@ -23,7 +23,6 @@ class PostInc extends OpLine {
         $writeDoublePostInc = function($typeCastOp1ValueRegister)use($resultZval, $op1Zval) {
                     $this->writeDoublePostInc($resultZval, $op1Zval, $typeCastOp1ValueRegister);
                 };
-
         if ($op1Zval instanceof LLVMZval) {
             $this->TypeCastNumberSingle($op1Zval, $writeIntegerPostInc, $writeDoublePostInc);
         } else {
@@ -41,10 +40,12 @@ class PostInc extends OpLine {
     }
 
     protected function writeDoublePostInc(LLVMZval $resultZval, LLVMZval $op1Zval, $typeCastOp1ValueRegister) {
-        $this->writeVarAssign($resultZval, $op1Zval);
+        $resultZvalPtr=$this->writeVarAssign($resultZval, $op1Zval);
+        $resultZval->savePtrRegister($resultZvalPtr);
         $resultZvalRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultZvalRegister = fadd " . BaseType::double() . " $typeCastOp1ValueRegister, 1.0");
-        $this->writeAssignDouble($op1Zval, $resultZvalRegister);
+        $op1ZvalPtr=$this->writeAssignDouble($op1Zval, $resultZvalRegister);
+        $op1Zval->savePtrRegister($op1ZvalPtr);
         return $resultZvalRegister;
     }
 

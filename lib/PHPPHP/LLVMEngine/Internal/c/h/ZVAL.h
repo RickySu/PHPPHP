@@ -5,7 +5,6 @@
 void __attribute((fastcall)) freeConvertionCacheBuffer(zval *zval);
 int __attribute((fastcall)) is_number(int len,char *val);
 
-zval * __attribute((fastcall)) ZVAL_TEMP_INIT(zvallist *list);
 zval * __attribute((fastcall)) ZVAL_INIT(zvallist *list);
 void __attribute((fastcall)) ZVAL_GC_REGISTER(zvallist *list, zval *zval);
 void __attribute((fastcall)) ZVAL_GC(zvallist *list, zval *zval);
@@ -15,6 +14,7 @@ zval * __attribute((fastcall)) ZVAL_COPY_ON_WRITE(zvallist *list, zval *zval);
 zval * __attribute((fastcall)) ZVAL_ASSIGN_BOOLEAN(zvallist *list, zval *zval, long val);
 zval * __attribute((fastcall)) ZVAL_ASSIGN_INTEGER(zvallist *list, zval *zval, long val);
 zval * __attribute((fastcall)) ZVAL_ASSIGN_DOUBLE(zvallist *list, zval *zval, double val);
+zval * __attribute((fastcall)) ZVAL_ASSIGN_Zval(zvallist *list1, zval *zval1,zvallist *list2, zval *zval2);
 zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_STRING(zvallist *list, zval *zval, int len, char *val);
 zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_ZVAL(zvallist *list, zval *zval1, zval *zval2);
 zval * __attribute((fastcall)) ZVAL_ASSIGN_REF(zvallist *list, zval *zval);

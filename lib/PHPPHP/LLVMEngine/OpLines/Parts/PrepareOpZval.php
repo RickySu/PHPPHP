@@ -49,7 +49,7 @@ trait PrepareOpZval {
      * @return LLVMZval
      */
     protected function makeTempZval($value) {
-        $op1Zval = $this->function->getZvalIR(LLVMZval::ZVAL_TEMP_OP, true, true);
+        $op1Zval = $this->function->getZvalIR($resultVarName = substr($this->function->getRegisterSerial(), 1), true, true);
         $this->writeImmediateValueAssign($op1Zval, $value);
         return $op1Zval;
     }

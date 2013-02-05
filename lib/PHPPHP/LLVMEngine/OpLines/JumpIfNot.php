@@ -17,7 +17,6 @@ class JumpIfNot extends OpLine {
         if ($op1Zval instanceof LLVMZval) {
             $this->testNULL($op1Zval);
             $this->writeIfNot($op1Zval);
-
         } else {
             if (!$op1Zval) {
                 $this->function->writeJumpLabelIR($this->opCode->op2);

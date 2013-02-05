@@ -12,7 +12,7 @@ trait Convert {
 
         //force  convert cache
         $this->function->InternalModuleCall(InternalModule::ZVAL_STRING_VALUE, $fromZvalPtr,Base::null(),Base::null());
-        $toZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_COPY, LLVMZval::ZVAL_GC_LIST, $fromZvalPtr);
+        $toZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_COPY,$toZval->getGCList(), $fromZvalPtr);
         $this->function->InternalModuleCall(InternalModule::ZVAL_CONVERT_STRING, $toZvalPtr);
         $toZval->savePtrRegister($toZvalPtr);
         return $toZvalPtr;
@@ -23,7 +23,7 @@ trait Convert {
 
         //force  convert cache
         $this->function->InternalModuleCall(InternalModule::ZVAL_INTEGER_VALUE, $fromZvalPtr);
-        $toZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_COPY, LLVMZval::ZVAL_GC_LIST, $fromZvalPtr);
+        $toZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_COPY, $toZval->getGCList(), $fromZvalPtr);
         $this->function->InternalModuleCall(InternalModule::ZVAL_CONVERT_INTEGER, $toZvalPtr);
         $toZval->savePtrRegister($toZvalPtr);
         return $toZvalPtr;
@@ -34,7 +34,7 @@ trait Convert {
 
         //force  convert cache
         $this->function->InternalModuleCall(InternalModule::ZVAL_DOUBLE_VALUE, $fromZvalPtr);
-        $toZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_COPY, LLVMZval::ZVAL_GC_LIST, $fromZvalPtr);
+        $toZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_COPY, $toZval->getGCList(), $fromZvalPtr);
         $this->function->InternalModuleCall(InternalModule::ZVAL_CONVERT_DOUBLE, $toZvalPtr);
         $toZval->savePtrRegister($toZvalPtr);
         return $toZvalPtr;

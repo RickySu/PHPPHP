@@ -13,6 +13,7 @@ typedef struct _zvallist zvallist;
 struct _zvallist {
     int  len;
     int  count;
+    int  isTemp;
     zval **zval;
     zvallist* next;
 };
