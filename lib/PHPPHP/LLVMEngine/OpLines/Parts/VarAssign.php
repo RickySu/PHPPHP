@@ -14,20 +14,34 @@ trait VarAssign {
 
         switch ($valueType) {
             case 'integer':
+
                 $this->writeAssignInteger($op1Zval, $value);
                 break;
             case 'double':
+
                 $this->writeAssignDouble($op1Zval, $value);
                 break;
             case 'string':
+
                 $this->writeAssignString($op1Zval, $value);
                 break;
             case 'boolean':
+
                 $this->writeAssignBoolean($op1Zval, $value);
+                break;
+            case 'NULL':
+
+                $this->writeAssignNULL($op1Zval, $value);
                 break;
             default:
                 break;
         }
+    }
+
+    protected function writeAssignNULL(LLVMZval $varZval, $value) {
+        $this->gcVarZval($varZval);
+        $returnZValRegister = $varZval->getPtrRegister();
+        return $returnZValRegister;
     }
 
     protected function writeAssignString(LLVMZval $varZval, $value) {
@@ -43,24 +57,26 @@ trait VarAssign {
     protected function writeAssignInteger(LLVMZval $varZval, $value) {
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Assign Integer $value");
-        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_INTEGER, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister(), ($value==''?0:$value));
+        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_INTEGER, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister(), ($value == '' ? 0 : $value));
         $varZval->savePtrRegister($returnZValRegister);
         return $returnZValRegister;
     }
+
     protected function writeAssignBoolean(LLVMZval $varZval, $value) {
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Assign Boolean $value");
-        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_BOOLEAN, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister(), ($value==''?0:$value));
+        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_BOOLEAN, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister(), ($value == '' ? 0 : $value));
         $varZval->savePtrRegister($returnZValRegister);
         return $returnZValRegister;
     }
+
     protected function writeAssignDouble(LLVMZval $varZval, $value) {
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Assign Float $value");
         if (is_double($value) && ($value == floor($value))) {
             $value.='.0';
         }
-        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_DOUBLE, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister(), ($value==''?0:$value));
+        $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_DOUBLE, LLVMZval::ZVAL_GC_LIST, $varZval->getPtrRegister(), ($value == '' ? 0 : $value));
         $varZval->savePtrRegister($returnZValRegister);
         return $returnZValRegister;
     }

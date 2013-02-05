@@ -65,6 +65,7 @@ final class Module {
             self::ZVAL_TYPE_GUESS_NUMBER => array(Base::int(), array(Zval::zval('*'))),
             self::ZVAL_EQUAL => array(Base::long(), array(Zval::zval('*'),Zval::zval('*'))),
             self::ZVAL_EQUAL_EXACT => array(Base::long(), array(Zval::zval('*'),Zval::zval('*'))),
+            'single_debug' => array(Base::void(), array(Base::int())),
         );
     }
 

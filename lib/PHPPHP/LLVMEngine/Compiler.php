@@ -43,11 +43,11 @@ class Compiler {
 
     protected function compileOpLine(Writer\ModuleWriter $module, OpArray $opArray) {
         $function = $module->getEntryFunction();
-        foreach ($opArray as $opCode) {
+        foreach ($opArray as $opIndex => $opCode) {
             $className = explode('\\', get_class($opCode));
             $className = $className[count($className) - 1];
             $opLineClassName = '\\PHPPHP\\LLVMEngine\\OpLines\\' . $className;
-            $opLine = new $opLineClassName($opCode);
+            $opLine = new $opLineClassName($opCode,$opIndex);
             $function->addOpLine($opLine);
         }
     }

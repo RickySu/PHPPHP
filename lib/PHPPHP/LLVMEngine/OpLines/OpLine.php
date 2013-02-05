@@ -21,20 +21,23 @@ abstract class OpLine {
      * @var opCode
      */
     protected $opCode;
+    protected $opIndex;
 
-    public function __construct(opCode $opCode) {
+    public function __construct(opCode $opCode, $opIndex) {
         $this->opCode = $opCode;
+        $this->opIndex = $opIndex;
     }
 
     public function setFunction(FunctionWriter $function) {
         $this->function = $function;
     }
 
-    public function write(){
+    public function write() {
         $className = explode('\\', get_class($this));
         $className = $className[count($className) - 1];
         $this->writeDebugInfo();
         $this->writeDebugInfo("line {$this->opCode->lineno} $className");
+        $this->function->writeOpLineIR($this);
     }
 
     protected function writeDebugInfo($info = null) {
@@ -68,13 +71,21 @@ abstract class OpLine {
         if ($emptyVarZval) {
             $varZval->savePtrRegister(BaseType::null());
         }
+        $this->writeDebugInfo("gc tmp zval $varZval\n");
+        echo "gc tmp zval $varZval\n";
     }
 
     protected function getStringValue(LLVMZval $varZval) {
         $InternalVarInt = $this->function->getInternalVar('getStringValue_len', BaseType::int());
         $InternalVarCharPtr = $this->function->getInternalVar('getStringValue_val', BaseType::char('*'));
-        $this->function->InternalModuleCall(InternalModule::ZVAL_STRING_VALUE, $varZval->getPtrRegister(),$InternalVarInt, $InternalVarCharPtr);
-        return array($InternalVarInt,$InternalVarCharPtr);
+        $this->function->InternalModuleCall(InternalModule::ZVAL_STRING_VALUE, $varZval->getPtrRegister(), $InternalVarInt, $InternalVarCharPtr);
+        return array($InternalVarInt, $InternalVarCharPtr);
     }
 
+    public function __toString() {
+        $IR='';
+        $IR.=$this->function->getJumpLabelIR($this->opIndex);
+        $IR.=$this->function->getJumpLabel($this->opIndex);
+        return $IR;
+    }
 }

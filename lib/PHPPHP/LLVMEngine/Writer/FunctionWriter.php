@@ -16,6 +16,7 @@ class FunctionWriter {
     protected $functionName;
     protected $varList = array();
     protected $internalVarList = array();
+    protected $opJumpLabel = array();
 
     const RETVAL = '%retval';
 
@@ -52,6 +53,37 @@ class FunctionWriter {
         foreach ($this->opLines as $opLine) {
             $opLine->write();
         }
+    }
+
+    public function setJumpLabel($opIndex) {
+        $this->writeOpLineIR(";set jump label $opIndex");
+        $this->opJumpLabel[$opIndex] = true;
+    }
+
+    public function writeJumpLabelIR($opIndex) {
+        $this->setJumpLabel($opIndex);
+        $Label = substr($this->getJumpLabel($opIndex), 0, -1);
+        $this->writeOpLineIR("br label %$Label\n");
+    }
+
+    public function getJumpLabelIR($opIndex) {
+        $IR = '';
+        if ($this->isSetJumpLable($opIndex)) {
+            $Label = substr($this->getJumpLabel($opIndex), 0, -1);
+            $IR.="br label %$Label\n";
+        }
+        return $IR;
+    }
+
+    public function getJumpLabel($opIndex) {
+        if ($this->isSetJumpLable($opIndex)) {
+            return "op_jump_label_$opIndex:";
+        }
+        return '';
+    }
+
+    public function isSetJumpLable($opIndex) {
+        return isset($this->opJumpLabel[$opIndex]);
     }
 
     public function writeOpLineIR($opLineIR) {

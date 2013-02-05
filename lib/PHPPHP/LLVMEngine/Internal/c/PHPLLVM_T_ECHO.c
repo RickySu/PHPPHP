@@ -8,8 +8,6 @@ void __attribute((fastcall)) PHPLLVM_T_ECHO(int length, char *string) {
 
 void __attribute((fastcall)) PHPLLVM_T_ECHO_ZVAL(zval *zval) {
     char buffer[128];
-    printf("\nis_ref:%d refcount:%d\n", zval->is_ref, zval->refcount);
-    printf("type:%d\n", (int) zval->type);
     switch (zval->type) {
         case ZVAL_TYPE_BOOLEAN:
             if (zval->value.lval) {

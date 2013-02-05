@@ -14,8 +14,7 @@ class BitwiseOr extends OpLine {
 
     public function write() {
         parent::write();
-        //print_r($this->opCode);
-        //die;
+
         $resultZval = $this->prepareResultZval();
         $writeIntegerBitwiseOr = function($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) use($resultZval) {
                     $this->writeIntegerBitwiseOr($resultZval, $typeCastOp1ValueRegister, $typeCastOp2ValueRegister);
