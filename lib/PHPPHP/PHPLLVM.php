@@ -58,7 +58,6 @@ class PHPLLVM {
         $opcode=$this->opcodeCompiler->compile($ast);
         $functionStore=$this->opcodeCompiler->getFunctionStore();
         $UserFunctions=$functionStore->getUserFunctions();
-        print_r($opcode);die;
         return array(
             'opcode'=>$opcode,
             'functionData' => $UserFunctions,
