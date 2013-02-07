@@ -1,7 +1,8 @@
 #ifndef __ZVAL_H
 #define __ZVAL_H
-
+#include "common.h"
 #include "zval_type.h"
+
 void __attribute((fastcall)) freeConvertionCacheBuffer(zval *zval);
 int __attribute((fastcall)) is_number(int len,char *val);
 

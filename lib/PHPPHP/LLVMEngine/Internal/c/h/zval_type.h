@@ -6,6 +6,7 @@
 #define ZVAL_TYPE_STRING  2
 #define ZVAL_TYPE_DOUBLE  3
 #define ZVAL_TYPE_BOOLEAN  4
+#include "common.h"
 
 typedef struct _zval_struct zval;
 typedef struct _zvallist zvallist;

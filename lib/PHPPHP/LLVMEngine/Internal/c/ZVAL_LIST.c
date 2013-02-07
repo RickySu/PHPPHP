@@ -30,13 +30,13 @@ void __attribute((fastcall)) ZVAL_LIST_GC(zvallist *list) {
         ZVAL_GC(NULL, list->zval[i]);
     }
     ZVAL_LIST_GC(list->next);
-    free(list);
+    efree(list);
 }
 
 zvallist * ZVAL_LIST_INIT() {
     zvallist *list;
-    list = malloc(sizeof (zvallist));
-    list->zval = malloc(sizeof (zval) * ZVAL_LIST_SIZE);
+    list = emalloc(sizeof (zvallist));
+    list->zval = emalloc(sizeof (zval) * ZVAL_LIST_SIZE);
     list->len = ZVAL_LIST_SIZE;
     list->count = 0;
     list->next = NULL;
@@ -46,8 +46,8 @@ zvallist * ZVAL_LIST_INIT() {
 
 zvallist * ZVAL_TEMP_LIST_INIT() {
     zvallist *list;
-    list = malloc(sizeof (zvallist));
-    list->zval = malloc(sizeof (zval) * ZVAL_TEMP_LIST_SIZE);
+    list = emalloc(sizeof (zvallist));
+    list->zval = emalloc(sizeof (zval) * ZVAL_TEMP_LIST_SIZE);
     list->len = ZVAL_TEMP_LIST_SIZE;
     list->count = 0;
     list->next = NULL;

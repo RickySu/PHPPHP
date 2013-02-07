@@ -1,5 +1,6 @@
 #ifndef __ZVAL_LIST_H
 #define __ZVAL_LIST_H
+#include "common.h"
 #include "zval_type.h"
 
 #define ZVAL_LIST_SIZE    1000

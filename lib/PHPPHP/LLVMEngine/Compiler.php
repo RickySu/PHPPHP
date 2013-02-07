@@ -32,7 +32,7 @@ class Compiler {
         $this->writer->clear();
         $bitcode = Internal\Module::getBitcode();
         $this->llvmBind->loadBitcode($bitcode);
-        $bitcode = $this->llvmBind->compileAssembly($IR);
+        $bitcode = $this->llvmBind->compileAssembly($IR,1);
         echo $this->llvmBind->getLastError();
         $this->llvmBind->loadBitcode($bitcode);
         $this->llvmBind->execute($module->getEntryName());

@@ -2,6 +2,8 @@
 #define __DTOA_H
 #define IEEE_8087 1
 #define DTOA_DISPLAY_DIGITS    15
+#include "common.h"
+
 char * g_fmt(register char *b, double x);
 char *dtoa(double, int, int, int *, int *, char **);
 void freedtoa(char *s);

@@ -19,7 +19,7 @@ static char * __cvt(double value, int ndigit, int *decpt, int *sign, int fmode, 
 	if (value == 0.0) {
 		*decpt = 1 - fmode; /* 1 for 'e', 0 for 'f' */
 		*sign = 0;
-		if ((rve = s = (char *)malloc(ndigit?siz:2)) == NULL) {
+		if ((rve = s = (char *)emalloc(ndigit?siz:2)) == NULL) {
 			return(NULL);
 		}
 		*rve++ = '0';
@@ -40,7 +40,7 @@ static char * __cvt(double value, int ndigit, int *decpt, int *sign, int fmode, 
 		if (pad && fmode) {
 			siz += *decpt;
 		}
-		if ((s = (char *)malloc(siz+1)) == NULL) {
+		if ((s = (char *)emalloc(siz+1)) == NULL) {
 			freedtoa(p);
 			return(NULL);
 		}

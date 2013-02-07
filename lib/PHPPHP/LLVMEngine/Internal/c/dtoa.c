@@ -107,9 +107,9 @@
  * #define Bad_float_h if your system lacks a float.h or if it does not
  *	define some or all of DBL_DIG, DBL_MAX_10_EXP, DBL_MAX_EXP,
  *	FLT_RADIX, FLT_ROUNDS, and DBL_MAX.
- * #define MALLOC your_malloc, where your_malloc(n) acts like malloc(n)
+ * #define MALLOC your_emalloc, where your_emalloc(n) acts like emalloc(n)
  *	if memory is available and otherwise does something you deem
- *	appropriate.  If MALLOC is undefined, malloc will be invoked
+ *	appropriate.  If MALLOC is undefined, emalloc will be invoked
  *	directly -- and assumed always to succeed.  Similarly, if you
  *	want something other than the system's free() to be called to
  *	recycle memory acquired from MALLOC, #define FREE to be the
@@ -229,7 +229,7 @@ extern char *MALLOC();
 extern void *MALLOC(size_t);
 #endif
 #else
-#define MALLOC malloc
+#define MALLOC emalloc
 #endif
 
 #ifndef Omit_Private_Memory
@@ -605,7 +605,7 @@ Bfree
 #ifdef FREE
 			FREE((void*)v);
 #else
-			free((void*)v);
+			efree((void*)v);
 #endif
 		else {
 			ACQUIRE_DTOA_LOCK(0);
