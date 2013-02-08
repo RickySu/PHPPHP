@@ -32,6 +32,4 @@ int __attribute((fastcall)) ZVAL_TYPE_CAST_NUMBER_SINGLE(int type, zval *zvalop1
 long __attribute((fastcall)) ZVAL_EQUAL(zval *zvalop1, zval *zvalop2);
 long __attribute((fastcall)) ZVAL_EQUAL_EXACT(zval *zvalop1, zval *zvalop2);
 
-void __attribute((fastcall)) single_debug(int);
-
 #endif

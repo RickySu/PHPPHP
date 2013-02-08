@@ -36,7 +36,7 @@ trait TypeCast {
         $this->function->writeOpLineIR("$typeCastOp1ValueRegister = load " . LLVMTypeCast::TypeCast()->getStructIR()->getElementEffectiveType('lval') . "* $typeCastOp1ValuePtr");
         $this->function->writeOpLineIR(LLVMTypeCast::TypeCast()->getStructIR()->getElementPtrIR($typeCastOp2ValuePtr, $typeCastOp2, 'lval'));
         $this->function->writeOpLineIR("$typeCastOp2ValueRegister = load " . LLVMTypeCast::TypeCast()->getStructIR()->getElementEffectiveType('lval') . "* $typeCastOp2ValuePtr");
-        $integerOperation($typeCastOp1ValueRegister, $typeCastOp2ValueRegister);
+        call_user_func($integerOperation,$typeCastOp1ValueRegister, $typeCastOp2ValueRegister);
 
         $this->function->writeOpLineIR("br label %$LabelEndIf");
 
@@ -54,7 +54,7 @@ trait TypeCast {
         $this->function->writeOpLineIR("$typeCastOp2Value = load " . LLVMTypeCast::TypeCast()->getStructIR()->getElementEffectiveType('dval') . "* $typeCastOp2ValuePtr");
         $this->function->writeOpLineIR("$typeCastOp1ValueRegister = bitcast " . LLVMTypeCast::TypeCast()->getStructIR()->getElementEffectiveType('dval') . " $typeCastOp1Value to " . BaseType::double());
         $this->function->writeOpLineIR("$typeCastOp2ValueRegister = bitcast " . LLVMTypeCast::TypeCast()->getStructIR()->getElementEffectiveType('dval') . " $typeCastOp2Value to " . BaseType::double());
-        $doubleOperation($typeCastOp1ValueRegister, $typeCastOp2ValueRegister);
+        call_user_func($doubleOperation,$typeCastOp1ValueRegister, $typeCastOp2ValueRegister);
 
         $this->function->writeOpLineIR("br label %$LabelEndIf");
         $this->function->writeOpLineIR("$LabelEndIf:");

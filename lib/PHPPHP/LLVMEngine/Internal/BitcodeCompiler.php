@@ -8,6 +8,12 @@ class BitcodeCompiler {
     protected $sourcePath;
     protected $outputPath;
     protected $sourceFiles;
+    protected $command = array(
+        'clang' => 'clang',
+        'clang++' => 'clang++',
+        'as' => 'llvm-as-3.0',
+        'link' => 'llvm-link-3.0',
+    );
 
     public function __construct($sourceFiles) {
         $this->sourcePath = __DIR__ . DIRECTORY_SEPARATOR . 'c';
@@ -54,14 +60,27 @@ class BitcodeCompiler {
         foreach ($this->files as $file) {
             $linkfiles.="$file.bc ";
         }
-        system("llvm-link-3.0 $linkfiles -o $output");
+        system("{$this->command['link']} $linkfiles -o $output");
     }
 
     protected function compile($file) {
+        $source = $this->sourcePath . DIRECTORY_SEPARATOR . $file;
+        $fileinfo = pathinfo($source);
+        switch(strtolower($fileinfo['extension'])){
+            case 'c':
+                $compiler = $this->command['clang'];
+                break;
+            case 'cc':
+            case 'cpp':
+                $compiler = $this->command['clang++'];
+                break;
+            default:
+                return;
+        }
         $this->files[$file] = $tmpfile = $this->setupOutput();
-        system("clang -emit-llvm -O4 -c " . $this->sourcePath . DIRECTORY_SEPARATOR . $file . " -S -o $tmpfile.s");
+        system("$compiler -emit-llvm -O4 -c $source -S -o $tmpfile.s");
         $this->convertFastCC("$tmpfile.s");
-        system("llvm-as-3.0 $tmpfile.s -o $tmpfile.bc");
+        system("{$this->command['as']} $tmpfile.s -o $tmpfile.bc");
     }
 
     protected function convertFastCC($file) {

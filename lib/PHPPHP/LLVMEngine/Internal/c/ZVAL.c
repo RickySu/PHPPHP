@@ -16,14 +16,11 @@ void __attribute((fastcall)) freeConvertionCacheBuffer(zval *zval) {
 zval * __attribute((fastcall)) ZVAL_INIT(zvallist *list) {
     zval * aZval;
     if (list->isTemp) {
-        //printf("isTemp INIT\n");
         ZVAL_TEMP_LIST_GC_MIN(list);
     }
-    aZval = emalloc(sizeof (zval));
-    memset(aZval, 0, sizeof (zval));
-    //zvalcount++;
-    //printf("%d,new zval:%p %p\n", zvalcount, aZval, list);
-    //getchar();
+
+    aZval = ecalloc(1, sizeof (zval));
+
     if (list) {
         ZVAL_GC_REGISTER(list, aZval);
     }
@@ -44,7 +41,6 @@ void __attribute((fastcall)) ZVAL_GC_REGISTER(zvallist *list, zval *zval) {
 
 void __attribute((fastcall)) ZVAL_TEMP_GC(zvallist *list, zval *varZval) {
     int i, j;
-    //printf("gc temp %p\n", varZval);
     for (i = 0; i < list->count; i++) {
         if (list->zval[i] == varZval) {
             for (j = i; j < list->count - 1; j++) {
@@ -64,9 +60,6 @@ void __attribute((fastcall)) ZVAL_GC(zvallist *list, zval *varZval) {
         }
         return;
     }
-    //zvalcount--;
-    //printf("%d gc zval:%p\n", zvalcount, varZval);
-    //getchar();
     if (list) {
         if (list->isTemp) {
             ZVAL_TEMP_GC(list, varZval);
@@ -203,20 +196,14 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_STRING(zvallist *list, zval *zval, in
     return zval;
 }
 
-zval * __attribute((fastcall)) ZVAL_ASSIGN_ZVAL(zvallist *list1, zval *zval1, zvallist *list2, zval *zval2) {
-    //printf("zval2:%ld\n",zval2->value.lval);
-    //getchar();
+zval * __attribute((fastcall)) ZVAL_ASSIGN_ZVAL(zvallist *list, zval *zval1, zval *zval2) {
     if (zval1) {
-        ZVAL_GC(list1, zval1);
-    }
-
-    if (list1->isTemp ^ list2->isTemp) {
-        return ZVAL_COPY(list1, zval2);
+        ZVAL_GC(list, zval1);
     }
 
     if (zval2->is_ref) {
         //need copy on write
-        return ZVAL_COPY(list1, zval2);
+        return ZVAL_COPY(list, zval2);
     }
 
     //inc ref_count
@@ -665,9 +652,4 @@ long __attribute((fastcall)) ZVAL_EQUAL_EXACT(zval *zvalop1, zval *zvalop2) {
         default:
             return 0;
     }
-}
-
-void __attribute((fastcall)) single_debug(int a) {
-    //printf("single debug %d\n", a);
-    //   getchar();
 }

@@ -4,6 +4,7 @@ namespace PHPPHP\LLVMEngine\OpLines;
 
 use PHPPHP\LLVMEngine\Writer\FunctionWriter;
 use PHPPHP\Engine\OpLine as opCode;
+use PHPPHP\Engine\Zval;
 use PHPPHP\LLVMEngine\Zval as LLVMZval;
 use PHPPHP\LLVMEngine\Type\Base as BaseType;
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
@@ -22,11 +23,22 @@ abstract class OpLine {
      */
     protected $opCode;
     protected $opIndex;
-    protected $tmpZval = array();
+    protected $opResult;
+    protected $tempZval = array();
 
-    public function __construct(opCode $opCode, $opIndex) {
+    private $resultRegister=NULL;
+
+    protected function getResultRegister(){
+        if($this->resultRegister===NULL){
+            $this->resultRegister=substr($this->function->getRegisterSerial(),1);
+        }
+        return $this->resultRegister;
+    }
+
+    public function __construct(opCode $opCode, $opIndex, $opResult) {
         $this->opCode = $opCode;
         $this->opIndex = $opIndex;
+        $this->opResult = $opResult;
     }
 
     public function setFunction(FunctionWriter $function) {
@@ -39,6 +51,14 @@ abstract class OpLine {
         $this->writeDebugInfo();
         $this->writeDebugInfo("line {$this->opCode->lineno} $className");
         $this->function->writeOpLineIR($this);
+
+        if ($this->opResult !== NULL) {
+            $opResultVar = $this->opResult->getImmediateZval();
+            if (isset($opResultVar->TempVarName)) {
+                $opResultZval = $this->function->getZvalIR($opResultVar->TempVarName, true, true);
+                $this->registTempZval($opResultZval);
+            }
+        }
     }
 
     protected function writeDebugInfo($info = null) {
@@ -91,6 +111,16 @@ abstract class OpLine {
         $IR.=$this->function->getJumpLabelIR($this->opIndex);
         $IR.=$this->function->getJumpLabel($this->opIndex);
         return $IR;
+    }
+
+    protected function registTempZval(LLVMZval $opZval) {
+        $this->tempZval[] = $opZval;
+    }
+
+    protected function gcTempZval() {
+        foreach ($this->tempZval as $opZval) {
+            $this->function->InternalModuleCall(InternalModule::ZVAL_GC, $opZval->getGCList(), $opZval->getPtrRegister());
+        }
     }
 
 }

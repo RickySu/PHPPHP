@@ -83,7 +83,7 @@ trait VarAssign {
 
     protected function writeVarAssign(LLVMZval $op1Zval, LLVMZval $op2Zval) {
         $this->writeDebugInfo("$op1Zval <= (var) $op2Zval");
-        $op1ZvalPtr=$this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_ZVAL, $op1Zval->getGCList(), $op1Zval->getPtrRegister(), $op2Zval->getGCList(), $op2Zval->getPtrRegister());
+        $op1ZvalPtr=$this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_ZVAL, $op1Zval->getGCList(), $op1Zval->getPtrRegister(), $op2Zval->getPtrRegister());
         $op1Zval->savePtrRegister($op1ZvalPtr);
         return $op1ZvalPtr;
     }

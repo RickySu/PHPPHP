@@ -32,7 +32,7 @@ class Compiler {
         $this->writer->clear();
         $bitcode = Internal\Module::getBitcode();
         $this->llvmBind->loadBitcode($bitcode);
-        $bitcode = $this->llvmBind->compileAssembly($IR,1);
+        $bitcode = $this->llvmBind->compileAssembly($IR, 3);
         echo $this->llvmBind->getLastError();
         $this->llvmBind->loadBitcode($bitcode);
         $this->llvmBind->execute($module->getEntryName());
@@ -43,12 +43,14 @@ class Compiler {
 
     protected function compileOpLine(Writer\ModuleWriter $module, OpArray $opArray) {
         $function = $module->getEntryFunction();
+        $opResult = NULL;
         foreach ($opArray as $opIndex => $opCode) {
             $className = explode('\\', get_class($opCode));
             $className = $className[count($className) - 1];
             $opLineClassName = '\\PHPPHP\\LLVMEngine\\OpLines\\' . $className;
-            $opLine = new $opLineClassName($opCode,$opIndex);
+            $opLine = new $opLineClassName($opCode, $opIndex,$opResult);
             $function->addOpLine($opLine);
+            $opResult=$opCode->result;
         }
     }
 

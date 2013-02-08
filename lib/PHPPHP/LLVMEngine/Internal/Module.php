@@ -58,7 +58,7 @@ final class Module {
             self::ZVAL_ASSIGN_BOOLEAN => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::long())),
             self::ZVAL_ASSIGN_DOUBLE => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::double())),
             self::ZVAL_ASSIGN_STRING => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::int(), Base::char('*'))),
-            self::ZVAL_ASSIGN_ZVAL => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::void('*'), Zval::zval('*'))),
+            self::ZVAL_ASSIGN_ZVAL => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'),Zval::zval('*'))),
             self::ZVAL_ASSIGN_CONCAT_STRING => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::int(), Base::char('*'))),
             self::ZVAL_ASSIGN_CONCAT_ZVAL => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Zval::zval('*'))),
             self::ZVAL_ASSIGN_REF => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'))),
@@ -89,6 +89,7 @@ final class Module {
                     'ZVAL.c',
                     'dtoa.c',
                     'cvt.c',
+                    'hashtable.c',
                 ));
         return $bitcodeCompiler->compileAll();
     }
