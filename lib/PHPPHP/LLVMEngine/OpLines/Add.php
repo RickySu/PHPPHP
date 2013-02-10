@@ -20,19 +20,7 @@ class Add extends OpLine {
         $this->setResult($value1+$value2);
     }
 
-    protected function writeZvalValue(LLVMZval $opZval, $value) {
-        $this->TypeCastNumber($opZval, $value, array($this,'writeIntegerAdd'), array($this,'writeDoubleAdd'));
-    }
-
-    protected function writeValueZval($value, LLVMZval $opZval) {
-        $this->TypeCastNumber($value, $opZval, array($this,'writeIntegerAdd'), array($this,'writeDoubleAdd'));
-    }
-
-    protected function writeZvalZval(LLVMZval $op1Zval, LLVMZval $op2Zval) {
-        $this->TypeCastNumber($op1Zval, $op2Zval, array($this,'writeIntegerAdd'), array($this,'writeDoubleAdd'));
-    }
-
-    protected function writeIntegerAdd($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
+    protected function writeIntegerOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
         $resultAddRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultAddRegister = add " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $resultZvalRegister = $this->getResultRegister();
@@ -41,7 +29,7 @@ class Add extends OpLine {
         $this->setResult($resultZval);
     }
 
-    protected function writeDoubleAdd($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
+    protected function writeDoubleOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
         $resultAddRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultAddRegister = fadd " . BaseType::double() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $resultZvalRegister = $this->getResultRegister();

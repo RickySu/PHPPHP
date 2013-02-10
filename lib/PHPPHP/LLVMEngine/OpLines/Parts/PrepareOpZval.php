@@ -48,4 +48,16 @@ trait PrepareOpZval {
         $this->opCode->result->getImmediateZval()->setValue($value);
     }
 
+    protected function writeZvalValue(LLVMZval $opZval, $value) {
+        $this->TypeCastNumber($opZval, $value, array($this,'writeIntegerOp'), array($this,'writeDoubleOp'));
+    }
+
+    protected function writeValueZval($value, LLVMZval $opZval) {
+        $this->TypeCastNumber($value, $opZval, array($this,'writeIntegerOp'), array($this,'writeDoubleOp'));
+    }
+
+    protected function writeZvalZval(LLVMZval $op1Zval, LLVMZval $op2Zval) {
+        $this->TypeCastNumber($op1Zval, $op2Zval, array($this,'writeIntegerOp'), array($this,'writeDoubleOp'));
+    }
+
 }
