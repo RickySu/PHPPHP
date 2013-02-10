@@ -21,11 +21,11 @@ class Add extends OpLine {
     }
 
     protected function writeZvalValue(LLVMZval $opZval, $value) {
-
+        $this->TypeCastNumber($opZval, $value, array($this,'writeIntegerAdd'), array($this,'writeDoubleAdd'));
     }
 
     protected function writeValueZval($value, LLVMZval $opZval) {
-        return $this->writeZvalValue($opZval,$value);
+        $this->TypeCastNumber($value, $opZval, array($this,'writeIntegerAdd'), array($this,'writeDoubleAdd'));
     }
 
     protected function writeZvalZval(LLVMZval $op1Zval, LLVMZval $op2Zval) {
