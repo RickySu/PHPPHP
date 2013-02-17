@@ -60,4 +60,9 @@ trait PrepareOpZval {
         $this->TypeCastNumber($op1Zval, $op2Zval, array($this,'writeIntegerOp'), array($this,'writeDoubleOp'));
     }
 
+    protected function writeZval(LLVMZval $opZval) {
+        $this->TypeCastNumberSingle($opZval, array($this,'writeIntegerOp'), array($this,'writeDoubleOp'));
+    }
+
+
 }
