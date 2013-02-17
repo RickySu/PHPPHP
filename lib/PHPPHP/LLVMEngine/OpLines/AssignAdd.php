@@ -2,9 +2,7 @@
 
 namespace PHPPHP\LLVMEngine\OpLines;
 
-use PHPPHP\LLVMEngine\Zval as LLVMZval;
 use PHPPHP\LLVMEngine\Type\Base as BaseType;
-use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 
 class AssignAdd extends OpLine {
 
@@ -14,6 +12,7 @@ class AssignAdd extends OpLine {
     public function write() {
         parent::write();
         $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
+        $this->gcTempZval();
     }
 
     protected function writeValueValue($value1, $value2) {

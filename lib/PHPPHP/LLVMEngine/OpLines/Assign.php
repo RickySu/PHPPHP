@@ -13,6 +13,7 @@ class Assign extends OpLine {
     public function write() {
         parent::write();
         $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
+        $this->gcTempZval();
     }
 
     protected function writeZvalZval(LLVMZval $op1Zval,LLVMZval $op2Zval){
