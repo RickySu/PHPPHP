@@ -12,14 +12,22 @@ class AssignConcat extends OpLine {
 
     public function write() {
         parent::write();
-        list($op1Zval, $op2Zval) = $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
-        if (!($op2Zval instanceof LLVMZval)) {
-            $op1ZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_CONCAT_STRING, $op1Zval->getGCList(), $op1Zval->getPtrRegister(), $op2Zval);
-        } else {
-            $op1ZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_CONCAT_ZVAL, $op1Zval->getGCList(), $op1Zval->getPtrRegister(), $op2Zval->getPtrRegister());
-        }
-        $op1Zval->savePtrRegister($op1ZvalPtr);
+        $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
         $this->gcTempZval();
+    }
+
+    protected function writeZvalZval(LLVMZval $op1Zval,LLVMZval $op2Zval){
+        $op1ZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_CONCAT_ZVAL, $op1Zval->getGCList(), $op1Zval->getPtrRegister(), $op2Zval->getPtrRegister());
+        $op1Zval->savePtrRegister($op1ZvalPtr);
+    }
+
+    protected function writeZvalValue(LLVMZval $op1Zval,$value){
+        if($value===NULL || $value===""){
+            return;
+        }
+        $constant = $this->function->writeConstant($value);
+        $op1ZvalPtr=$this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_CONCAT_STRING, $op1Zval->getGCList(), $op1Zval->getPtrRegister(), strlen($value),$constant->ptr());
+        $op1Zval->savePtrRegister($op1ZvalPtr);
     }
 
 }
