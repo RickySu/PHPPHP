@@ -27,19 +27,19 @@ class AssignDiv extends OpLine {
     }
 
     protected function writeIntegerOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
-        $resultAddRegister = $this->function->getRegisterSerial();
+        $resultRegister = $this->function->getRegisterSerial();
         $isIntegerTypeRegister=$this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$resultAddRegister = srem " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
-        $this->function->writeOpLineIR("$isIntegerTypeRegister = icmp eq " . BaseType::long() . " $resultAddRegister, 0");
+        $this->function->writeOpLineIR("$resultRegister = srem " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
+        $this->function->writeOpLineIR("$isIntegerTypeRegister = icmp eq " . BaseType::long() . " $resultRegister, 0");
         $ifSerial = substr($this->function->getRegisterSerial(), 1);
         $LabelIfZero = "Label_IfZero_$ifSerial";
         $LabelEndIf = "Label_EndIf_$ifSerial";
         $this->function->writeOpLineIR("br i1 $isIntegerTypeRegister, label %$LabelIfZero, label %$LabelEndIf");
         $this->function->writeOpLineIR("$LabelIfZero:");
-        $resultAddRegister = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$resultAddRegister = sdiv " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
+        $resultRegister = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR("$resultRegister = sdiv " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $resultZval=$this->function->getZvalIR($this->opCode->op1->getName());
-        $this->writeAssignInteger($resultZval, $resultAddRegister);
+        $this->writeAssignInteger($resultZval, $resultRegister);
         $this->function->writeOpLineIR("br label %$LabelEndIf");
         $this->function->writeOpLineIR("$LabelEndIf:");
         $typeCastOp1ValueDoubleRegister = $this->function->getRegisterSerial();
@@ -50,10 +50,10 @@ class AssignDiv extends OpLine {
     }
 
     protected function writeDoubleOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
-        $resultAddRegister = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$resultAddRegister = fdiv " . BaseType::double() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
+        $resultRegister = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR("$resultRegister = fdiv " . BaseType::double() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $resultZval=$this->function->getZvalIR($this->opCode->op1->getName());
-        $this->writeAssignDouble($resultZval, $resultAddRegister);
+        $this->writeAssignDouble($resultZval, $resultRegister);
     }
     
 }

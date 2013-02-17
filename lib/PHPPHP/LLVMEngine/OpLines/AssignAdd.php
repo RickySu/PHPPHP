@@ -20,17 +20,17 @@ class AssignAdd extends OpLine {
     }
 
     protected function writeIntegerOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
-        $resultAddRegister = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$resultAddRegister = add " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
+        $resultRegister = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR("$resultRegister = add " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $resultZval=$this->function->getZvalIR($this->opCode->op1->getName());
-        $this->writeAssignInteger($resultZval, $resultAddRegister);
+        $this->writeAssignInteger($resultZval, $resultRegister);
     }
 
     protected function writeDoubleOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
-        $resultAddRegister = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$resultAddRegister = fadd " . BaseType::double() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
+        $resultRegister = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR("$resultRegister = fadd " . BaseType::double() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $resultZval=$this->function->getZvalIR($this->opCode->op1->getName());
-        $this->writeAssignDouble($resultZval, $resultAddRegister);
+        $this->writeAssignDouble($resultZval, $resultRegister);
     }
 
 }

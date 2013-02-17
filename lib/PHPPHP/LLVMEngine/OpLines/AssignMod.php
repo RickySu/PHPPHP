@@ -20,10 +20,10 @@ class AssignMod extends OpLine {
     }
 
     protected function writeIntegerOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
-        $resultAddRegister = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$resultAddRegister = srem " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
+        $resultRegister = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR("$resultRegister = srem " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $resultZval=$this->function->getZvalIR($this->opCode->op1->getName());
-        $this->writeAssignInteger($resultZval, $resultAddRegister);
+        $this->writeAssignInteger($resultZval, $resultRegister);
     }
 
     protected function writeDoubleOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {

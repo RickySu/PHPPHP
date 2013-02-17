@@ -21,10 +21,10 @@ class AssignBitwiseXor extends OpLine {
     }
 
     protected function writeIntegerOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
-        $resultAddRegister = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$resultAddRegister = xor " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
+        $resultRegister = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR("$resultRegister = xor " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $resultZval = $this->function->getZvalIR($this->opCode->op1->getName());
-        $this->writeAssignInteger($resultZval, $resultAddRegister);
+        $this->writeAssignInteger($resultZval, $resultRegister);
     }
 
     protected function writeDoubleOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
