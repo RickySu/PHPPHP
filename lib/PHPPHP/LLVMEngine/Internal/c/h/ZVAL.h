@@ -28,7 +28,8 @@ void __attribute((fastcall)) ZVAL_CONVERT_DOUBLE(zval *zval);
 int __attribute((fastcall)) ZVAL_TYPE_GUESS(zval *zval);
 int __attribute((fastcall)) ZVAL_TYPE_GUESS_NUMBER(zval *zval);
 int __attribute((fastcall)) ZVAL_TYPE_CAST_NUMBER(zval *zvalop1, zval *zvalop2, type_cast *value_op1, type_cast *value_op2);
-int __attribute((fastcall)) ZVAL_TYPE_CAST_NUMBER_SINGLE(int type, zval *zvalop1, type_cast *value_op1);
+int __attribute((fastcall)) ZVAL_TYPE_CAST_NUMBER_SINGLE(zval *zvalop1, type_cast *value_op1);
+int __attribute((fastcall)) ZVAL_TYPE_CAST_SINGLE(zval *zvalop1, type_cast *value_op1);
 long __attribute((fastcall)) ZVAL_EQUAL(zval *zvalop1, zval *zvalop2);
 long __attribute((fastcall)) ZVAL_EQUAL_EXACT(zval *zvalop1, zval *zvalop2);
 

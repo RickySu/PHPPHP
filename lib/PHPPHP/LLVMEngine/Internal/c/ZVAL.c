@@ -517,12 +517,6 @@ int __attribute((fastcall)) ZVAL_TYPE_GUESS(zval *zval) {
 int __attribute((fastcall)) ZVAL_TYPE_GUESS_NUMBER(zval *zval) {
     double doubleVal;
     long integerVal;
-    if (zval->_convertion_cache_type == ZVAL_TYPE_DOUBLE) {
-        return ZVAL_TYPE_DOUBLE;
-    }
-    if (zval->_convertion_cache_type == ZVAL_TYPE_INTEGER) {
-        return ZVAL_TYPE_INTEGER;
-    }
     doubleVal = ZVAL_DOUBLE_VALUE(zval);
     integerVal = ZVAL_INTEGER_VALUE(zval);
     if (doubleVal == (double) integerVal) {
@@ -531,39 +525,15 @@ int __attribute((fastcall)) ZVAL_TYPE_GUESS_NUMBER(zval *zval) {
     return ZVAL_TYPE_DOUBLE;
 }
 
-int __attribute((fastcall)) ZVAL_TYPE_CAST_SINGLE(int type, zval *zvalop1, type_cast *value_op1) {
+int __attribute((fastcall)) ZVAL_TYPE_CAST_SINGLE( zval *zvalop1, type_cast *value_op1) {
     if (ZVAL_TYPE_GUESS(zvalop1) == ZVAL_TYPE_STRING) {
         return ZVAL_TYPE_STRING;
     }
-    return ZVAL_TYPE_CAST_NUMBER_SINGLE(type, zvalop1, value_op1);
+    return ZVAL_TYPE_CAST_NUMBER_SINGLE(zvalop1, value_op1);
 }
 
-int __attribute((fastcall)) ZVAL_TYPE_CAST_NUMBER_SINGLE(int type, zval *zvalop1, type_cast *value_op1) {
-    int targetType;
-    if (type == ZVAL_TYPE_DOUBLE) {
-        targetType = 1;
-    } else {
-        targetType = 0;
-    }
-    if (zvalop1 != NULL) {
-        switch (zvalop1->type) {
-            case ZVAL_TYPE_STRING:
-                if (ZVAL_TYPE_GUESS_NUMBER(zvalop1) == ZVAL_TYPE_INTEGER) {
-                    targetType |= 0;
-                } else {
-                    targetType |= 1;
-                }
-                break;
-            case ZVAL_TYPE_DOUBLE:
-                targetType |= 1;
-                break;
-            case ZVAL_TYPE_BOOLEAN:
-            case ZVAL_TYPE_INTEGER:
-                targetType |= 0;
-                break;
-        }
-    }
-    if (targetType) { //double type
+int __attribute((fastcall)) ZVAL_TYPE_CAST_NUMBER_SINGLE(zval *zvalop1, type_cast *value_op1) {
+    if (ZVAL_TYPE_GUESS_NUMBER(zvalop1)==ZVAL_TYPE_DOUBLE) { //double type
         value_op1->dval = ZVAL_DOUBLE_VALUE(zvalop1);
         return ZVAL_TYPE_DOUBLE;
     }

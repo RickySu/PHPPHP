@@ -6,13 +6,8 @@ use PHPPHP\LLVMEngine\Type\Base as BaseType;
 
 class AssignDiv extends OpLine {
 
-    const OP1ZVALDIVTEMP = 'op1zval_div_temp';
-    const OP2ZVALDIVTEMP = 'op2zval_div_temp';
-
     use Parts\TypeCast,
-        Parts\PrepareOpZval,
-        Parts\Convert;
-
+        Parts\PrepareOpZval;
 
     public function write() {
         parent::write();

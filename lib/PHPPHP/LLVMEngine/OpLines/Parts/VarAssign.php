@@ -14,23 +14,18 @@ trait VarAssign {
 
         switch ($valueType) {
             case 'integer':
-
                 $this->writeAssignInteger($op1Zval, $value);
                 break;
             case 'double':
-
                 $this->writeAssignDouble($op1Zval, $value);
                 break;
             case 'string':
-
                 $this->writeAssignString($op1Zval, $value);
                 break;
             case 'boolean':
-
                 $this->writeAssignBoolean($op1Zval, $value);
                 break;
             case 'NULL':
-
                 $this->writeAssignNULL($op1Zval, $value);
                 break;
             default:

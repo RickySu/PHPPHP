@@ -113,7 +113,7 @@ trait TypeCast {
     protected function TypeCastNumberSingle(LLVMZval $op1Zval, $integerOperation, $doubleOperation) {
         $typeCastOp1 = new LLVMTypeCast($this->function->getInternalVar(LLVMTypeCast::TYPE_CAST_OP1, LLVMTypeCast::TypeCast()), $this->function);
 
-        $castResultType = $this->function->InternalModuleCall(InternalModule::ZVAL_TYPE_CAST_NUMBER_SINGLE, LLVMZval\Type::TYPE_INTEGER, $op1Zval->getPtrRegister(), $typeCastOp1);
+        $castResultType = $this->function->InternalModuleCall(InternalModule::ZVAL_TYPE_CAST_NUMBER_SINGLE, $op1Zval->getPtrRegister(), $typeCastOp1);
 
         $IfSerial = substr($this->function->getRegisterSerial(), 1);
         $LabelIfInteger = "Label_IfInteger_$IfSerial";

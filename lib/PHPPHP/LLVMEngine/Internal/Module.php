@@ -12,10 +12,8 @@ final class Module {
     const T_ECHO_ZVAL = 'PHPLLVM_T_ECHO_ZVAL';
     const ZVAL_LIST_INIT = 'ZVAL_LIST_INIT';
     const ZVAL_LIST_GC = 'ZVAL_LIST_GC';
-
     const ZVAL_TEMP_LIST_INIT = 'ZVAL_TEMP_LIST_INIT';
     const ZVAL_TEMP_LIST_GC = 'ZVAL_TEMP_LIST_GC';
-
     const ZVAL_INIT = 'ZVAL_INIT';
     const ZVAL_GC = 'ZVAL_GC';
     const ZVAL_GC_REGISTER = 'ZVAL_GC_REGISTER';
@@ -37,9 +35,11 @@ final class Module {
     const ZVAL_CONVERT_DOUBLE = 'ZVAL_CONVERT_DOUBLE';
     const ZVAL_TYPE_CAST_NUMBER = 'ZVAL_TYPE_CAST_NUMBER';
     const ZVAL_TYPE_CAST_NUMBER_SINGLE = 'ZVAL_TYPE_CAST_NUMBER_SINGLE';
-    const ZVAL_TYPE_GUESS_NUMBER='ZVAL_TYPE_GUESS_NUMBER';
-    const ZVAL_EQUAL='ZVAL_EQUAL';
-    const ZVAL_EQUAL_EXACT='ZVAL_EQUAL_EXACT';
+    const ZVAL_TYPE_CAST_SINGLE = 'ZVAL_TYPE_CAST_SINGLE';
+    const ZVAL_TYPE_GUESS = 'ZVAL_TYPE_GUESS';
+    const ZVAL_TYPE_GUESS_NUMBER = 'ZVAL_TYPE_GUESS_NUMBER';
+    const ZVAL_EQUAL = 'ZVAL_EQUAL';
+    const ZVAL_EQUAL_EXACT = 'ZVAL_EQUAL_EXACT';
 
     public static function Define() {
         return array(
@@ -58,7 +58,7 @@ final class Module {
             self::ZVAL_ASSIGN_BOOLEAN => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::long())),
             self::ZVAL_ASSIGN_DOUBLE => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::double())),
             self::ZVAL_ASSIGN_STRING => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::int(), Base::char('*'))),
-            self::ZVAL_ASSIGN_ZVAL => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'),Zval::zval('*'))),
+            self::ZVAL_ASSIGN_ZVAL => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Zval::zval('*'))),
             self::ZVAL_ASSIGN_CONCAT_STRING => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Base::int(), Base::char('*'))),
             self::ZVAL_ASSIGN_CONCAT_ZVAL => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'), Zval::zval('*'))),
             self::ZVAL_ASSIGN_REF => array(Zval::zval('*'), array(Base::void('*'), Zval::zval('*'))),
@@ -69,10 +69,12 @@ final class Module {
             self::ZVAL_DOUBLE_VALUE => array(Base::double(), array(Zval::zval('*'))),
             self::ZVAL_CONVERT_DOUBLE => array(Base::void(), array(Zval::zval('*'))),
             self::ZVAL_TYPE_CAST_NUMBER => array(Base::int(), array(Zval::zval('*'), Zval::zval('*'), TypeCast::typeCast('*'), TypeCast::typeCast('*'))),
-            self::ZVAL_TYPE_CAST_NUMBER_SINGLE => array(Base::int(), array(Base::int(), Zval::zval('*'), TypeCast::typeCast('*'))),
+            self::ZVAL_TYPE_CAST_NUMBER_SINGLE => array(Base::int(), array(Zval::zval('*'), TypeCast::typeCast('*'))),
+            self::ZVAL_TYPE_CAST_SINGLE => array(Base::int(), array(Zval::zval('*'), TypeCast::typeCast('*'))),
+            self::ZVAL_TYPE_GUESS => array(Base::int(), array(Zval::zval('*'))),
             self::ZVAL_TYPE_GUESS_NUMBER => array(Base::int(), array(Zval::zval('*'))),
-            self::ZVAL_EQUAL => array(Base::long(), array(Zval::zval('*'),Zval::zval('*'))),
-            self::ZVAL_EQUAL_EXACT => array(Base::long(), array(Zval::zval('*'),Zval::zval('*'))),
+            self::ZVAL_EQUAL => array(Base::long(), array(Zval::zval('*'), Zval::zval('*'))),
+            self::ZVAL_EQUAL_EXACT => array(Base::long(), array(Zval::zval('*'), Zval::zval('*'))),
             'single_debug' => array(Base::void(), array(Base::int())),
         );
     }

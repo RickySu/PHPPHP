@@ -10,7 +10,6 @@ trait PrepareOpZval {
     use VarAssign;
 
     protected function prepareOpZval() {
-        $isAllValueOpZval = true;
         $opZvals = array();
         $opVars = func_get_args();
 
