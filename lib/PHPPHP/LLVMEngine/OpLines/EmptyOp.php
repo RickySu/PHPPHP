@@ -31,15 +31,6 @@ class EmptyOp extends OpLine {
         $LabelEndIf = "Label_EndIf_$ifSerial";
         $this->function->writeOpLineIR("br i1 $isString, label %$LabelIfString, label %$LabelElse");
         $this->function->writeOpLineIR("$LabelIfString:");
-/*
-        list($stringLenPtr,$stringValPtr)=$this->getStringValue($opZval);
-        $stringLen=$this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$stringLen = load ".BaseType::int('*')." $stringLenPtr, align ".BaseType::int('*')->size());
-        $isEmptyString=$this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("{$isEmptyString}_boolean = icmp eq ".BaseType::int()." $stringLen , 0");
-        $this->function->writeOpLineIR("$isEmptyString = sext i1 {$isEmptyString}_boolean to i64");
- * 
- */
         $resultZvalRegister = $this->getResultRegister();
         $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
         $this->writeAssignBoolean($resultZval, false);

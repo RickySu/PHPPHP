@@ -38,6 +38,7 @@ final class Module {
     const ZVAL_TYPE_CAST_SINGLE = 'ZVAL_TYPE_CAST_SINGLE';
     const ZVAL_TYPE_GUESS = 'ZVAL_TYPE_GUESS';
     const ZVAL_TYPE_GUESS_NUMBER = 'ZVAL_TYPE_GUESS_NUMBER';
+    const ZVAL_EQUAL_STRING = 'ZVAL_EQUAL_STRING';
     const ZVAL_EQUAL = 'ZVAL_EQUAL';
     const ZVAL_EQUAL_EXACT = 'ZVAL_EQUAL_EXACT';
 
@@ -73,6 +74,7 @@ final class Module {
             self::ZVAL_TYPE_CAST_SINGLE => array(Base::int(), array(Zval::zval('*'), TypeCast::typeCast('*'))),
             self::ZVAL_TYPE_GUESS => array(Base::int(), array(Zval::zval('*'))),
             self::ZVAL_TYPE_GUESS_NUMBER => array(Base::int(), array(Zval::zval('*'))),
+            self::ZVAL_EQUAL_STRING => array(Base::long(), array(Zval::zval('*'), Base::int(), Base::char('*'))),
             self::ZVAL_EQUAL => array(Base::long(), array(Zval::zval('*'), Zval::zval('*'))),
             self::ZVAL_EQUAL_EXACT => array(Base::long(), array(Zval::zval('*'), Zval::zval('*'))),
             'single_debug' => array(Base::void(), array(Base::int())),

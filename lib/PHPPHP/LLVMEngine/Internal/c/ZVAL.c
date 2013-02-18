@@ -525,7 +525,7 @@ int __attribute((fastcall)) ZVAL_TYPE_GUESS_NUMBER(zval *zval) {
     return ZVAL_TYPE_DOUBLE;
 }
 
-int __attribute((fastcall)) ZVAL_TYPE_CAST_SINGLE( zval *zvalop1, type_cast *value_op1) {
+int __attribute((fastcall)) ZVAL_TYPE_CAST_SINGLE(zval *zvalop1, type_cast *value_op1) {
     if (ZVAL_TYPE_GUESS(zvalop1) == ZVAL_TYPE_STRING) {
         return ZVAL_TYPE_STRING;
     }
@@ -533,7 +533,7 @@ int __attribute((fastcall)) ZVAL_TYPE_CAST_SINGLE( zval *zvalop1, type_cast *val
 }
 
 int __attribute((fastcall)) ZVAL_TYPE_CAST_NUMBER_SINGLE(zval *zvalop1, type_cast *value_op1) {
-    if (ZVAL_TYPE_GUESS_NUMBER(zvalop1)==ZVAL_TYPE_DOUBLE) { //double type
+    if (ZVAL_TYPE_GUESS_NUMBER(zvalop1) == ZVAL_TYPE_DOUBLE) { //double type
         value_op1->dval = ZVAL_DOUBLE_VALUE(zvalop1);
         return ZVAL_TYPE_DOUBLE;
     }
@@ -581,6 +581,19 @@ int __attribute((fastcall)) ZVAL_TYPE_CAST_NUMBER(zval *zvalop1, zval *zvalop2, 
     value_op1->lval = ZVAL_INTEGER_VALUE(zvalop1);
     value_op2->lval = ZVAL_INTEGER_VALUE(zvalop2);
     return ZVAL_TYPE_INTEGER;
+}
+
+long __attribute((fastcall)) ZVAL_EQUAL_STRING(zval *zvalop1, int len, char *val) {
+    int op1len;
+    char *op1val;
+    if (zvalop1->type != ZVAL_TYPE_STRING) {
+        return 0;
+    }
+    ZVAL_STRING_VALUE(zvalop1, &op1len, &op1val);
+    if (op1len != len) {
+        return 0;
+    }
+    return (strncmp(op1val, val, op1len) == 0);
 }
 
 long __attribute((fastcall)) ZVAL_EQUAL(zval *zvalop1, zval *zvalop2) {
