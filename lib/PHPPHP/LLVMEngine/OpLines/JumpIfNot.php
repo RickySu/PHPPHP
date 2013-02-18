@@ -11,17 +11,21 @@ class JumpIfNot extends OpLine {
 
     public function write() {
         parent::write();
+        $this->prepareOpZval($this->opCode->op1);
+        $this->gcTempZval();
+    }
 
-        list($op1Zval) = $this->prepareOpZval($this->opCode->op1);
-        if ($op1Zval instanceof LLVMZval) {
-            $this->testNULL($op1Zval);
-            $this->writeIfNot($op1Zval);
-        } else {
-            if (!$op1Zval) {
-                $this->function->writeJumpLabelIR($this->opCode->op2);
-            }
+    protected function writeValue($value) {
+        if(!$value){
+            $this->function->writeJumpLabelIR($this->opCode->op2);
         }
     }
+
+    protected function writeZval(LLVMZval $opZval) {
+        $this->testNULL($opZval);
+        $this->writeIfNot($opZval);
+    }
+
 
     protected function writeIfNot(LLVMZval $op1Zval) {
         $op1ZvalValue=$this->function->InternalModuleCall(InternalModule::ZVAL_DOUBLE_VALUE,$op1Zval->getPtrRegister());
@@ -50,5 +54,4 @@ class JumpIfNot extends OpLine {
         $this->function->writeOpLineIR("br label %$isNULLEndifLabel");
         $this->function->writeOpLineIR("$isNULLEndifLabel:");
     }
-
 }
