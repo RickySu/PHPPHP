@@ -2,7 +2,6 @@
 
 namespace PHPPHP\LLVMEngine\OpLines;
 
-use PHPPHP\Engine\Zval;
 use PHPPHP\LLVMEngine\Zval as LLVMZval;
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 

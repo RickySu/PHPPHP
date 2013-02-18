@@ -12,6 +12,11 @@ class BitwiseNot extends OpLine {
     public function write() {
         parent::write();
         $this->prepareOpZval($this->opCode->op1);
+        $this->gcTempZval();
+    }
+
+    protected function writeValue($value1) {
+        $this->setResult(~$value1);
     }
 
     protected function writeIntegerOp($typeCastOp1ValueRegister) {

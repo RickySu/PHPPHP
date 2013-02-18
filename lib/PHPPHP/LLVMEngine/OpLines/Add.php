@@ -12,6 +12,7 @@ class Add extends OpLine {
     public function write() {
         parent::write();
         $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
+        $this->gcTempZval();
     }
 
     protected function writeValueValue($value1, $value2) {

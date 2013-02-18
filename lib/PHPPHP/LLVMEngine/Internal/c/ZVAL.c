@@ -144,7 +144,6 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_INTEGER(zvallist *list, zval *zval, l
 
 zval * __attribute((fastcall)) ZVAL_ASSIGN_BOOLEAN(zvallist *list, zval *varZval, long val) {
     zval *output;
-    freeConvertionCacheBuffer(varZval);
     output = ZVAL_ASSIGN_INTEGER(list, varZval, (val == 0 ? 0 : 1));
     output->type = ZVAL_TYPE_BOOLEAN;
     return output;

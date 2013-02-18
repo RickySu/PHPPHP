@@ -2,7 +2,6 @@
 
 namespace PHPPHP\LLVMEngine\OpLines;
 
-use PHPPHP\LLVMEngine\Zval as LLVMZval;
 use PHPPHP\LLVMEngine\Type\Base as BaseType;
 
 class AssignBitwiseOr extends OpLine {
