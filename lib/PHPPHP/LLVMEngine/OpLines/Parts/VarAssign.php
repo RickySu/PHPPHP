@@ -60,6 +60,9 @@ trait VarAssign {
     protected function writeAssignBoolean(LLVMZval $varZval, $value) {
         $this->writeDebugInfo("Init Zval");
         $this->writeDebugInfo("Assign Boolean $value");
+        if(is_bool($value)){
+            $value=(int)$value;
+        }
         $returnZValRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_BOOLEAN, $varZval->getGCList(), $varZval->getPtrRegister(), ($value == '' ? 0 : $value));
         $varZval->savePtrRegister($returnZValRegister);
         return $returnZValRegister;

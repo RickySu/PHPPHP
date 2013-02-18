@@ -11,35 +11,45 @@ class IssetOp extends OpLine {
     use Parts\TypeCast,
         Parts\PrepareOpZval;
 
-    
-
     public function write() {
         parent::write();
-        $resultZval = $this->prepareResultZval();
-        $op1Var = $this->opCode->op1->getImmediateZval();
-
-        if (!$this->function->isZvalIRDefined($op1Var->getName())) {
-            $this->writeImmediateValueAssign($resultZval, false);
-            return;
-        }
-        $op1Zval=$this->function->getZvalIR($op1Var->getName(),false);
-        $this->testNULL($resultZval, $op1Zval);
+        $this->prepareOpZval($this->opCode->op1);
         $this->gcTempZval();
     }
 
-    protected function testNULL(LLVMZval $resultZval, LLVMZval $op1Zval) {
-        $op1ZvalPtr = $op1Zval->getPtrRegister();
+    protected function writeZval(LLVMZval $opZval) {
+        $this->testNULL($opZval);
+    }
+
+    protected function testNULL(LLVMZval $opZval) {
+        $resultZvalRegister = $this->getResultRegister();
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+        $this->setResult($resultZval);
         $isNULL = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$isNULL = icmp eq ".LLVMZval::zval('*')." {$op1Zval->getPtrRegister()}, null");
-        $isNotNULLLabel=substr($this->function->getRegisterSerial(),1)."_is_NOT_NULL";
-        $isNULLLabel=substr($this->function->getRegisterSerial(),1)."_isNULL";
-        $isNULLEndifLabel=substr($this->function->getRegisterSerial(),1)."_Endif";
+        $this->function->writeOpLineIR("$isNULL = icmp eq " . LLVMZval::zval('*') . " {$opZval->getPtrRegister()}, null");
+        $isNotNULLLabel = substr($this->function->getRegisterSerial(), 1) . "_is_NOT_NULL";
+        $isNULLLabel = substr($this->function->getRegisterSerial(), 1) . "_isNULL";
+        $isNULLEndifLabel = substr($this->function->getRegisterSerial(), 1) . "_Endif";
         $this->function->writeOpLineIR("br i1 $isNULL, label  %$isNULLLabel, label %$isNotNULLLabel");
         $this->function->writeOpLineIR("$isNULLLabel:");
-        $this->writeImmediateValueAssign($resultZval, false);
+        $this->writeAssignBoolean($resultZval, false);
         $this->function->writeOpLineIR("br label %$isNULLEndifLabel");
         $this->function->writeOpLineIR("$isNotNULLLabel:");
-        $this->writeImmediateValueAssign($resultZval, true);
+        $ifSerial = substr($this->function->getRegisterSerial(), 1);
+        $LabelIfZvalNULL = "Label_IfZvalNULL_$ifSerial";
+        $LabelIfZvalNULLElse = "Label_IfZvalNULL_Else_$ifSerial";
+        $guessTypePtr = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR(LLVMZval::zval()->getStructIR()->getElementPtrIR($guessTypePtr, $opZval->getPtrRegister(), 'type'));
+        $guessType = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR("$guessType = load " . BaseType::char('*') . " $guessTypePtr");
+        $isNULL = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR("$isNULL = icmp eq " . BaseType::char() . " $guessType, ".LLVMZval\Type::TYPE_NULL);
+        $this->function->writeOpLineIR("br i1 $isNULL, label %$LabelIfZvalNULL, label %$LabelIfZvalNULLElse");
+        $this->function->writeOpLineIR("$LabelIfZvalNULL:");
+        $this->writeAssignBoolean($resultZval, false);
+        $this->function->writeOpLineIR("br label %$isNULLEndifLabel");
+        $this->function->writeOpLineIR("$LabelIfZvalNULLElse:");
+        $this->writeAssignBoolean($resultZval, true);
         $this->function->writeOpLineIR("br label %$isNULLEndifLabel");
         $this->function->writeOpLineIR("$isNULLEndifLabel:");
     }

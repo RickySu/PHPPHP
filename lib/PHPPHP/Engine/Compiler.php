@@ -445,7 +445,9 @@ class Compiler {
         }
         $variable = Zval::variableFactory($name, null, $scope);
         $this->opArray->addCompiledVariable($variable);
-        $returnContext->assignZval($variable);
+        if($returnContext){
+            $returnContext->assignZval($variable);
+        }
     }
 
     protected function compile_Expr_StaticPropertyFetch($node, $returnContext) {
