@@ -41,6 +41,8 @@ final class Module {
     const ZVAL_EQUAL_STRING = 'ZVAL_EQUAL_STRING';
     const ZVAL_EQUAL = 'ZVAL_EQUAL';
     const ZVAL_EQUAL_EXACT = 'ZVAL_EQUAL_EXACT';
+    const ZVAL_TEST_NULL = 'ZVAL_TEST_NULL';
+    const ZVAL_TEST_FALSE = 'ZVAL_TEST_FALSE';
 
     public static function Define() {
         return array(
@@ -77,6 +79,8 @@ final class Module {
             self::ZVAL_EQUAL_STRING => array(Base::long(), array(Zval::zval('*'), Base::int(), Base::char('*'))),
             self::ZVAL_EQUAL => array(Base::long(), array(Zval::zval('*'), Zval::zval('*'))),
             self::ZVAL_EQUAL_EXACT => array(Base::long(), array(Zval::zval('*'), Zval::zval('*'))),
+            self::ZVAL_TEST_NULL => array(Base::long(), array(Zval::zval('*'))),
+            self::ZVAL_TEST_FALSE => array(Base::long(), array(Zval::zval('*'))),
             'single_debug' => array(Base::void(), array(Base::int())),
         );
     }

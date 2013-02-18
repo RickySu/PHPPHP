@@ -18,7 +18,13 @@ class IssetOp extends OpLine {
     }
 
     protected function writeZval(LLVMZval $opZval) {
-        $this->testNULL($opZval);
+        $resultZvalRegister = $this->getResultRegister();
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+        $isNULL=$this->function->InternalModuleCall(InternalModule::ZVAL_TEST_NULL,$opZval->getPtrRegister());
+        $resultRegister = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR("$resultRegister = xor ".BaseType::long()." $isNULL, 1");
+        $this->writeAssignBoolean($resultZval, $resultRegister);
+        $this->setResult($resultZval);
     }
 
 }

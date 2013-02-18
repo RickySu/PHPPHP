@@ -635,3 +635,33 @@ long __attribute((fastcall)) ZVAL_EQUAL_EXACT(zval *zvalop1, zval *zvalop2) {
             return 0;
     }
 }
+
+long __attribute((fastcall)) ZVAL_TEST_NULL(zval *zvalop1) {
+
+    if ((!zvalop1) || (zvalop1->type == ZVAL_TYPE_NULL)) {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+long __attribute((fastcall)) ZVAL_TEST_FALSE(zval *zvalop1) {
+    type_cast value_op1;
+
+    if (ZVAL_TEST_NULL(zvalop1)) {
+        return TRUE;
+    }
+
+    if ((zvalop1->type == ZVAL_TYPE_STRING) && (!is_number(zvalop1->value.str.len, zvalop1->value.str.val)) ) {
+        return FALSE;
+    }
+
+    switch(ZVAL_TYPE_CAST_NUMBER_SINGLE(zvalop1,&value_op1)){
+        case ZVAL_TYPE_DOUBLE:
+            return value_op1.dval==0;
+        case ZVAL_TYPE_INTEGER:
+            return value_op1.lval==0;
+    }
+
+    return TRUE;
+}
