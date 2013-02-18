@@ -11,30 +11,28 @@ class JumpIf extends OpLine {
 
     public function write() {
         parent::write();
+        $this->prepareOpZval($this->opCode->op1);
+        $this->gcTempZval();
+    }
 
-        list($op1Zval) = $this->prepareOpZval($this->opCode->op1);
-
-        if ($op1Zval instanceof LLVMZval) {
-            $this->writeIf($op1Zval);
-        } else {
-            if (!$op1Zval) {
-                $this->function->writeJumpLabelIR($this->opCode->op2);
-            }
+    protected function writeValue($value) {
+        if ($value) {
+            $this->function->writeJumpLabelIR($this->opCode->op2);
         }
     }
 
-    protected function writeIf(LLVMZval $op1Zval) {
-        $op1ZvalValue=$this->function->InternalModuleCall(InternalModule::ZVAL_DOUBLE_VALUE,$op1Zval->getPtrRegister());
-        $isNotZero = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$isNotZero = fcmp one ".BaseType::double()." $op1ZvalValue, 0.0");
-        $isNotZeroLabel=substr($this->function->getRegisterSerial(),1)."_isNotZero";
-        $isNotZeroEndifLabel=substr($this->function->getRegisterSerial(),1)."_Endif";
-        $this->function->writeOpLineIR("br i1 $isNotZero, label  %$isNotZeroLabel, label %$isNotZeroEndifLabel");
-        $this->function->writeOpLineIR("$isNotZeroLabel:");
-        $this->gcTempZval();
+    protected function writeZval(LLVMZval $opZval) {
+        $isFalse = $this->function->InternalModuleCall(InternalModule::ZVAL_TEST_FALSE, $opZval->getPtrRegister());
+        $isFalseResult = $this->function->getRegisterSerial();
+        $ifSerial = substr($this->function->getRegisterSerial(),1);
+        $LabelIfTrue = "Label_IfTrue_$ifSerial";
+        $LabelEndIf = "Label_EndIf_$ifSerial";
+        $this->function->writeOpLineIR("$isFalseResult = trunc ".BaseType::long()." $isFalse to i1");
+        $this->function->writeOpLineIR("br i1 $isFalseResult, label  %$LabelEndIf, label %$LabelIfTrue");
+        $this->function->writeOpLineIR("$LabelIfTrue:");
         $this->function->writeJumpLabelIR($this->opCode->op2);
-        $this->function->writeOpLineIR("br label %$isNotZeroEndifLabel");
-        $this->function->writeOpLineIR("$isNotZeroEndifLabel:");
+        $this->function->writeOpLineIR("br label  %$LabelEndIf");
+        $this->function->writeOpLineIR("$LabelEndIf:");
     }
 
 }

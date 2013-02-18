@@ -7,7 +7,8 @@ use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 
 class AssignConcat extends OpLine {
 
-    use Parts\PrepareOpZval;
+    use Parts\TypeCast,
+        Parts\PrepareOpZval;
 
     public function write() {
         parent::write();
@@ -27,6 +28,11 @@ class AssignConcat extends OpLine {
         $constant = $this->function->writeConstant($value);
         $op1ZvalPtr=$this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_CONCAT_STRING, $op1Zval->getGCList(), $op1Zval->getPtrRegister(), strlen($value),$constant->ptr());
         $op1Zval->savePtrRegister($op1ZvalPtr);
+    }
+
+    protected function writeValueZval($value,LLVMZval $op1Zval){
+        echo "debug";
+die;
     }
 
 }
