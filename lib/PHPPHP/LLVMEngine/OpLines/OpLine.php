@@ -88,11 +88,7 @@ abstract class OpLine {
     }
 
     protected function gcVarZval(LLVMZval $varZval, $emptyVarZval = true) {
-        if ($varZval->isTemp()) {
-            $this->function->InternalModuleCall(InternalModule::ZVAL_GC, 'null', $varZval->getPtrRegister());
-        } else {
-            $this->function->InternalModuleCall(InternalModule::ZVAL_GC, $varZval->getGCList(), $varZval->getPtrRegister());
-        }
+        $this->function->InternalModuleCall(InternalModule::ZVAL_GC, $varZval->getGCList(), $varZval->getPtrRegister());
         if ($emptyVarZval) {
             $varZval->savePtrRegister(BaseType::null());
         }

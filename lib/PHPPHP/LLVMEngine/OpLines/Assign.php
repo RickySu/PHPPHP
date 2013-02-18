@@ -22,4 +22,8 @@ class Assign extends OpLine {
         $this->writeImmediateValueAssign($op1Zval, $value);
     }
 
+    protected function writeValueValue($value1,$value2){
+        $this->opCode->op1->getImmediateZval()->setValue($value2);
+    }
+
 }

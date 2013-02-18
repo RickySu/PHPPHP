@@ -30,9 +30,15 @@ class AssignConcat extends OpLine {
         $op1Zval->savePtrRegister($op1ZvalPtr);
     }
 
+    protected function writeValueValue($value1,$value2){
+        $this->opCode->op1->getImmediateZval()->setValue($value1.$value2);
+    }
+
     protected function writeValueZval($value,LLVMZval $op1Zval){
-        echo "debug";
-die;
+        $tempZval=$this->makeTempZval($value,false);
+        $tempZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_CONCAT_ZVAL, $tempZval->getGCList(), $tempZval->getPtrRegister(), $op1Zval->getPtrRegister());
+        $tempZval->savePtrRegister($tempZvalPtr);
+        $this->opCode->op1->getImmediateZval()->setValue($tempZval);
     }
 
 }

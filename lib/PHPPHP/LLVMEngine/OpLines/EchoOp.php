@@ -11,6 +11,7 @@ use Parts\PrepareOpZval;
     public function write() {
         parent::write();
         $this->prepareOpZval($this->opCode->op1);
+        $this->gcTempZval();
     }
 
     protected function writeZval(LLVMZval $opZval){

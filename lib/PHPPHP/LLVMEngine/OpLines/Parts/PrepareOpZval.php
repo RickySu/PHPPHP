@@ -22,8 +22,14 @@ trait PrepareOpZval {
             $opZvals[] = $opZval;
         }
         $cbMethod="write";
-        foreach($opZvals as $opZval){
+        $nOpZval=count($opZvals);
+        $className = explode('\\', get_class($this));
+        $className = $className[count($className) - 1];
+        foreach($opZvals as $index => $opZval){
             if($opZval instanceof LLVMZval){
+                if($opZval->isTemp() && ($nOpZval-1 == $index) ){
+                    $this->registTempZval($opZval);
+                }
                 $cbMethod.="Zval";
             }else{
                 $cbMethod.="Value";
@@ -36,10 +42,12 @@ trait PrepareOpZval {
      *
      * @return LLVMZval
      */
-    protected function makeTempZval($value) {
+    protected function makeTempZval($value,$registTemp=true) {
         $opZval = $this->function->getZvalIR(substr($this->function->getRegisterSerial(), 1), true, true);
         $this->writeImmediateValueAssign($opZval, $value);
-        $this->registTempZval($opZval);
+        if($registTemp){
+            $this->registTempZval($opZval);
+        }
         return $opZval;
     }
 
