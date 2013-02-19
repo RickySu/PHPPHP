@@ -27,8 +27,10 @@ trait PrepareOpZval {
         $className = $className[count($className) - 1];
         foreach($opZvals as $index => $opZval){
             if($opZval instanceof LLVMZval){
-                if($opZval->isTemp() && ($nOpZval-1 == $index) ){
-                    $this->registTempZval($opZval);
+                if($opZval->isTemp()){
+                    if( $this->opCode->result || ($nOpZval-1 == $index) ){
+                        $this->registTempZval($opZval);
+                    }
                 }
                 $cbMethod.="Zval";
             }else{

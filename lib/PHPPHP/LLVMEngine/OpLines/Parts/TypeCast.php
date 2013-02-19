@@ -23,31 +23,31 @@ trait TypeCast {
                 };
         $doubleOperationProxy = function($typeCastOp1ValueRegister) use($op1Zval, $op2Value, $integerOperation, $doubleOperation) {
                     $op2Value*=1;
-                    if($op2Value == floor($op2Value)){
-                        $op2Value="$op2Value.0";
+                    if ($op2Value == floor($op2Value)) {
+                        $op2Value = "$op2Value.0";
                     }
                     return call_user_func($doubleOperation, $typeCastOp1ValueRegister, $op2Value);
                 };
         return $this->TypeCastNumberSingle($op1Zval, $integerOperationProxy, $doubleOperationProxy);
     }
 
-    protected function TypeCastNumberValueZval( $op1Value, LLVMZval $op2Zval, $integerOperation, $doubleOperation) {
+    protected function TypeCastNumberValueZval($op1Value, LLVMZval $op2Zval, $integerOperation, $doubleOperation) {
         $integerOperationProxy = function($typeCastOp2ValueRegister) use($op1Value, $op2Zval, $integerOperation, $doubleOperation) {
                     $op1Value*=1;
                     if (is_double($op1Value) && ($op1Value != floor($op1Value))) {
                         $typeCastOp2DoubleValuePtr = $this->function->getRegisterSerial();
                         $this->function->writeOpLineIR("$typeCastOp2DoubleValuePtr = sitofp " . BaseType::long() . " $typeCastOp2ValueRegister to " . BaseType::double());
-                        return call_user_func($doubleOperation, $typeCastOp2DoubleValuePtr, "$op1Value");
+                        return call_user_func($doubleOperation, "$op1Value", $typeCastOp2DoubleValuePtr);
                     } else {
-                        return call_user_func($integerOperation, $typeCastOp2ValueRegister, "$op1Value");
+                        return call_user_func($integerOperation, "$op1Value", $typeCastOp2ValueRegister);
                     }
                 };
         $doubleOperationProxy = function($typeCastOp2ValueRegister) use($op1Value, $op2Zval, $integerOperation, $doubleOperation) {
                     $op1Value*=1;
-                    if($op1Value == floor($op1Value)){
-                        $op1Value="$op1Value.0";
+                    if ($op1Value == floor($op1Value)) {
+                        $op1Value = "$op1Value.0";
                     }
-                    return call_user_func($doubleOperation, $typeCastOp2ValueRegister, $op1Value);
+                    return call_user_func($doubleOperation, $op1Value, $typeCastOp2ValueRegister);
                 };
         return $this->TypeCastNumberSingle($op2Zval, $integerOperationProxy, $doubleOperationProxy);
     }
@@ -131,7 +131,7 @@ trait TypeCast {
 
         $this->function->writeOpLineIR(LLVMTypeCast::TypeCast()->getStructIR()->getElementPtrIR($typeCastOp1ValuePtr, $typeCastOp1, 'lval'));
         $this->function->writeOpLineIR("$typeCastOp1ValueRegister = load " . LLVMTypeCast::TypeCast()->getStructIR()->getElementEffectiveType('lval') . "* $typeCastOp1ValuePtr");
-        call_user_func($integerOperation,$typeCastOp1ValueRegister);
+        call_user_func($integerOperation, $typeCastOp1ValueRegister);
 
         $this->function->writeOpLineIR("br label %$LabelEndIf");
 
@@ -143,7 +143,7 @@ trait TypeCast {
         $this->function->writeOpLineIR(LLVMTypeCast::TypeCast()->getStructIR()->getElementPtrIR($typeCastOp1ValuePtr, $typeCastOp1, 'dval'));
         $this->function->writeOpLineIR("$typeCastOp1Value = load " . LLVMTypeCast::TypeCast()->getStructIR()->getElementEffectiveType('dval') . "* $typeCastOp1ValuePtr");
         $this->function->writeOpLineIR("$typeCastOp1ValueRegister = bitcast " . LLVMTypeCast::TypeCast()->getStructIR()->getElementEffectiveType('dval') . " $typeCastOp1Value to " . BaseType::double());
-        call_user_func($doubleOperation,$typeCastOp1ValueRegister);
+        call_user_func($doubleOperation, $typeCastOp1ValueRegister);
 
         $this->function->writeOpLineIR("br label %$LabelEndIf");
         $this->function->writeOpLineIR("$LabelEndIf:");

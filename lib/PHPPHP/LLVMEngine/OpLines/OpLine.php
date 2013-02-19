@@ -114,8 +114,8 @@ abstract class OpLine {
     }
 
     protected function gcTempZval() {
-        foreach ($this->tempZval as $opZval) {
-            $this->function->InternalModuleCall(InternalModule::ZVAL_GC, $opZval->getGCList(), $opZval->getPtrRegister());
+        foreach ($this->tempZval as $varZval) {
+            $this->gcVarZval($varZval);
         }
     }
 

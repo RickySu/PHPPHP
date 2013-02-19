@@ -27,7 +27,6 @@ class AssignShiftRight extends OpLine {
     }
 
     protected function writeDoubleOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
-        $resultZvalRegister = $this->function->getRegisterSerial();
         $typeCastOp1ValueIntegerRegister= $this->function->getRegisterSerial();
         $typeCastOp2ValueIntegerRegister= $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$typeCastOp1ValueIntegerRegister = fptosi ".BaseType::double(). " $typeCastOp1ValueRegister to ".BaseType::long());
