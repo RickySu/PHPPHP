@@ -2,7 +2,6 @@
 
 namespace PHPPHP\LLVMEngine\OpLines;
 
-use PHPPHP\LLVMEngine\Zval as LLVMZval;
 use PHPPHP\LLVMEngine\Type\Base as BaseType;
 
 class PreDec extends OpLine {
@@ -10,42 +9,38 @@ class PreDec extends OpLine {
     use Parts\TypeCast,
         Parts\PrepareOpZval;
 
-    
-
     public function write() {
         parent::write();
-        list($op1Zval) = $this->prepareOpZval($this->opCode->op1);
-        $resultZval = $this->prepareResultZval();
-
-        $writeIntegerPreDec = function($typeCastOp1ValueRegister) use($resultZval, $op1Zval) {
-                    $this->writeIntegerPreDec($resultZval, $op1Zval, $typeCastOp1ValueRegister);
-                };
-        $writeDoublePreDec = function($typeCastOp1ValueRegister)use($resultZval, $op1Zval) {
-                    $this->writeDoublePreDec($resultZval, $op1Zval, $typeCastOp1ValueRegister);
-                };
-
-        if ($op1Zval instanceof LLVMZval) {
-            $this->TypeCastNumberSingle($op1Zval, $writeIntegerPreDec, $writeDoublePreDec);
-        } else {
-            $this->writeImmediateValueAssign($resultZval, --$op1Zval);
-        }
+        $this->prepareOpZval($this->opCode->op1);
         $this->gcTempZval();
     }
 
-    protected function writeIntegerPreDec(LLVMZval $resultZval, LLVMZval $op1Zval, $typeCastOp1ValueRegister) {
-        $resultZvalRegister = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$resultZvalRegister = sub " . BaseType::long() . " $typeCastOp1ValueRegister, 1");
-        $this->writeAssignInteger($op1Zval, $resultZvalRegister);
-        $this->writeVarAssign($resultZval,$op1Zval);
-        return $resultZvalRegister;
+    protected function writeValueValue($value1) {
+        $this->setResult($value1--);
     }
 
-    protected function writeDoublePreDec(LLVMZval $resultZval, LLVMZval $op1Zval, $typeCastOp1ValueRegister) {
-        $resultZvalRegister = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$resultZvalRegister = fsub " . BaseType::double() . " $typeCastOp1ValueRegister, 1.0");
-        $this->writeAssignDouble($op1Zval, $resultZvalRegister);
-        $this->writeVarAssign($resultZval,$op1Zval);
-        return $resultZvalRegister;
+    protected function writeIntegerOp($typeCastOp1ValueRegister) {
+        $opZval=$this->function->getZvalIR($this->opCode->op1->getName());
+        $resultRegister = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR("$resultRegister = sub " . BaseType::long() . " $typeCastOp1ValueRegister, 1");
+        $this->writeAssignInteger($opZval, $resultRegister);
+
+        $resultZvalRegister = $this->getResultRegister();
+        $resultZval=$this->function->getZvalIR($resultZvalRegister, true, true);
+        $this->writeVarAssign($resultZval, $opZval);
+        $this->setResult($resultZval);
+    }
+
+    protected function writeDoubleOp($typeCastOp1ValueRegister) {
+        $opZval=$this->function->getZvalIR($this->opCode->op1->getName());
+        $resultRegister = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR("$resultRegister = fsub " . BaseType::double() . " $typeCastOp1ValueRegister, 1.0");
+        $this->writeAssignDouble($opZval, $resultRegister);
+
+        $resultZvalRegister = $this->getResultRegister();
+        $resultZval=$this->function->getZvalIR($resultZvalRegister, true, true);
+        $this->writeVarAssign($resultZval, $opZval);
+        $this->setResult($resultZval);
     }
 
 }

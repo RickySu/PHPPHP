@@ -34,7 +34,7 @@ class BitwiseAnd extends OpLine {
         $typeCastOp2ValueIntegerRegister= $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$typeCastOp1ValueIntegerRegister = fptosi ".BaseType::double(). " $typeCastOp1ValueRegister to ".BaseType::long());
         $this->function->writeOpLineIR("$typeCastOp2ValueIntegerRegister = fptosi ".BaseType::double(). " $typeCastOp2ValueRegister to ".BaseType::long());
-        return $this->writeIntegerOp($typeCastOp1ValueIntegerRegister, $typeCastOp2ValueIntegerRegister);
+        $this->writeIntegerOp($typeCastOp1ValueIntegerRegister, $typeCastOp2ValueIntegerRegister);
     }
 
 }
