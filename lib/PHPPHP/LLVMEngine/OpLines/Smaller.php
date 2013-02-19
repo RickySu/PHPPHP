@@ -2,54 +2,42 @@
 
 namespace PHPPHP\LLVMEngine\OpLines;
 
-use PHPPHP\LLVMEngine\Zval as LLVMZval;
 use PHPPHP\LLVMEngine\Type\Base as BaseType;
-use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 
 class Smaller extends OpLine {
 
-    use Parts\TypeCast,
+   use Parts\TypeCast,
         Parts\PrepareOpZval;
-
-
 
     public function write() {
         parent::write();
-
-        $resultZval = $this->prepareResultZval();
-        $writeIntegerSmaller = function($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) use($resultZval) {
-                    $this->writeIntegerSmaller($resultZval, $typeCastOp1ValueRegister, $typeCastOp2ValueRegister);
-                };
-        $writeDoubleSmaller = function($typeCastOp1ValueRegister, $typeCastOp2ValueRegister)use($resultZval) {
-                    $this->writeDoubleSmaller($resultZval, $typeCastOp1ValueRegister, $typeCastOp2ValueRegister);
-                };
-
-        list($op1Zval, $op2Zval) = $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
-
-        if ($op1Zval instanceof LLVMZval && $op2Zval instanceof LLVMZval) {
-            $this->TypeCastNumber($op1Zval, $op2Zval, $writeIntegerSmaller, $writeDoubleSmaller);
-        } else {
-            $this->writeImmediateValueAssign($resultZval, $op1Zval < $op2Zval);
-        }
+        $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
         $this->gcTempZval();
     }
 
-    protected function writeIntegerSmaller(LLVMZval $resultZval, $typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
-        $resultZvalRegister = $this->function->getRegisterSerial();
-        $resultZvalBitcastRegister = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$resultZvalRegister = icmp slt " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
-        $this->function->writeOpLineIR("$resultZvalBitcastRegister = zext i1 $resultZvalRegister to ".BaseType::long());
-        $this->writeAssignBoolean($resultZval, $resultZvalBitcastRegister);
-        return $resultZvalRegister;
+    protected function writeValueValue($value1, $value2) {
+        $this->setResult($value1 < $value2);
     }
 
-    protected function writeDoubleSmaller(LLVMZval $resultZval, $typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
-        $resultZvalRegister = $this->function->getRegisterSerial();
-        $resultZvalBitcastRegister = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$resultZvalRegister = fcmp olt " . BaseType::double() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
-        $this->function->writeOpLineIR("$resultZvalBitcastRegister = zext i1 $resultZvalRegister to ".BaseType::long());
-        $this->writeAssignBoolean($resultZval, $resultZvalBitcastRegister);
-        return $resultZvalRegister;
+    protected function writeIntegerOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
+        $result = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR("$result = icmp slt " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
+        $this->writeResult($result);
+    }
+
+    protected function writeDoubleOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
+        $result = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR("$result = fcmp olt " . BaseType::double() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
+        $this->writeResult($result);
+    }
+
+    protected function writeResult($resultRegister){
+        $resultCastRegister = $this->function->getRegisterSerial();
+        $this->function->writeOpLineIR("$resultCastRegister = zext i1 $resultRegister to ".BaseType::long());
+        $resultZvalRegister = $this->getResultRegister();
+        $resultZval=$this->function->getZvalIR($resultZvalRegister, true, true);
+        $this->writeAssignBoolean($resultZval, $resultCastRegister);
+        $this->setResult($resultZval);
     }
 
 }

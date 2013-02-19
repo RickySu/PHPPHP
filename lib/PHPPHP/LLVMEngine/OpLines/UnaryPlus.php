@@ -3,7 +3,6 @@
 namespace PHPPHP\LLVMEngine\OpLines;
 
 use PHPPHP\LLVMEngine\Zval as LLVMZval;
-use PHPPHP\LLVMEngine\Type\Base as BaseType;
 
 class UnaryPlus extends OpLine {
 
@@ -12,17 +11,19 @@ class UnaryPlus extends OpLine {
 
     public function write() {
         parent::write();
-
-        $resultZval = $this->prepareResultZval();
-
-        list($op1Zval) = $this->prepareOpZval($this->opCode->op1);
-
-        if ($op1Zval instanceof LLVMZval) {
-            $this->writeVarAssign($resultZval, $op1Zval);
-        } else {
-            $this->writeImmediateValueAssign($resultZval, $op1Zval);
-        }
+        $this->prepareOpZval($this->opCode->op1);
         $this->gcTempZval();
+    }
+
+    protected function writeValue($value1) {
+        $this->setResult($value1);
+    }
+
+    protected function writeZval(LLVMZval $opZval) {
+        $resultZvalRegister = $this->getResultRegister();
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+        $this->writeVarAssign($resultZval, $opZval);
+        $this->setResult($resultZval);
     }
 
 }

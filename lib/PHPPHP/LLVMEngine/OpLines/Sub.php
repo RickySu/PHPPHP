@@ -16,21 +16,25 @@ class Sub extends OpLine {
     }
 
     protected function writeValueValue($value1, $value2) {
-        $this->setResult($value1-$value2);
+        $this->setResult($value1+$value2);
     }
 
     protected function writeIntegerOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = sub " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
-        $resultZval=$this->function->getZvalIR($this->opCode->op1->getName());
+        $resultZvalRegister = $this->getResultRegister();
+        $resultZval=$this->function->getZvalIR($resultZvalRegister, true, true);
         $this->writeAssignInteger($resultZval, $resultRegister);
+        $this->setResult($resultZval);
     }
 
     protected function writeDoubleOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = fsub " . BaseType::double() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
-        $resultZval=$this->function->getZvalIR($this->opCode->op1->getName());
+        $resultZvalRegister = $this->getResultRegister();
+        $resultZval=$this->function->getZvalIR($resultZvalRegister, true, true);
         $this->writeAssignDouble($resultZval, $resultRegister);
+        $this->setResult($resultZval);
     }
 
 }
