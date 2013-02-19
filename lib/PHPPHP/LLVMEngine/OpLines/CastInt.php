@@ -2,34 +2,30 @@
 
 namespace PHPPHP\LLVMEngine\OpLines;
 
-use PHPPHP\Engine\Zval;
 use PHPPHP\LLVMEngine\Zval as LLVMZval;
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 
 class CastInt extends OpLine {
 
-    use Parts\Convert;
-    use Parts\VarAssign;
+    use Parts\TypeCast,
+        Parts\PrepareOpZval;
 
     public function write() {
         parent::write();
-        $op1Var = $this->opCode->op1->getImmediateZval();
-        if (!isset($this->opCode->result->TempVarName)) {
-            $resultVarName = substr($this->function->getRegisterSerial(), 1);
-            $this->opCode->result->getImmediateZval()->TempVarName = $resultVarName;
-        }
-
-        if($op1Var instanceof Zval\Value){
-            $resultZval = $this->function->getZvalIR($resultVarName, true, true);
-            $this->writeImmediateValueAssign($resultZval, (int)$op1Var->getValue());
-            $this->gcTempZval();
-            return;
-        }
-
-        $resultZval = $this->function->getZvalIR($resultVarName, false, true);
-        $op1Zval = $this->function->getZvalIR($op1Var->getName());
-        $this->convertInteger($resultZval,$op1Zval);
+        $this->prepareOpZval($this->opCode->op1);
         $this->gcTempZval();
+    }
+
+    protected function writeValue($value1) {
+        $this->setResult((int)$value1);
+    }
+
+    protected function writeZval(LLVMZval $opZval) {
+        $resultZvalRegister = $this->getResultRegister();
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+        $this->writeVarAssign($resultZval, $opZval);
+        $this->function->InternalModuleCall(InternalModule::ZVAL_CONVERT_INTEGER, $resultZval->getPtrRegister());
+        $this->setResult($resultZval);
     }
 
 }

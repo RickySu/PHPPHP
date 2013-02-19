@@ -3,6 +3,7 @@
 namespace PHPPHP\LLVMEngine\Writer;
 
 use PHPPHP\LLVMEngine\Zval;
+use PHPPHP\LLVMEngine\Register;
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 use PHPPHP\LLVMEngine\OpLines\OpLine;
 use PHPPHP\LLVMEngine\Type\Base as StringType;
@@ -114,8 +115,7 @@ class FunctionWriter {
     }
 
     public function getRegisterSerial() {
-        $tmp = ++$this->registerSerial;
-        return "%r$tmp";
+        return new Register(++$this->registerSerial);
     }
 
     protected function functionCtorIR() {

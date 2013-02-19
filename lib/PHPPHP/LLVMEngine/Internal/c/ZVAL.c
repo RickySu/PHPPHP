@@ -382,7 +382,6 @@ void __attribute((fastcall)) ZVAL_CONVERT_STRING(zval *zval) {
     zval->value.str.len = len;
     zval->_convertion_cache_type = oldType;
     memcpy(&zval->_convertion_cache, &oldValue, sizeof (zvalue_value));
-    zval->type = ZVAL_TYPE_STRING;
 }
 
 long __attribute((fastcall)) ZVAL_INTEGER_VALUE(zval *zval) {
@@ -429,8 +428,8 @@ void __attribute((fastcall)) ZVAL_CONVERT_INTEGER(zval *zval) {
     }
     oldType = zval->type;
     memcpy(&oldValue, &zval->value, sizeof (zvalue_value));
-    zval->type = ZVAL_TYPE_INTEGER;
     zval->value.lval = ZVAL_INTEGER_VALUE(zval);
+    zval->type = ZVAL_TYPE_INTEGER;
     zval->_convertion_cache_type = oldType;
     memcpy(&zval->_convertion_cache, &oldValue, sizeof (zvalue_value));
 }
@@ -479,8 +478,8 @@ void __attribute((fastcall)) ZVAL_CONVERT_DOUBLE(zval *zval) {
     }
     oldType = zval->type;
     memcpy(&oldValue, &zval->value, sizeof (zvalue_value));
-    zval->type = ZVAL_TYPE_DOUBLE;
     zval->value.dval = ZVAL_DOUBLE_VALUE(zval);
+    zval->type = ZVAL_TYPE_DOUBLE;
     zval->_convertion_cache_type = oldType;
     memcpy(&zval->_convertion_cache, &oldValue, sizeof (zvalue_value));
 }
