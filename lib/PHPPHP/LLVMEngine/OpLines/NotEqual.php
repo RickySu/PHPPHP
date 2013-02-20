@@ -43,7 +43,7 @@ class NotEqual extends OpLine {
             $result = $this->function->getRegisterSerial();
             $this->function->writeOpLineIR("$result = xor " . BaseType::long() . " $resultEqual, 1");
             $resultZvalRegister = $this->getResultRegister();
-            $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+            $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
             $this->writeAssignBoolean($resultZval, $result);
             $this->setResult($resultZval);
             $this->function->writeOpLineIR("br label %$LabelEndIf");
@@ -65,7 +65,7 @@ class NotEqual extends OpLine {
         $resultEqualRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_EQUAL, $op1Zval->getPtrRegister(), $op2Zval->getPtrRegister());
         $resultRegister = $this->getResultRegister();
         $this->function->writeOpLineIR("%$resultRegister = xor " . BaseType::long() . " $resultEqualRegister, 1");
-        $resultZval = $this->function->getZvalIR($resultRegister, true, true);
+        $resultZval = $this->function->getZvalIR($resultRegister, false, true);
         $this->writeAssignBoolean($resultZval, "%$resultRegister");
         $this->setResult($resultZval);
     }
@@ -86,7 +86,7 @@ class NotEqual extends OpLine {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = zext i1 $opTrue to " . BaseType::long());
         $resultZvalRegister = $this->getResultRegister();
-        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
         $this->writeAssignBoolean($resultZval, $resultRegister);
         $this->setResult($resultZval);
     }

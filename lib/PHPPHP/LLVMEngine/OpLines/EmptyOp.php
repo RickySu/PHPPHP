@@ -32,7 +32,7 @@ class EmptyOp extends OpLine {
         $this->function->writeOpLineIR("br i1 $isString, label %$LabelIfString, label %$LabelElse");
         $this->function->writeOpLineIR("$LabelIfString:");
         $resultZvalRegister = $this->getResultRegister();
-        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
         $this->writeAssignBoolean($resultZval, false);
         $this->setResult($resultZval);
         $this->function->writeOpLineIR("br label %$LabelEndIf");
@@ -48,7 +48,7 @@ class EmptyOp extends OpLine {
         $this->function->writeOpLineIR("$op1True = icmp eq " . BaseType::long() . " $typeCastOp1ValueRegister, 0");
         $this->function->writeOpLineIR("$resultRegister = zext i1 $op1True to " . BaseType::long());
         $resultZvalRegister = $this->getResultRegister();
-        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
         $this->writeAssignBoolean($resultZval, $resultRegister);
         $this->setResult($resultZval);
     }
@@ -59,7 +59,7 @@ class EmptyOp extends OpLine {
         $this->function->writeOpLineIR("$op1True = fcmp eq " . BaseType::double() . " $typeCastOp1ValueRegister, 0.0");
         $this->function->writeOpLineIR("$resultRegister = zext i1 $op1True to " . BaseType::long());
         $resultZvalRegister = $this->getResultRegister();
-        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
         $this->writeAssignBoolean($resultZval, $resultRegister);
         $this->setResult($resultZval);
     }

@@ -67,7 +67,7 @@ class Identical extends OpLine {
         $constant = $this->function->writeConstant($value);
         $result = $this->function->InternalModuleCall(InternalModule::ZVAL_EQUAL_STRING, $opZval->getPtrRegister(), strlen($value), $constant->ptr());
         $resultZvalRegister = $this->getResultRegister();
-        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
         $this->writeAssignBoolean($resultZval, $result);
         $this->setResult($resultZval);
         $this->function->writeOpLineIR("br label %$LabelEndIf");
@@ -78,7 +78,7 @@ class Identical extends OpLine {
         $this->function->writeOpLineIR("$LabelElse:");
         // type not equal
         $resultZvalRegister = $this->getResultRegister();
-        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
         $this->writeAssignBoolean($resultZval, false);
         $this->setResult($resultZval);
         $this->function->writeOpLineIR("br label %$LabelEndIf");
@@ -93,7 +93,7 @@ class Identical extends OpLine {
 
     protected function writeZvalZval(LLVMZval $op1Zval, LLVMZval $op2Zval) {
         $resultRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_EQUAL_EXACT, $op1Zval->getPtrRegister(), $op2Zval->getPtrRegister());
-        $resultZval = $this->function->getZvalIR(substr($resultRegister, 1), true, true);
+        $resultZval = $this->function->getZvalIR(substr($resultRegister, 1), false, true);
         $this->writeAssignBoolean($resultZval, $resultRegister);
         $this->setResult($resultZval);
     }
@@ -114,7 +114,7 @@ class Identical extends OpLine {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = zext i1 $opTrue to " . BaseType::long());
         $resultZvalRegister = $this->getResultRegister();
-        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
         $this->writeAssignBoolean($resultZval, $resultRegister);
         $this->setResult($resultZval);
     }

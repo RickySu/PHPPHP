@@ -17,7 +17,7 @@ trait PrepareOpZval {
             if ($opVar->getImmediateZval() instanceof Zval\Value) {
                 $opZval=$opVar->getValue();
             } else {
-                $opZval = $this->function->getZvalIR($opVar->getName(),false);
+                $opZval = $this->function->getZvalIR($opVar->getName());
             }
             $opZvals[] = $opZval;
         }
@@ -45,7 +45,7 @@ trait PrepareOpZval {
      * @return LLVMZval
      */
     protected function makeTempZval($value,$registTemp=true) {
-        $opZval = $this->function->getZvalIR(substr($this->function->getRegisterSerial(), 1), true, true);
+        $opZval = $this->function->getZvalIR(substr($this->function->getRegisterSerial(), 1), false, true);
         $this->writeImmediateValueAssign($opZval, $value);
         if($registTemp){
             $this->registTempZval($opZval);

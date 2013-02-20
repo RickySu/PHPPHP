@@ -24,7 +24,7 @@ class CastInt extends OpLine {
 
     protected function writeZval(LLVMZval $opZval) {
         $resultZvalRegister = $this->getResultRegister();
-        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
         $this->writeVarAssign($resultZval, $opZval);
         $this->function->InternalModuleCall(InternalModule::ZVAL_CONVERT_INTEGER, $resultZval->getPtrRegister());
         $this->setResult($resultZval);

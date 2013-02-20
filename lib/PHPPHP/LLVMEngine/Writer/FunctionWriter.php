@@ -189,7 +189,7 @@ class FunctionWriter {
         return $IR;
     }
 
-    public function getZvalIR($varName, $initZval = true, $isTmp = false) {
+    public function getZvalIR($varName, $initZval = false, $isTmp = false) {
         $zval = new Zval($varName, false, $isTmp, $this);
         if (isset($this->varList[(string) $zval])) {
             return $this->varList[(string) $zval];

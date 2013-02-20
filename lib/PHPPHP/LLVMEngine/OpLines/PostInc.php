@@ -24,7 +24,7 @@ class PostInc extends OpLine {
     protected function writeIntegerOp($typeCastOp1ValueRegister) {
         if (!$this->opCode->result->markUnUsed) {
             $resultZvalRegister = $this->getResultRegister();
-            $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+            $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
             $this->writeAssignInteger($resultZval, $typeCastOp1ValueRegister);
             $this->setResult($resultZval);
         }
@@ -37,7 +37,7 @@ class PostInc extends OpLine {
     protected function writeDoubleOp($typeCastOp1ValueRegister) {
         if (!$this->opCode->result->markUnUsed) {
             $resultZvalRegister = $this->getResultRegister();
-            $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+            $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
             $this->writeAssignDouble($resultZval, $typeCastOp1ValueRegister);
             $this->setResult($resultZval);
         }

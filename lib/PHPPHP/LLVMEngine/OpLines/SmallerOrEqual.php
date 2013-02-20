@@ -37,7 +37,7 @@ class SmallerOrEqual extends OpLine {
         $resultCastRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultCastRegister = zext i1 $resultRegister to " . BaseType::long());
         $resultZvalRegister = $this->getResultRegister();
-        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
         $this->writeAssignBoolean($resultZval, $resultCastRegister);
         $this->setResult($resultZval);
     }

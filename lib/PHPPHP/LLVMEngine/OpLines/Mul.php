@@ -25,7 +25,7 @@ class Mul extends OpLine {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = mul " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $resultZvalRegister = $this->getResultRegister();
-        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
         $this->writeAssignInteger($resultZval, $resultRegister);
         $this->setResult($resultZval);
     }
@@ -34,7 +34,7 @@ class Mul extends OpLine {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = fmul " . BaseType::double() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $resultZvalRegister = $this->getResultRegister();
-        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
         $this->writeAssignDouble($resultZval, $resultRegister);
         $this->setResult($resultZval);
     }

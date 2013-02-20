@@ -28,7 +28,7 @@ class PreInc extends OpLine {
         $this->writeAssignInteger($opZval, $resultRegister);
         if (!$this->opCode->result->markUnUsed) {
             $resultZvalRegister = $this->getResultRegister();
-            $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+            $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
             $this->writeVarAssign($resultZval, $opZval);
             $this->setResult($resultZval);
         }
@@ -41,7 +41,7 @@ class PreInc extends OpLine {
         $this->writeAssignDouble($opZval, $resultRegister);
         if (!$this->opCode->result->markUnUsed) {
             $resultZvalRegister = $this->getResultRegister();
-            $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+            $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
             $this->writeVarAssign($resultZval, $opZval);
             $this->setResult($resultZval);
         }
