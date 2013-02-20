@@ -2,7 +2,6 @@
 
 namespace PHPPHP\LLVMEngine\OpLines;
 
-use PHPPHP\Engine\Zval;
 use PHPPHP\LLVMEngine\Zval as LLVMZval;
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 
@@ -32,11 +31,11 @@ class AssignRef extends OpLine {
 
         $this->function->writeOpLineIR(substr($LabelTrue,1).':');
         //$op1Zval need GC
-        $this->function->InternalModuleCall(InternalModule::ZVAL_GC, $op1Zval->getGCList(), $op1ZvalPtr);
+        $this->function->InternalModuleCall(InternalModule::ZVAL_GC, LLVMZval::getGCList(), $op1ZvalPtr);
         $this->function->writeOpLineIR("br label $LabelFalse");
 
         $this->function->writeOpLineIR(substr($LabelFalse,1).':');
-        $op1ZvalPtr=$this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_REF, $op2Zval->getGCList(), $op2Zval->getPtrRegister());
+        $op1ZvalPtr=$this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_REF, LLVMZval::getGCList(), $op2Zval->getPtrRegister());
         $op1Zval->savePtrRegister($op1ZvalPtr);
         $op2Zval->savePtrRegister($op1ZvalPtr);
    }

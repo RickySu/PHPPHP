@@ -35,10 +35,7 @@ class Zval {
         return self::getType($ptr);
     }
 
-    public function getGCList(){
-        if($this->isTemp){
-            return self::ZVAL_TEMP_GC_LIST;
-        }
+    public static function getGCList(){
         return self::ZVAL_GC_LIST;
     }
     public function __construct($varName, $initZval, $isTemp, $IRWriter) {

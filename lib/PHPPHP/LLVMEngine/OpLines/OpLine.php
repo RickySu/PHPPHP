@@ -4,7 +4,6 @@ namespace PHPPHP\LLVMEngine\OpLines;
 
 use PHPPHP\LLVMEngine\Writer\FunctionWriter;
 use PHPPHP\Engine\OpLine as opCode;
-use PHPPHP\Engine\Zval;
 use PHPPHP\LLVMEngine\Zval as LLVMZval;
 use PHPPHP\LLVMEngine\Type\Base as BaseType;
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
@@ -78,7 +77,7 @@ abstract class OpLine {
     }
 
     protected function gcVarZval(LLVMZval $varZval, $emptyVarZval = true) {
-        $this->function->InternalModuleCall(InternalModule::ZVAL_GC, $varZval->getGCList(), $varZval->getPtrRegister());
+        $this->function->InternalModuleCall(InternalModule::ZVAL_GC, LLVMZval::getGCList(), $varZval->getPtrRegister());
         if ($emptyVarZval) {
             $varZval->savePtrRegister(BaseType::null());
         }

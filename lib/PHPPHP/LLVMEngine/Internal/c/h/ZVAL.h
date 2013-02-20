@@ -5,6 +5,7 @@
 
 void __attribute((fastcall)) freeConvertionCacheBuffer(zval *zval);
 int __attribute((fastcall)) is_number(int len, char *val);
+void __attribute((fastcall)) zval_copy_content(zval *dstZval,zval *srcZval);
 
 zval * __attribute((fastcall)) ZVAL_INIT(zvallist *list);
 void __attribute((fastcall)) ZVAL_GC_REGISTER(zvallist *list, zval *zval);
