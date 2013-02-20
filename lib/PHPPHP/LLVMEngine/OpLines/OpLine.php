@@ -22,8 +22,7 @@ abstract class OpLine {
      * @var opCode
      */
     protected $opCode;
-    protected $opIndex;
-    protected $opResult;
+    protected $opLineNo;
     protected $tempZval = array();
 
     private $resultRegister=NULL;
@@ -35,10 +34,9 @@ abstract class OpLine {
         return $this->resultRegister;
     }
 
-    public function __construct(opCode $opCode, $opIndex, $opResult) {
+    public function __construct(opCode $opCode, $opLineNo) {
         $this->opCode = $opCode;
-        $this->opIndex = $opIndex;
-        $this->opResult = $opResult;
+        $this->opLineNo = $opLineNo;
     }
 
     public function setFunction(FunctionWriter $function) {
@@ -51,14 +49,6 @@ abstract class OpLine {
         $this->writeDebugInfo();
         $this->writeDebugInfo("line {$this->opCode->lineno} $className");
         $this->function->writeOpLineIR($this);
-
-        if ($this->opResult !== NULL) {
-            $opResultVar = $this->opResult->getImmediateZval();
-            if (isset($opResultVar->TempVarName)) {
-                $opResultZval = $this->function->getZvalIR($opResultVar->TempVarName, true, true);
-                $this->registTempZval($opResultZval);
-            }
-        }
     }
 
     protected function writeDebugInfo($info = null) {
@@ -104,8 +94,8 @@ abstract class OpLine {
 
     public function __toString() {
         $IR = '';
-        $IR.=$this->function->getJumpLabelIR($this->opIndex);
-        $IR.=$this->function->getJumpLabel($this->opIndex);
+        $IR.=$this->function->getJumpLabelIR($this->opLineNo);
+        $IR.=$this->function->getJumpLabel($this->opLineNo);
         return $IR;
     }
 

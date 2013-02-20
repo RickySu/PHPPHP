@@ -12,7 +12,9 @@ class CastString extends OpLine {
 
     public function write() {
         parent::write();
-        $this->prepareOpZval($this->opCode->op1);
+        if (!$this->opCode->result->markUnUsed) {
+            $this->prepareOpZval($this->opCode->op1);
+        }
         $this->gcTempZval();
     }
 

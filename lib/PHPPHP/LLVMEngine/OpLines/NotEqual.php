@@ -11,10 +11,11 @@ class NotEqual extends OpLine {
     use Parts\TypeCast,
         Parts\PrepareOpZval;
 
-
     public function write() {
         parent::write();
-        $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
+        if (!$this->opCode->result->markUnUsed) {
+            $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
+        }
         $this->gcTempZval();
     }
 
@@ -24,10 +25,10 @@ class NotEqual extends OpLine {
 
     protected function writeZvalValue(LLVMZval $opZval, $value) {
         if (is_string($value)) {
-            $guessTypePtr=$this->function->getRegisterSerial();
-            $this->function->writeOpLineIR(LLVMZval::zval()->getStructIR()->getElementPtrIR($guessTypePtr , $opZval->getPtrRegister(), 'type'));
-            $guessType=$this->function->getRegisterSerial();
-            $this->function->writeOpLineIR("$guessType = load ".BaseType::char('*')." $guessTypePtr");
+            $guessTypePtr = $this->function->getRegisterSerial();
+            $this->function->writeOpLineIR(LLVMZval::zval()->getStructIR()->getElementPtrIR($guessTypePtr, $opZval->getPtrRegister(), 'type'));
+            $guessType = $this->function->getRegisterSerial();
+            $this->function->writeOpLineIR("$guessType = load " . BaseType::char('*') . " $guessTypePtr");
             $isString = $this->function->getRegisterSerial();
             $ifSerial = substr($this->function->getRegisterSerial(), 1);
             $LabelIfString = "Label_IfString_$ifSerial";
@@ -39,8 +40,8 @@ class NotEqual extends OpLine {
             // (zval)string == string
             $constant = $this->function->writeConstant($value);
             $resultEqual = $this->function->InternalModuleCall(InternalModule::ZVAL_EQUAL_STRING, $opZval->getPtrRegister(), strlen($value), $constant->ptr());
-            $result=$this->function->getRegisterSerial();
-            $this->function->writeOpLineIR("$result = xor ".BaseType::long()." $resultEqual, 1");
+            $result = $this->function->getRegisterSerial();
+            $this->function->writeOpLineIR("$result = xor " . BaseType::long() . " $resultEqual, 1");
             $resultZvalRegister = $this->getResultRegister();
             $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
             $this->writeAssignBoolean($resultZval, $result);
@@ -62,8 +63,8 @@ class NotEqual extends OpLine {
 
     protected function writeZvalZval(LLVMZval $op1Zval, LLVMZval $op2Zval) {
         $resultEqualRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_EQUAL, $op1Zval->getPtrRegister(), $op2Zval->getPtrRegister());
-        $resultRegister=$this->getResultRegister();
-        $this->function->writeOpLineIR("%$resultRegister = xor ".BaseType::long()." $resultEqualRegister, 1");
+        $resultRegister = $this->getResultRegister();
+        $this->function->writeOpLineIR("%$resultRegister = xor " . BaseType::long() . " $resultEqualRegister, 1");
         $resultZval = $this->function->getZvalIR($resultRegister, true, true);
         $this->writeAssignBoolean($resultZval, "%$resultRegister");
         $this->setResult($resultZval);

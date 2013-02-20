@@ -11,7 +11,9 @@ class BitwiseNot extends OpLine {
 
     public function write() {
         parent::write();
-        $this->prepareOpZval($this->opCode->op1);
+        if (!$this->opCode->result->markUnUsed) {
+            $this->prepareOpZval($this->opCode->op1);
+        }
         $this->gcTempZval();
     }
 
@@ -23,14 +25,14 @@ class BitwiseNot extends OpLine {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = xor " . BaseType::long() . " $typeCastOp1ValueRegister, -1");
         $resultZvalRegister = $this->getResultRegister();
-        $resultZval=$this->function->getZvalIR($resultZvalRegister, true, true);
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
         $this->writeAssignInteger($resultZval, $resultRegister);
         $this->setResult($resultZval);
     }
 
     protected function writeDoubleOp($typeCastOp1ValueRegister) {
         $typeCastOp1ValueIntegerRegister = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$typeCastOp1ValueIntegerRegister = fptosi ".BaseType::double(). " $typeCastOp1ValueRegister to ".BaseType::long());
+        $this->function->writeOpLineIR("$typeCastOp1ValueIntegerRegister = fptosi " . BaseType::double() . " $typeCastOp1ValueRegister to " . BaseType::long());
         return $this->writeIntegerOp($typeCastOp1ValueIntegerRegister);
     }
 

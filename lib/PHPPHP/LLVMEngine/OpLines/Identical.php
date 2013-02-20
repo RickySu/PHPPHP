@@ -13,7 +13,9 @@ class Identical extends OpLine {
 
     public function write() {
         parent::write();
-        $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
+        if (!$this->opCode->result->markUnUsed) {
+            $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
+        }
         $this->gcTempZval();
     }
 
@@ -58,7 +60,7 @@ class Identical extends OpLine {
         $this->function->writeOpLineIR("$LabelIfEqualType:");
         // type equal
         $isString = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$isString = icmp eq " . BaseType::char() . " $guessType, ".LLVMZval\Type::TYPE_STRING);
+        $this->function->writeOpLineIR("$isString = icmp eq " . BaseType::char() . " $guessType, " . LLVMZval\Type::TYPE_STRING);
         $this->function->writeOpLineIR("br i1 $isString, label %$LabelIfStringType, label %$LabelIfNumberType");
         $this->function->writeOpLineIR("$LabelIfStringType:");
         //  type string

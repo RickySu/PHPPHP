@@ -16,31 +16,35 @@ class PreDec extends OpLine {
     }
 
     protected function writeValueValue($value1) {
-        $this->setResult($value1--);
+        if (!$this->opCode->result->markUnUsed) {
+            $this->setResult($value1--);
+        }
     }
 
     protected function writeIntegerOp($typeCastOp1ValueRegister) {
-        $opZval=$this->function->getZvalIR($this->opCode->op1->getName());
+        $opZval = $this->function->getZvalIR($this->opCode->op1->getName());
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = sub " . BaseType::long() . " $typeCastOp1ValueRegister, 1");
         $this->writeAssignInteger($opZval, $resultRegister);
-
-        $resultZvalRegister = $this->getResultRegister();
-        $resultZval=$this->function->getZvalIR($resultZvalRegister, true, true);
-        $this->writeVarAssign($resultZval, $opZval);
-        $this->setResult($resultZval);
+        if (!$this->opCode->result->markUnUsed) {
+            $resultZvalRegister = $this->getResultRegister();
+            $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+            $this->writeVarAssign($resultZval, $opZval);
+            $this->setResult($resultZval);
+        }
     }
 
     protected function writeDoubleOp($typeCastOp1ValueRegister) {
-        $opZval=$this->function->getZvalIR($this->opCode->op1->getName());
+        $opZval = $this->function->getZvalIR($this->opCode->op1->getName());
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = fsub " . BaseType::double() . " $typeCastOp1ValueRegister, 1.0");
         $this->writeAssignDouble($opZval, $resultRegister);
-
-        $resultZvalRegister = $this->getResultRegister();
-        $resultZval=$this->function->getZvalIR($resultZvalRegister, true, true);
-        $this->writeVarAssign($resultZval, $opZval);
-        $this->setResult($resultZval);
+        if (!$this->opCode->result->markUnUsed) {
+            $resultZvalRegister = $this->getResultRegister();
+            $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
+            $this->writeVarAssign($resultZval, $opZval);
+            $this->setResult($resultZval);
+        }
     }
 
 }

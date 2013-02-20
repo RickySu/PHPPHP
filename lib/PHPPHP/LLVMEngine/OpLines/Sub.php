@@ -11,19 +11,21 @@ class Sub extends OpLine {
 
     public function write() {
         parent::write();
-        $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
+        if (!$this->opCode->result->markUnUsed) {
+            $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
+        }
         $this->gcTempZval();
     }
 
     protected function writeValueValue($value1, $value2) {
-        $this->setResult($value1+$value2);
+        $this->setResult($value1 + $value2);
     }
 
     protected function writeIntegerOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = sub " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $resultZvalRegister = $this->getResultRegister();
-        $resultZval=$this->function->getZvalIR($resultZvalRegister, true, true);
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
         $this->writeAssignInteger($resultZval, $resultRegister);
         $this->setResult($resultZval);
     }
@@ -32,7 +34,7 @@ class Sub extends OpLine {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = fsub " . BaseType::double() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $resultZvalRegister = $this->getResultRegister();
-        $resultZval=$this->function->getZvalIR($resultZvalRegister, true, true);
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
         $this->writeAssignDouble($resultZval, $resultRegister);
         $this->setResult($resultZval);
     }

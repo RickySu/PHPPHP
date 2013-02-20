@@ -11,7 +11,9 @@ class BooleanNot extends OpLine {
 
     public function write() {
         parent::write();
-        $this->prepareOpZval($this->opCode->op1);
+        if (!$this->opCode->result->markUnUsed) {
+            $this->prepareOpZval($this->opCode->op1);
+        }
         $this->gcTempZval();
     }
 
@@ -31,13 +33,13 @@ class BooleanNot extends OpLine {
         $this->writeResult($op1True);
     }
 
-    protected function writeResult($op1True){
+    protected function writeResult($op1True) {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = xor i1 $op1True, true");
         $resultCastRegister = $this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$resultCastRegister = zext i1 $resultRegister to ".BaseType::long());
+        $this->function->writeOpLineIR("$resultCastRegister = zext i1 $resultRegister to " . BaseType::long());
         $resultZvalRegister = $this->getResultRegister();
-        $resultZval=$this->function->getZvalIR($resultZvalRegister, true, true);
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
         $this->writeAssignBoolean($resultZval, $resultCastRegister);
         $this->setResult($resultZval);
     }

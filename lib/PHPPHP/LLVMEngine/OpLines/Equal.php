@@ -13,7 +13,9 @@ class Equal extends OpLine {
 
     public function write() {
         parent::write();
-        $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
+        if (!$this->opCode->result->markUnUsed) {
+            $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
+        }
         $this->gcTempZval();
     }
 
@@ -23,10 +25,10 @@ class Equal extends OpLine {
 
     protected function writeZvalValue(LLVMZval $opZval, $value) {
         if (is_string($value)) {
-            $guessTypePtr=$this->function->getRegisterSerial();
-            $this->function->writeOpLineIR(LLVMZval::zval()->getStructIR()->getElementPtrIR($guessTypePtr , $opZval->getPtrRegister(), 'type'));
-            $guessType=$this->function->getRegisterSerial();
-            $this->function->writeOpLineIR("$guessType = load ".BaseType::char('*')." $guessTypePtr");
+            $guessTypePtr = $this->function->getRegisterSerial();
+            $this->function->writeOpLineIR(LLVMZval::zval()->getStructIR()->getElementPtrIR($guessTypePtr, $opZval->getPtrRegister(), 'type'));
+            $guessType = $this->function->getRegisterSerial();
+            $this->function->writeOpLineIR("$guessType = load " . BaseType::char('*') . " $guessTypePtr");
             $isString = $this->function->getRegisterSerial();
             $ifSerial = substr($this->function->getRegisterSerial(), 1);
             $LabelIfString = "Label_IfString_$ifSerial";

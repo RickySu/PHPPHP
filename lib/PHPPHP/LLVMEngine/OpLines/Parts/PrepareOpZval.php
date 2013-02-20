@@ -17,7 +17,7 @@ trait PrepareOpZval {
             if ($opVar->getImmediateZval() instanceof Zval\Value) {
                 $opZval=$opVar->getValue();
             } else {
-                $opZval = $this->function->getZvalIR($opVar->getName());
+                $opZval = $this->function->getZvalIR($opVar->getName(),false);
             }
             $opZvals[] = $opZval;
         }

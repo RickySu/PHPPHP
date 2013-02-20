@@ -56,35 +56,35 @@ class FunctionWriter {
         }
     }
 
-    public function setJumpLabel($opIndex) {
-        $this->writeOpLineIR(";set jump label $opIndex");
-        $this->opJumpLabel[$opIndex] = true;
+    public function setJumpLabel($opLineNo) {
+        $this->writeOpLineIR(";set jump label $opLineNo");
+        $this->opJumpLabel[$opLineNo] = true;
     }
 
-    public function writeJumpLabelIR($opIndex) {
-        $this->setJumpLabel($opIndex);
-        $Label = substr($this->getJumpLabel($opIndex), 0, -1);
+    public function writeJumpLabelIR($opLineNo) {
+        $this->setJumpLabel($opLineNo);
+        $Label = substr($this->getJumpLabel($opLineNo), 0, -1);
         $this->writeOpLineIR("br label %$Label\n");
     }
 
-    public function getJumpLabelIR($opIndex) {
+    public function getJumpLabelIR($opLineNo) {
         $IR = '';
-        if ($this->isSetJumpLable($opIndex)) {
-            $Label = substr($this->getJumpLabel($opIndex), 0, -1);
+        if ($this->isSetJumpLable($opLineNo)) {
+            $Label = substr($this->getJumpLabel($opLineNo), 0, -1);
             $IR.="br label %$Label\n";
         }
         return $IR;
     }
 
-    public function getJumpLabel($opIndex) {
-        if ($this->isSetJumpLable($opIndex)) {
-            return "op_jump_label_$opIndex:";
+    public function getJumpLabel($opLineNo) {
+        if ($this->isSetJumpLable($opLineNo)) {
+            return "op_jump_label_$opLineNo:";
         }
         return '';
     }
 
-    public function isSetJumpLable($opIndex) {
-        return isset($this->opJumpLabel[$opIndex]);
+    public function isSetJumpLable($opLineNo) {
+        return isset($this->opJumpLabel[$opLineNo]);
     }
 
     public function writeOpLineIR($opLineIR) {

@@ -11,7 +11,9 @@ class Div extends OpLine {
 
     public function write() {
         parent::write();
-        $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
+        if (!$this->opCode->result->markUnUsed) {
+            $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
+        }
         $this->gcTempZval();
     }
 
@@ -19,10 +21,9 @@ class Div extends OpLine {
         $this->setResult($value1 / $value2);
     }
 
-
     protected function writeIntegerOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
         $resultRegister = $this->function->getRegisterSerial();
-        $isIntegerTypeRegister=$this->function->getRegisterSerial();
+        $isIntegerTypeRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = srem " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $this->function->writeOpLineIR("$isIntegerTypeRegister = icmp eq " . BaseType::long() . " $resultRegister, 0");
         $ifSerial = substr($this->function->getRegisterSerial(), 1);
@@ -33,7 +34,7 @@ class Div extends OpLine {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = sdiv " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $resultZvalRegister = $this->getResultRegister();
-        $resultZval=$this->function->getZvalIR($resultZvalRegister, true, true);
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
         $this->writeAssignInteger($resultZval, $resultRegister);
         $this->setResult($resultZval);
         $this->function->writeOpLineIR("br label %$LabelEndIf");
@@ -49,7 +50,7 @@ class Div extends OpLine {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = fdiv " . BaseType::double() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $resultZvalRegister = $this->getResultRegister();
-        $resultZval=$this->function->getZvalIR($resultZvalRegister, true, true);
+        $resultZval = $this->function->getZvalIR($resultZvalRegister, true, true);
         $this->writeAssignDouble($resultZval, $resultRegister);
         $this->setResult($resultZval);
     }

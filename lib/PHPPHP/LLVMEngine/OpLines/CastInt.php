@@ -12,12 +12,14 @@ class CastInt extends OpLine {
 
     public function write() {
         parent::write();
-        $this->prepareOpZval($this->opCode->op1);
+        if (!$this->opCode->result->markUnUsed) {
+            $this->prepareOpZval($this->opCode->op1);
+        }
         $this->gcTempZval();
     }
 
     protected function writeValue($value1) {
-        $this->setResult((int)$value1);
+        $this->setResult((int) $value1);
     }
 
     protected function writeZval(LLVMZval $opZval) {

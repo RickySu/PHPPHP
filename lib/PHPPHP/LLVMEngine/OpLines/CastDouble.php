@@ -12,12 +12,14 @@ class CastDouble extends OpLine {
 
     public function write() {
         parent::write();
-        $this->prepareOpZval($this->opCode->op1);
+        if (!$this->opCode->result->markUnUsed) {
+            $this->prepareOpZval($this->opCode->op1);
+        }
         $this->gcTempZval();
     }
 
     protected function writeValue($value1) {
-        $this->setResult((double)$value1);
+        $this->setResult((double) $value1);
     }
 
     protected function writeZval(LLVMZval $opZval) {
@@ -27,6 +29,5 @@ class CastDouble extends OpLine {
         $this->function->InternalModuleCall(InternalModule::ZVAL_CONVERT_DOUBLE, $resultZval->getPtrRegister());
         $this->setResult($resultZval);
     }
-
 
 }

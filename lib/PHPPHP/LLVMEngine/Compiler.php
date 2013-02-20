@@ -4,6 +4,7 @@ namespace PHPPHP\LLVMEngine;
 
 use PHPPHP\LLVMEngine\OpLines;
 use PHPPHP\Engine\OpArray;
+use PHPPHP\Engine\Zval;
 
 dl('llvm_bind.so');
 
@@ -27,6 +28,7 @@ class Compiler {
         $module = new Writer\ModuleWriter($context);
         $this->writer->addModuleWriter($module);
         $this->compileOpLine($module, $opArray);
+        //print_r($opArray);die;
         $IR = $this->writer->write();
         echo $IR;
         $this->writer->clear();
@@ -43,14 +45,24 @@ class Compiler {
 
     protected function compileOpLine(Writer\ModuleWriter $module, OpArray $opArray) {
         $function = $module->getEntryFunction();
-        $opResult = NULL;
-        foreach ($opArray as $opIndex => $opCode) {
+        $opResult=NULL;
+        foreach ($opArray as $opLineNo => $opCode) {
+            if($opResult){
+                $unUsedOpResult=true;
+                if(($opCode->op1 instanceof Zval\Ptr) && ($opCode->op1->getImmediateZval()===$opResult->getImmediateZval())){
+                    $unUsedOpResult=false;
+                }
+                if(($opCode->op2 instanceof Zval\Ptr) && ($opCode->op2->getImmediateZval()===$opResult->getImmediateZval())){
+                    $unUsedOpResult=false;
+                }
+                $opResult->markUnUsed=$unUsedOpResult;
+            }
+            $opResult=$opCode->result;
             $className = explode('\\', get_class($opCode));
             $className = $className[count($className) - 1];
             $opLineClassName = '\\PHPPHP\\LLVMEngine\\OpLines\\' . $className;
-            $opLine = new $opLineClassName($opCode, $opIndex,$opResult);
+            $opLine = new $opLineClassName($opCode, $opLineNo);
             $function->addOpLine($opLine);
-            $opResult=$opCode->result;
         }
     }
 
