@@ -28,7 +28,6 @@ class Compiler {
         $module = new Writer\ModuleWriter($context);
         $this->writer->addModuleWriter($module);
         $this->compileOpLine($module, $opArray);
-        //print_r($opArray);die;
         $IR = $this->writer->write();
         echo $IR;
         $this->writer->clear();

@@ -11,7 +11,7 @@ trait VarAssign {
     protected function writeImmediateValueAssign(LLVMZval $op1Zval, $value) {
         $valueType = gettype($value);
         $this->writeDebugInfo("$op1Zval <= ($valueType)");
-
+print_r($valueType);die;
         switch ($valueType) {
             case 'integer':
                 $this->writeAssignInteger($op1Zval, $value);
@@ -24,6 +24,9 @@ trait VarAssign {
                 break;
             case 'boolean':
                 $this->writeAssignBoolean($op1Zval, $value);
+                break;
+            case 'array':
+                $this->writeAssignArray($op1Zval, $value);
                 break;
             case 'NULL':
                 $this->writeAssignNULL($op1Zval, $value);

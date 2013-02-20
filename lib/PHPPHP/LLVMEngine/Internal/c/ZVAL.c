@@ -193,15 +193,21 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_STRING(zvallist *list, zval *newzval,
 }
 
 zval * __attribute((fastcall)) ZVAL_ASSIGN_ZVAL(zvallist *list, zval *zval1, zval *zval2) {
-    if (zval1) {
-        ZVAL_GC(list, zval1);
+    if (!zval1) {
+        return NULL;
+    }
+
+    ZVAL_GC(list, zval1);
+
+    if(!zval2){
+        return NULL;
     }
 
     if (zval2->is_ref) {
         //need copy on write
         return ZVAL_COPY(list, zval2);
     }
-    
+
     //inc ref_count
     zval2->refcount++;
     return zval2;

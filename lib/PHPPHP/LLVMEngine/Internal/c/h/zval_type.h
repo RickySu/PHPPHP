@@ -1,11 +1,16 @@
 #ifndef __ZVAL_TYPE_H
 #define __ZVAL_TYPE_H
 
-#define ZVAL_TYPE_NULL  0
-#define ZVAL_TYPE_INTEGER  1
-#define ZVAL_TYPE_STRING  2
-#define ZVAL_TYPE_DOUBLE  3
-#define ZVAL_TYPE_BOOLEAN  4
+#define ZVAL_TYPE_NULL          0
+#define ZVAL_TYPE_INTEGER       1
+#define ZVAL_TYPE_STRING        2
+#define ZVAL_TYPE_DOUBLE        3
+#define ZVAL_TYPE_BOOLEAN       4
+#define ZVAL_TYPE_ARRAY         5
+#define ZVAL_TYPE_OBJECT        6
+#define ZVAL_TYPE_RESOURCE      7
+
+
 #include "common.h"
 #include "hashtable.h"
 
