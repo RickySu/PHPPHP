@@ -5,7 +5,7 @@
 #include "h/ZVAL_LIST.h"
 #include "h/dtoa.h"
 
-void __attribute((fastcall)) freeConvertionCacheBuffer(zval *zval) {
+PHPLLVMAPI void freeConvertionCacheBuffer(zval *zval) {
     if (zval->_convertion_cache_type == ZVAL_TYPE_STRING) {
         efree(zval->_convertion_cache.str.val);
         zval->_convertion_cache.str.len = 0;
@@ -13,7 +13,7 @@ void __attribute((fastcall)) freeConvertionCacheBuffer(zval *zval) {
     zval->_convertion_cache_type = ZVAL_TYPE_NULL;
 }
 
-zval * __attribute((fastcall)) ZVAL_INIT(zvallist *list) {
+PHPLLVMAPI zval *  ZVAL_INIT(zvallist *list) {
     zval * aZval;
     if (list->isTemp) {
         ZVAL_TEMP_LIST_GC_MIN(list);
@@ -28,7 +28,7 @@ zval * __attribute((fastcall)) ZVAL_INIT(zvallist *list) {
     return aZval;
 }
 
-void __attribute((fastcall)) ZVAL_GC_REGISTER(zvallist *list, zval *zval) {
+PHPLLVMAPI void ZVAL_GC_REGISTER(zvallist *list, zval *zval) {
     if (!list->isTemp) {
         if (list->count == list->len) {
             list->next = ZVAL_LIST_INIT();
@@ -39,7 +39,7 @@ void __attribute((fastcall)) ZVAL_GC_REGISTER(zvallist *list, zval *zval) {
     list->zval[list->count++] = zval;
 }
 
-void __attribute((fastcall)) ZVAL_TEMP_GC(zvallist *list, zval *varZval) {
+PHPLLVMAPI void ZVAL_TEMP_GC(zvallist *list, zval *varZval) {
     int i, j;
     for (i = 0; i < list->count; i++) {
         if (list->zval[i] == varZval) {
@@ -52,9 +52,9 @@ void __attribute((fastcall)) ZVAL_TEMP_GC(zvallist *list, zval *varZval) {
     }
 }
 
-void __attribute((fastcall)) ZVAL_GC(zvallist *list, zval *varZval) {
+PHPLLVMAPI void ZVAL_GC(zvallist *list, zval *varZval) {
     int i;
-    if(!varZval){
+    if (!varZval) {
         return;
     }
     if (--varZval->refcount > 0) {
@@ -95,7 +95,7 @@ void __attribute((fastcall)) ZVAL_GC(zvallist *list, zval *varZval) {
     efree(varZval);
 }
 
-void __attribute((fastcall)) zval_copy_content(zval *dstZval,zval *srcZval){
+PHPLLVMAPI void zval_copy_content(zval *dstZval, zval *srcZval) {
     memcpy(dstZval, srcZval, sizeof (zval));
     if (dstZval->type == ZVAL_TYPE_STRING) {
         if (dstZval->value.str.len) {
@@ -111,26 +111,26 @@ void __attribute((fastcall)) zval_copy_content(zval *dstZval,zval *srcZval){
     }
 }
 
-zval * __attribute((fastcall)) ZVAL_COPY(zvallist *list, zval *srcZval) {
+PHPLLVMAPI zval *  ZVAL_COPY(zvallist *list, zval *srcZval) {
     zval *dstZval;
     if (srcZval == NULL) {
         return NULL;
     }
     dstZval = ZVAL_INIT(list);
-    zval_copy_content(dstZval,srcZval);
+    zval_copy_content(dstZval, srcZval);
     dstZval->is_ref = 0;
     dstZval->refcount = 1;
     return dstZval;
 }
 
-zval * __attribute((fastcall)) ZVAL_COPY_ON_WRITE(zvallist *list, zval *srcZval) {
+PHPLLVMAPI zval *  ZVAL_COPY_ON_WRITE(zvallist *list, zval *srcZval) {
     zval *dstZval;
     dstZval = ZVAL_COPY(list, srcZval);
     ZVAL_GC(list, srcZval);
     return dstZval;
 }
 
-zval * __attribute((fastcall)) ZVAL_ASSIGN_INTEGER(zvallist *list, zval *dstZval, long val) {
+PHPLLVMAPI zval *  ZVAL_ASSIGN_INTEGER(zvallist *list, zval *dstZval, long val) {
     if (!dstZval) {
         dstZval = ZVAL_INIT(list);
     }
@@ -146,14 +146,14 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_INTEGER(zvallist *list, zval *dstZval
     return dstZval;
 }
 
-zval * __attribute((fastcall)) ZVAL_ASSIGN_BOOLEAN(zvallist *list, zval *varZval, long val) {
+PHPLLVMAPI zval *  ZVAL_ASSIGN_BOOLEAN(zvallist *list, zval *varZval, long val) {
     zval *output;
     output = ZVAL_ASSIGN_INTEGER(list, varZval, (val == 0 ? 0 : 1));
     output->type = ZVAL_TYPE_BOOLEAN;
     return output;
 }
 
-zval * __attribute((fastcall)) ZVAL_ASSIGN_DOUBLE(zvallist *list, zval *dstZval, double val) {
+PHPLLVMAPI zval *  ZVAL_ASSIGN_DOUBLE(zvallist *list, zval *dstZval, double val) {
     if (!dstZval) {
         dstZval = ZVAL_INIT(list);
     }
@@ -170,7 +170,7 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_DOUBLE(zvallist *list, zval *dstZval,
     return dstZval;
 }
 
-zval * __attribute((fastcall)) ZVAL_ASSIGN_STRING(zvallist *list, zval *dstZval, int len, char *val) {
+PHPLLVMAPI zval *  ZVAL_ASSIGN_STRING(zvallist *list, zval *dstZval, int len, char *val) {
     if (!dstZval) {
         dstZval = ZVAL_INIT(list);
     }
@@ -196,29 +196,29 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_STRING(zvallist *list, zval *dstZval,
     return dstZval;
 }
 
-zval * __attribute((fastcall)) ZVAL_ASSIGN_ZVAL(zvallist *list, zval *zval1, zval *zval2) {
+PHPLLVMAPI zval *  ZVAL_ASSIGN_ZVAL(zvallist *list, zval *zval1, zval *zval2) {
     int refcount;
 
-    if(zval1==zval2){
+    if (zval1 == zval2) {
         return zval1;
     }
 
     if (zval1 && zval1->is_ref) {
         //copy content
-        refcount=zval1->refcount;
-        zval_copy_content(zval1,zval2);
+        refcount = zval1->refcount;
+        zval_copy_content(zval1, zval2);
         zval1->is_ref = 1;
-        zval1->refcount=refcount;
+        zval1->refcount = refcount;
         return zval1;
     }
 
-    if(zval2->is_ref){
-        ZVAL_GC(list,zval1);
-        return ZVAL_COPY(list,zval2);
+    if (zval2->is_ref) {
+        ZVAL_GC(list, zval1);
+        return ZVAL_COPY(list, zval2);
     }
 
-    if(zval2==NULL){
-        ZVAL_GC(list,zval1);
+    if (zval2 == NULL) {
+        ZVAL_GC(list, zval1);
         return zval2;
     }
 
@@ -227,7 +227,7 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_ZVAL(zvallist *list, zval *zval1, zva
     return zval2;
 }
 
-zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_STRING(zvallist *list, zval *zval, int len, char *val) {
+PHPLLVMAPI zval *  ZVAL_ASSIGN_CONCAT_STRING(zvallist *list, zval *zval, int len, char *val) {
     int newlen;
     char *newval;
     if (!zval) {
@@ -253,7 +253,7 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_STRING(zvallist *list, zval *z
     return zval;
 }
 
-zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_ZVAL(zvallist *list, zval *zval1, zval *zval2) {
+PHPLLVMAPI zval *  ZVAL_ASSIGN_CONCAT_ZVAL(zvallist *list, zval *zval1, zval *zval2) {
     char *tmpString;
     int tmpLen;
     int newlen;
@@ -308,14 +308,14 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_CONCAT_ZVAL(zvallist *list, zval *zva
     return zval1;
 }
 
-zval * __attribute((fastcall)) ZVAL_ASSIGN_REF(zvallist *list, zval *srcZval) {
+PHPLLVMAPI zval *  ZVAL_ASSIGN_REF(zvallist *list, zval *srcZval) {
     zval *oldZval, *newZval;
 
     if (!srcZval) {
         return NULL;
     }
 
-    if (srcZval->is_ref || (srcZval->refcount==1)) {
+    if (srcZval->is_ref || (srcZval->refcount == 1)) {
         srcZval->is_ref = 1;
         srcZval->refcount++;
         return srcZval;
@@ -323,7 +323,7 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_REF(zvallist *list, zval *srcZval) {
 
     oldZval = srcZval;
     newZval = ZVAL_COPY(list, srcZval);
-    if(newZval) {
+    if (newZval) {
         ZVAL_GC(list, oldZval);
         newZval->is_ref = 1;
         newZval->refcount++;
@@ -331,7 +331,7 @@ zval * __attribute((fastcall)) ZVAL_ASSIGN_REF(zvallist *list, zval *srcZval) {
     return newZval;
 }
 
-void __attribute((fastcall)) ZVAL_STRING_VALUE(zval *zval, int *len, char **str) {
+PHPLLVMAPI void ZVAL_STRING_VALUE(zval *zval, int *len, char **str) {
     int buffersize;
     if (zval == NULL) {
         *len = 0;
@@ -376,7 +376,7 @@ void __attribute((fastcall)) ZVAL_STRING_VALUE(zval *zval, int *len, char **str)
     }
 }
 
-void __attribute((fastcall)) ZVAL_CONVERT_STRING(zval * zval) {
+PHPLLVMAPI void ZVAL_CONVERT_STRING(zval * zval) {
     int len;
     char * val;
     char oldType;
@@ -397,7 +397,7 @@ void __attribute((fastcall)) ZVAL_CONVERT_STRING(zval * zval) {
     memcpy(&zval->_convertion_cache, &oldValue, sizeof (zvalue_value));
 }
 
-long __attribute((fastcall)) ZVAL_INTEGER_VALUE(zval * zval) {
+PHPLLVMAPI long ZVAL_INTEGER_VALUE(zval * zval) {
     char *tmpBuffer;
     long returnVal;
     if (zval == NULL) {
@@ -430,7 +430,7 @@ long __attribute((fastcall)) ZVAL_INTEGER_VALUE(zval * zval) {
     }
 }
 
-void __attribute((fastcall)) ZVAL_CONVERT_INTEGER(zval * zval) {
+PHPLLVMAPI void ZVAL_CONVERT_INTEGER(zval * zval) {
     char oldType;
     zvalue_value oldValue;
     if (zval == NULL) {
@@ -447,7 +447,7 @@ void __attribute((fastcall)) ZVAL_CONVERT_INTEGER(zval * zval) {
     memcpy(&zval->_convertion_cache, &oldValue, sizeof (zvalue_value));
 }
 
-double __attribute((fastcall)) ZVAL_DOUBLE_VALUE(zval * zval) {
+PHPLLVMAPI double ZVAL_DOUBLE_VALUE(zval * zval) {
     char *tmpBuffer;
     double returnVal;
     if (zval == NULL) {
@@ -480,7 +480,7 @@ double __attribute((fastcall)) ZVAL_DOUBLE_VALUE(zval * zval) {
     }
 }
 
-void __attribute((fastcall)) ZVAL_CONVERT_DOUBLE(zval * zval) {
+PHPLLVMAPI void ZVAL_CONVERT_DOUBLE(zval * zval) {
     char oldType;
     zvalue_value oldValue;
     if (zval == NULL) {
@@ -497,7 +497,7 @@ void __attribute((fastcall)) ZVAL_CONVERT_DOUBLE(zval * zval) {
     memcpy(&zval->_convertion_cache, &oldValue, sizeof (zvalue_value));
 }
 
-int __attribute((fastcall)) is_number(int len, char *val) {
+PHPLLVMAPI int is_number(int len, char *val) {
     char dotAssigned = 0;
     char exponentAssigned = 0;
     for (int i = 0; i < len; i++) {
@@ -519,14 +519,14 @@ int __attribute((fastcall)) is_number(int len, char *val) {
     return 1;
 }
 
-int __attribute((fastcall)) ZVAL_TYPE_GUESS(zval * zval) {
+PHPLLVMAPI int ZVAL_TYPE_GUESS(zval * zval) {
     if (zval->type == ZVAL_TYPE_STRING && (!is_number(zval->value.str.len, zval->value.str.val))) {
         return ZVAL_TYPE_STRING;
     }
     return ZVAL_TYPE_GUESS_NUMBER(zval);
 }
 
-int __attribute((fastcall)) ZVAL_TYPE_GUESS_NUMBER(zval * zval) {
+PHPLLVMAPI int ZVAL_TYPE_GUESS_NUMBER(zval * zval) {
     double doubleVal;
     long integerVal;
     doubleVal = ZVAL_DOUBLE_VALUE(zval);
@@ -537,14 +537,14 @@ int __attribute((fastcall)) ZVAL_TYPE_GUESS_NUMBER(zval * zval) {
     return ZVAL_TYPE_DOUBLE;
 }
 
-int __attribute((fastcall)) ZVAL_TYPE_CAST_SINGLE(zval *zvalop1, type_cast * value_op1) {
+PHPLLVMAPI int ZVAL_TYPE_CAST_SINGLE(zval *zvalop1, type_cast * value_op1) {
     if (ZVAL_TYPE_GUESS(zvalop1) == ZVAL_TYPE_STRING) {
         return ZVAL_TYPE_STRING;
     }
     return ZVAL_TYPE_CAST_NUMBER_SINGLE(zvalop1, value_op1);
 }
 
-int __attribute((fastcall)) ZVAL_TYPE_CAST_NUMBER_SINGLE(zval *zvalop1, type_cast * value_op1) {
+PHPLLVMAPI int ZVAL_TYPE_CAST_NUMBER_SINGLE(zval *zvalop1, type_cast * value_op1) {
     if (ZVAL_TYPE_GUESS_NUMBER(zvalop1) == ZVAL_TYPE_DOUBLE) { //double type
         value_op1->dval = ZVAL_DOUBLE_VALUE(zvalop1);
         return ZVAL_TYPE_DOUBLE;
@@ -553,14 +553,14 @@ int __attribute((fastcall)) ZVAL_TYPE_CAST_NUMBER_SINGLE(zval *zvalop1, type_cas
     return ZVAL_TYPE_INTEGER;
 }
 
-int __attribute((fastcall)) ZVAL_TYPE_CAST(zval *zvalop1, zval *zvalop2, type_cast *value_op1, type_cast * value_op2) {
+PHPLLVMAPI int ZVAL_TYPE_CAST(zval *zvalop1, zval *zvalop2, type_cast *value_op1, type_cast * value_op2) {
     if (ZVAL_TYPE_GUESS(zvalop1) == ZVAL_TYPE_STRING || ZVAL_TYPE_GUESS(zvalop2) == ZVAL_TYPE_STRING) {
         return ZVAL_TYPE_STRING;
     }
     return ZVAL_TYPE_CAST_NUMBER(zvalop1, zvalop2, value_op1, value_op2);
 }
 
-int __attribute((fastcall)) ZVAL_TYPE_CAST_NUMBER(zval *zvalop1, zval *zvalop2, type_cast *value_op1, type_cast * value_op2) {
+PHPLLVMAPI int ZVAL_TYPE_CAST_NUMBER(zval *zvalop1, zval *zvalop2, type_cast *value_op1, type_cast * value_op2) {
     int i, targetType = 0;
     zval * list[2];
     list[0] = zvalop1;
@@ -595,7 +595,7 @@ int __attribute((fastcall)) ZVAL_TYPE_CAST_NUMBER(zval *zvalop1, zval *zvalop2, 
     return ZVAL_TYPE_INTEGER;
 }
 
-long __attribute((fastcall)) ZVAL_EQUAL_STRING(zval *zvalop1, int len, char *val) {
+PHPLLVMAPI long ZVAL_EQUAL_STRING(zval *zvalop1, int len, char *val) {
     int op1len;
     char *op1val;
     if (zvalop1->type != ZVAL_TYPE_STRING) {
@@ -608,7 +608,7 @@ long __attribute((fastcall)) ZVAL_EQUAL_STRING(zval *zvalop1, int len, char *val
     return (strncmp(op1val, val, op1len) == 0);
 }
 
-long __attribute((fastcall)) ZVAL_EQUAL(zval *zvalop1, zval * zvalop2) {
+PHPLLVMAPI long ZVAL_EQUAL(zval *zvalop1, zval * zvalop2) {
     int op1len, op2len;
     char *op1val, *op2val;
     type_cast value_op1, value_op2;
@@ -628,7 +628,7 @@ long __attribute((fastcall)) ZVAL_EQUAL(zval *zvalop1, zval * zvalop2) {
     }
 }
 
-long __attribute((fastcall)) ZVAL_EQUAL_EXACT(zval *zvalop1, zval * zvalop2) {
+PHPLLVMAPI long ZVAL_EQUAL_EXACT(zval *zvalop1, zval * zvalop2) {
     if (zvalop1->type != zvalop2->type) {
         return 0;
     }
@@ -648,7 +648,7 @@ long __attribute((fastcall)) ZVAL_EQUAL_EXACT(zval *zvalop1, zval * zvalop2) {
     }
 }
 
-long __attribute((fastcall)) ZVAL_TEST_NULL(zval * zvalop1) {
+PHPLLVMAPI long ZVAL_TEST_NULL(zval * zvalop1) {
 
     if ((!zvalop1) || (zvalop1->type == ZVAL_TYPE_NULL)) {
         return TRUE;
@@ -657,7 +657,7 @@ long __attribute((fastcall)) ZVAL_TEST_NULL(zval * zvalop1) {
     return FALSE;
 }
 
-long __attribute((fastcall)) ZVAL_TEST_FALSE(zval * zvalop1) {
+PHPLLVMAPI long ZVAL_TEST_FALSE(zval * zvalop1) {
     type_cast value_op1;
 
     if (ZVAL_TEST_NULL(zvalop1)) {

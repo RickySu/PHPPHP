@@ -3,7 +3,7 @@
 #include "h/ZVAL_LIST.h"
 #include "h/ZVAL.h"
 
-void __attribute((fastcall)) ZVAL_TEMP_LIST_GC_MIN(zvallist *list) {
+PHPLLVMAPI void ZVAL_TEMP_LIST_GC_MIN(zvallist *list) {
     int i;
     if (list == NULL) {
         return;
@@ -18,11 +18,11 @@ void __attribute((fastcall)) ZVAL_TEMP_LIST_GC_MIN(zvallist *list) {
     list->count -= i;
 }
 
-void __attribute((fastcall)) ZVAL_TEMP_LIST_GC(zvallist *list) {
+PHPLLVMAPI void ZVAL_TEMP_LIST_GC(zvallist *list) {
     ZVAL_LIST_GC(list);
 }
 
-void __attribute((fastcall)) ZVAL_LIST_GC(zvallist *list) {
+PHPLLVMAPI void ZVAL_LIST_GC(zvallist *list) {
     if (list == NULL) {
         return;
     }

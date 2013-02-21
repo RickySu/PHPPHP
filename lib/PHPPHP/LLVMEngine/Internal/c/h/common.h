@@ -1,5 +1,6 @@
 #ifndef __COMMON_H
 #define __COMMON_H
+#include <stdlib.h>
 
 #define emalloc(x) malloc(x)
 #define ecalloc(x,y) calloc(x,y)
@@ -22,6 +23,11 @@
 #define TRUE       (1==1)
 #endif
 
+#ifndef SUCCESS
+#define SUCCESS      FALSE
+#endif
+
+
 #ifndef FALSE
 #define FALSE       (1==0)
 #endif
@@ -30,4 +36,7 @@
 #define FAILED      FALSE
 #endif
 
+#ifndef PHPLLVMAPI
+#define PHPLLVMAPI  __attribute((fastcall))
+#endif
 #endif

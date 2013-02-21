@@ -7,10 +7,10 @@
 #define ZVAL_TEMP_LIST_SIZE    20
 
 zvallist * ZVAL_LIST_INIT();
-void __attribute((fastcall)) ZVAL_LIST_GC(zvallist *list);
+PHPLLVMAPI void ZVAL_LIST_GC(zvallist *list);
 
 zvallist * ZVAL_TEMP_LIST_INIT();
-void __attribute((fastcall)) ZVAL_TEMP_LIST_GC(zvallist *list);
-void __attribute((fastcall)) ZVAL_TEMP_LIST_GC_MIN(zvallist *list);
+PHPLLVMAPI void ZVAL_TEMP_LIST_GC(zvallist *list);
+PHPLLVMAPI void ZVAL_TEMP_LIST_GC_MIN(zvallist *list);
 
 #endif
