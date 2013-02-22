@@ -25,7 +25,7 @@ trait VarAssign {
                 $this->writeAssignBoolean($op1Zval, $value);
                 break;
             case 'array':
-                $this->writeAssignArray($op1Zval, $value);
+                $this->writeAssignEmptyArray($op1Zval);
                 break;
             case 'NULL':
                 $this->writeAssignNULL($op1Zval, $value);
@@ -89,13 +89,18 @@ trait VarAssign {
     }
 
 
-    protected function writeAssignArray(LLVMZval $op1Zval, $value) {
+    protected function writeAssignEmptyArray(LLVMZval $op1Zval) {
         $this->writeDebugInfo("$op1Zval <= (array)");
         $this->gcVarZval($op1Zval,false);
         $op1ZvalPtr=$this->function->InternalModuleCall(InternalModule::ZVAL_INIT, LLVMZval::getGCList());
         $this->function->InternalModuleCall(InternalModule::ZVAL_INIT_ARRAY, $op1ZvalPtr);
         $op1Zval->savePtrRegister($op1ZvalPtr);
         return $op1ZvalPtr;
+    }
+
+    protected function writeAssignNextElementArrayVar(LLVMZval $arrayZval,LLVMZval $valueZval){
+        $this->writeDebugInfo("{$arrayZval}[] <= (zval)");
+
     }
 
 }

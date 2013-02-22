@@ -10,6 +10,7 @@ class Zval {
     protected $varName;
     protected $isTemp;
     protected $IRWriter;
+    protected $ptrRegister;
 
     const ZVAL_GC_LIST = '%zval_gc_list';
     const ZVAL_TEMP_OP = 'zval_temp_op';
@@ -43,6 +44,10 @@ class Zval {
         $this->IRWriter = $IRWriter;
         if ($initZval) {
             $ptrRegister = $this->IRWriter->InternalModuleCall(InternalModule::ZVAL_INIT,$this->getGCList());
+            if($varName===NULL){
+                $this->ptrRegister=$ptrRegister;
+                return;
+            }
             $this->savePtrRegister($ptrRegister);
         }
     }
@@ -60,10 +65,16 @@ class Zval {
     }
 
     public function savePtrRegister($ptrRegister) {
+        if($this->varName===NULL){
+            return;
+        }
         $this->IRWriter->writeOpLineIR("store " . self::zval('*') . " $ptrRegister, " . self::zval('**') . " {$this->getIRRegister()}, align " . self::zval('*')->size());
     }
 
     public function getPtrRegister() {
+        if($this->varName===NULL){
+            return $this->ptrRegister;
+        }
         $returnRegister = $this->IRWriter->getRegisterSerial();
         $this->IRWriter->writeOpLineIR("$returnRegister = load " . self::zval('**') . " {$this->getIRRegister()}, align " . self::zval('*')->size());
         return $returnRegister;
