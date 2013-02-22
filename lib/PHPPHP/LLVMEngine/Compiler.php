@@ -25,6 +25,7 @@ class Compiler {
 
     public function compile($compiledData, $context) {
         $opArray = $compiledData['opcode'];
+        //print_r($opArray);die;
         $module = new Writer\ModuleWriter($context);
         $this->writer->addModuleWriter($module);
         $this->compileOpLine($module, $opArray);
@@ -52,6 +53,9 @@ class Compiler {
                     $unUsedOpResult=false;
                 }
                 if(($opCode->op2 instanceof Zval\Ptr) && ($opCode->op2->getImmediateZval()===$opResult->getImmediateZval())){
+                    $unUsedOpResult=false;
+                }
+                if(($opCode->result instanceof Zval\Ptr) && ($opCode->result->getImmediateZval()===$opResult->getImmediateZval())){
                     $unUsedOpResult=false;
                 }
                 $opResult->markUnUsed=$unUsedOpResult;

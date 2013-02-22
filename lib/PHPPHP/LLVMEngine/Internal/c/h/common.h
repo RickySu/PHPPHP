@@ -4,6 +4,7 @@
 
 #define emalloc(x) malloc(x)
 #define ecalloc(x,y) calloc(x,y)
+#define erealloc(x,y) realloc(x,y)
 
 #define efree(x)   free(x)
 

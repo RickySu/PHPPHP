@@ -20,7 +20,10 @@
 #ifndef __HASHTABLE_H
 #define __HASHTABLE_H
 
+#define DEFAULT_HASHTABLE_BUCKET_SIZE    1000
+
 #include "common.h"
+#include "string.h"
 
 typedef void (*dtor_func_t)(void *pDest);
 
@@ -54,10 +57,8 @@ typedef struct _hashtable {
 } HashTable;
 
 
-int hash_init(HashTable *ht, uint nSize);
-int hash_lookup(HashTable *ht, char *key, void **result);
-int hash_insert(HashTable *ht, char *key, void *value);
-int hash_remove(HashTable *ht, char *key);
+int hash_init(HashTable *ht, uint nSize,dtor_func_t pDestructor);
+int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, void *pData, uint nDataSize, void **pDest);
 int hash_destroy(HashTable *ht);
 
 /*
@@ -93,32 +94,32 @@ int hash_destroy(HashTable *ht);
  *                  -- Ralf S. Engelschall <rse@engelschall.com>
  */
 
-static inline ulong zend_inline_hash_func(const char *arKey, uint nKeyLength)
-{
-	register ulong hash = 5381;
+static inline ulong zend_inline_hash_func(const char *arKey, uint nKeyLength) {
+    register ulong hash = 5381;
 
-	/* variant with the hash unrolled eight times */
-	for (; nKeyLength >= 8; nKeyLength -= 8) {
-		hash = ((hash << 5) + hash) + *arKey++;
-		hash = ((hash << 5) + hash) + *arKey++;
-		hash = ((hash << 5) + hash) + *arKey++;
-		hash = ((hash << 5) + hash) + *arKey++;
-		hash = ((hash << 5) + hash) + *arKey++;
-		hash = ((hash << 5) + hash) + *arKey++;
-		hash = ((hash << 5) + hash) + *arKey++;
-		hash = ((hash << 5) + hash) + *arKey++;
-	}
-	switch (nKeyLength) {
-		case 7: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
-		case 6: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
-		case 5: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
-		case 4: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
-		case 3: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
-		case 2: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
-		case 1: hash = ((hash << 5) + hash) + *arKey++; break;
-		case 0: break;
-	}
-	return hash;
+    /* variant with the hash unrolled eight times */
+    for (; nKeyLength >= 8; nKeyLength -= 8) {
+        hash = ((hash << 5) + hash) + *arKey++;
+        hash = ((hash << 5) + hash) + *arKey++;
+        hash = ((hash << 5) + hash) + *arKey++;
+        hash = ((hash << 5) + hash) + *arKey++;
+        hash = ((hash << 5) + hash) + *arKey++;
+        hash = ((hash << 5) + hash) + *arKey++;
+        hash = ((hash << 5) + hash) + *arKey++;
+        hash = ((hash << 5) + hash) + *arKey++;
+    }
+    switch (nKeyLength) {
+        case 7: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+        case 6: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+        case 5: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+        case 4: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+        case 3: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+        case 2: hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+        case 1: hash = ((hash << 5) + hash) + *arKey++;
+            break;
+        case 0: break;
+    }
+    return hash;
 }
 
 #endif

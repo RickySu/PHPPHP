@@ -20,7 +20,6 @@ typedef struct _zvallist zvallist;
 struct _zvallist {
     int  len;
     int  count;
-    int  isTemp;
     zval **zval;
     zvallist* next;
 };
@@ -45,6 +44,7 @@ struct _zval_struct {
         int  refcount;
         char type;                     /* active type */
         char is_ref;
+        HashTable *hashtable;
         char _convertion_cache_type;
         zvalue_value _convertion_cache;
 };

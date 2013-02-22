@@ -88,4 +88,14 @@ trait VarAssign {
         return $op1ZvalPtr;
     }
 
+
+    protected function writeAssignArray(LLVMZval $op1Zval, $value) {
+        $this->writeDebugInfo("$op1Zval <= (array)");
+        $this->gcVarZval($op1Zval,false);
+        $op1ZvalPtr=$this->function->InternalModuleCall(InternalModule::ZVAL_INIT, LLVMZval::getGCList());
+        $this->function->InternalModuleCall(InternalModule::ZVAL_INIT_ARRAY, $op1ZvalPtr);
+        $op1Zval->savePtrRegister($op1ZvalPtr);
+        return $op1ZvalPtr;
+    }
+
 }

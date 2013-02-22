@@ -12,7 +12,6 @@ class Zval {
     protected $IRWriter;
 
     const ZVAL_GC_LIST = '%zval_gc_list';
-    const ZVAL_TEMP_GC_LIST = '%zval_temp_gc_list';
     const ZVAL_TEMP_OP = 'zval_temp_op';
 
     /**

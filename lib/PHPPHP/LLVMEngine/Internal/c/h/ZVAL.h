@@ -6,8 +6,10 @@
 PHPLLVMAPI void freeConvertionCacheBuffer(zval *zval);
 PHPLLVMAPI int is_number(int len, char *val);
 PHPLLVMAPI void zval_copy_content(zval *dstZval,zval *srcZval);
+void hashtable_zval_gc_dtor(void *pDest);
 
 PHPLLVMAPI zval *  ZVAL_INIT(zvallist *list);
+PHPLLVMAPI void ZVAL_INIT_ARRAY(zval *aZval);
 PHPLLVMAPI void ZVAL_GC_REGISTER(zvallist *list, zval *zval);
 PHPLLVMAPI void ZVAL_GC(zvallist *list, zval *zval);
 
