@@ -25,7 +25,7 @@
 #endif
 
 #ifndef SUCCESS
-#define SUCCESS      FALSE
+#define SUCCESS      (1==1)
 #endif
 
 

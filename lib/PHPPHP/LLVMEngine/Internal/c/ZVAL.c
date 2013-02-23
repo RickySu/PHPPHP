@@ -14,7 +14,7 @@ PHPLLVMAPI void freeConvertionCacheBuffer(zval *zval) {
     zval->_convertion_cache_type = ZVAL_TYPE_NULL;
 }
 
-static inline zval* prepareForAssign(zvallist *list,zval *varZval){
+static inline zval* prepareForAssign(zvallist *list, zval *varZval) {
     if (!varZval) {
         return ZVAL_INIT(list);
     }
@@ -51,8 +51,8 @@ PHPLLVMAPI void ZVAL_INIT_ARRAY(zval *aZval) {
     hash_init(aZval->hashtable, DEFAULT_HASHTABLE_BUCKET_SIZE, &hashtable_zval_gc_dtor);
 }
 
-PHPLLVMAPI void emptyZval(zval *varZval){
-    switch(varZval->type){
+PHPLLVMAPI void emptyZval(zval *varZval) {
+    switch (varZval->type) {
         case ZVAL_TYPE_STRING:
             if (varZval->value.str.len) {
                 efree(varZval->value.str.val);
@@ -142,7 +142,7 @@ PHPLLVMAPI zval * ZVAL_COPY_ON_WRITE(zvallist *list, zval *srcZval) {
 }
 
 PHPLLVMAPI zval * ZVAL_ASSIGN_INTEGER(zvallist *list, zval *dstZval, long val) {
-    dstZval=prepareForAssign(list,dstZval);
+    dstZval = prepareForAssign(list, dstZval);
     dstZval->type = ZVAL_TYPE_INTEGER;
     dstZval->value.lval = val;
     return dstZval;
@@ -155,14 +155,14 @@ PHPLLVMAPI zval * ZVAL_ASSIGN_BOOLEAN(zvallist *list, zval *dstZval, long val) {
 }
 
 PHPLLVMAPI zval * ZVAL_ASSIGN_DOUBLE(zvallist *list, zval *dstZval, double val) {
-    dstZval=prepareForAssign(list,dstZval);
+    dstZval = prepareForAssign(list, dstZval);
     dstZval->type = ZVAL_TYPE_DOUBLE;
     dstZval->value.dval = val;
     return dstZval;
 }
 
 PHPLLVMAPI zval * ZVAL_ASSIGN_STRING(zvallist *list, zval *dstZval, int len, char *val) {
-    dstZval=prepareForAssign(list,dstZval);
+    dstZval = prepareForAssign(list, dstZval);
     dstZval->type = ZVAL_TYPE_STRING;
     dstZval->value.str.len = len;
     if (dstZval->value.str.len) {
@@ -171,6 +171,17 @@ PHPLLVMAPI zval * ZVAL_ASSIGN_STRING(zvallist *list, zval *dstZval, int len, cha
     }
 
     return dstZval;
+}
+
+PHPLLVMAPI void ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT(zval *dstZval, zval *srcZval) {
+    int result;
+    if (dstZval->type != ZVAL_TYPE_ARRAY) {
+        emptyZval(dstZval);
+        ZVAL_INIT_ARRAY(dstZval);
+    }
+    hash_add_next(dstZval->hashtable, srcZval, sizeof (zval*), NULL);
+
+    srcZval->refcount++;
 }
 
 PHPLLVMAPI zval * ZVAL_ASSIGN_ZVAL(zvallist *list, zval *zval1, zval *zval2) {
@@ -228,7 +239,7 @@ PHPLLVMAPI zval * ZVAL_ASSIGN_CONCAT_STRING(zvallist *list, zval *zval, int len,
     if (zval->value.str.len) {
         efree(zval->value.str.val);
     }
-    
+
     zval->value.str.val = newval;
     zval->value.str.len = newlen;
     return zval;

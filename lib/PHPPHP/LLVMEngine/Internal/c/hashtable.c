@@ -21,7 +21,7 @@
 
 #define INIT_DATA(ht, p, pData, nDataSize);								\
 	if (nDataSize == sizeof(void*)) {									\
-		memcpy(&(p)->pDataPtr, pData, sizeof(void *));					\
+		p->pDataPtr = pData;					\
 		(p)->pData = &(p)->pDataPtr;									\
 	} else {															\
 		(p)->pData = (void *) emalloc(nDataSize);\
@@ -62,17 +62,15 @@ int hash_init(HashTable *ht, uint nSize, dtor_func_t pDestructor) {
     return FAILED;
 }
 
-int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, void *pData, uint nDataSize, void **pDest) {
-    ulong h;
+int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong h, void *pData, uint nDataSize, void **pDest) {
     uint nIndex;
     Bucket *p;
-    if (nKeyLength <= 0) {
-        return FAILED;
+
+    if(nKeyLength){
+        h = zend_inline_hash_func(arKey, nKeyLength);
     }
 
-    h = zend_inline_hash_func(arKey, nKeyLength);
     nIndex = h & ht->nTableMask;
-
     p = ht->arBuckets[nIndex];
     while (p != NULL) {
         if ((p->h == h) && (p->nKeyLength == nKeyLength)) {
@@ -91,6 +89,7 @@ int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, void *
     }
 
     p = (Bucket *) emalloc(sizeof (Bucket) - 1 + nKeyLength);
+    p->pNext=p->pListNext=NULL;
     if (!p) {
         return FAILED;
     }
@@ -102,9 +101,24 @@ int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, void *
     if (pDest) {
         *pDest = p->pData;
     }
-
+    p->pLast=ht->arBuckets[nIndex];
+    if(p->pLast){
+        p->pLast->pNext=p;
+    }
     ht->arBuckets[nIndex] = p;
 
+    if(!ht->pListHead){
+        ht->pListHead=p;
+    }
+
+    if(ht->pListTail){
+        ht->pListTail->pListNext=p;
+        p->pListLast=ht->pListTail;
+    }
+
+    ht->pListTail=p;
+    printf("p->pListNext:%p\n",p->pListNext);
+    printf("zval:%p Data:%p DataPtr:%p\n",pData,p->pData,p->pDataPtr);
     ht->nNumOfElements++;
     return SUCCESS;
 }

@@ -18,7 +18,7 @@ class AssignDim extends OpLine {
     }
 
     protected function writeZvalZval(LLVMZval $op1Zval,LLVMZval $op2Zval){
-        $this->writeVarAssign($op1Zval, $op2Zval);
+        $this->writeAssignNextElementArrayVar($op1Zval, $op2Zval);
     }
 
     protected function writeZvalValue(LLVMZval $op1Zval,$value){
