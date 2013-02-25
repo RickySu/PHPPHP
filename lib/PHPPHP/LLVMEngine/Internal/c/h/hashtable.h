@@ -25,7 +25,7 @@
 #include "common.h"
 #include "string.h"
 
-#define hash_add_next(ht, pData, nDataSize, pDest) hash_add_or_update(ht, NULL, 0, ht->nNextFreeElement++, pData, nDataSize, pDest)
+#define hash_add_next(ht, pData, pDest) hash_add_or_update(ht, NULL, 0, ht->nNextFreeElement++, pData, pDest)
 
 typedef void (*dtor_func_t)(void *pDest);
 
@@ -35,7 +35,6 @@ typedef struct bucket {
     ulong h;
     uint nKeyLength;
     void *pData;
-    void *pDataPtr;
     struct bucket *pListNext;
     struct bucket *pListLast;
     struct bucket *pNext;
@@ -60,7 +59,7 @@ typedef struct _hashtable {
 
 
 int hash_init(HashTable *ht, uint nSize,dtor_func_t pDestructor);
-int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong h, void *pData, uint nDataSize, void **pDest);
+int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong h, void *pData, void **pDest);
 int hash_destroy(HashTable *ht);
 
 /*

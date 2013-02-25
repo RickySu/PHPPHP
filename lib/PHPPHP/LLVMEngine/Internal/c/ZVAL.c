@@ -19,11 +19,11 @@ static inline zval* prepareForAssign(zvallist *list, zval *varZval) {
         return ZVAL_INIT(list);
     }
 
-    if (!varZval->is_ref) {
-        if (varZval->refcount > 1) {
-            ZVAL_GC(list, varZval);
-            return ZVAL_INIT(list);
-        }
+    if (varZval->is_ref) {
+        varZval->refcount--;
+        varZval->is_ref=(varZval->refcount>1);
+        ZVAL_GC(list, varZval);
+        return ZVAL_INIT(list);
     }
     emptyZval(varZval);
     return varZval;
@@ -80,6 +80,8 @@ PHPLLVMAPI void ZVAL_GC(zvallist *list, zval *varZval) {
     if (!varZval) {
         return;
     }
+
+    printf("pre free zval:%p refcount:%d\n",varZval,varZval->refcount);
     if (--varZval->refcount > 0) {
         if (varZval->refcount == 1) {
             varZval->is_ref = 0;
@@ -103,6 +105,7 @@ PHPLLVMAPI void ZVAL_GC(zvallist *list, zval *varZval) {
     }
 
     emptyZval(varZval);
+    printf("free zval:%p\n",varZval);
     efree(varZval);
 }
 
@@ -179,9 +182,10 @@ PHPLLVMAPI void ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT(zval *dstZval, zval *srcZval) {
         emptyZval(dstZval);
         ZVAL_INIT_ARRAY(dstZval);
     }
-    hash_add_next(dstZval->hashtable, srcZval, sizeof (zval*), NULL);
-
+    hash_add_next(dstZval->hashtable, srcZval, NULL);
+    printf("add Next:%p\n",srcZval);
     srcZval->refcount++;
+    printf("aaaa\n");
 }
 
 PHPLLVMAPI zval * ZVAL_ASSIGN_ZVAL(zvallist *list, zval *zval1, zval *zval2) {

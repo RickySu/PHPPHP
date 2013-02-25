@@ -1,38 +1,6 @@
 #include<stdio.h>
 #include "h/hashtable.h"
 
-#define UPDATE_DATA(ht, p, pData, nDataSize)											\
-	if (nDataSize == sizeof(void*)) {													\
-		if ((p)->pData != &(p)->pDataPtr) {												\
-			efree((p)->pData);									\
-		}																				\
-		memcpy(&(p)->pDataPtr, pData, sizeof(void *));									\
-		(p)->pData = &(p)->pDataPtr;													\
-	} else {																			\
-		if ((p)->pData == &(p)->pDataPtr) {												\
-			(p)->pData = (void *) emalloc(nDataSize);			\
-			(p)->pDataPtr=NULL;															\
-		} else {																		\
-			(p)->pData = (void *) realloc((p)->pData, nDataSize);	\
-			/* (p)->pDataPtr is already NULL so no need to initialize it */				\
-		}																				\
-		memcpy((p)->pData, pData, nDataSize);											\
-	}
-
-#define INIT_DATA(ht, p, pData, nDataSize);								\
-	if (nDataSize == sizeof(void*)) {									\
-		p->pDataPtr = pData;					\
-		(p)->pData = &(p)->pDataPtr;									\
-	} else {															\
-		(p)->pData = (void *) emalloc(nDataSize);\
-		if (!(p)->pData) {												\
-			efree(p);							\
-			return FAILED;												\
-		}																\
-		memcpy((p)->pData, pData, nDataSize);							\
-		(p)->pDataPtr=NULL;												\
-	}
-
 int hash_init(HashTable *ht, uint nSize, dtor_func_t pDestructor) {
     uint i = 3;
     if (nSize >= 0x80000000) {
@@ -62,7 +30,7 @@ int hash_init(HashTable *ht, uint nSize, dtor_func_t pDestructor) {
     return FAILED;
 }
 
-int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong h, void *pData, uint nDataSize, void **pDest) {
+int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong h, void *pData, void **pDest) {
     uint nIndex;
     Bucket *p;
 
@@ -78,7 +46,7 @@ int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong 
                 if (ht->pDestructor) {
                     ht->pDestructor(p->pData);
                 }
-                UPDATE_DATA(ht, p, pData, nDataSize);
+                p->pData = pData;
                 if (pDest) {
                     *pDest = p->pData;
                 }
@@ -95,7 +63,8 @@ int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong 
     }
     memcpy(p->arKey, arKey, nKeyLength);
     p->nKeyLength = nKeyLength;
-    INIT_DATA(ht, p, pData, nDataSize);
+
+    p->pData = pData;
     p->h = h;
 
     if (pDest) {
@@ -118,7 +87,7 @@ int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong 
 
     ht->pListTail=p;
     printf("p->pListNext:%p\n",p->pListNext);
-    printf("zval:%p Data:%p DataPtr:%p\n",pData,p->pData,p->pDataPtr);
+    printf("zval:%p Data:%p\n",pData,p->pData);
     ht->nNumOfElements++;
     return SUCCESS;
 }
@@ -130,13 +99,13 @@ int hash_destroy(HashTable *ht) {
         q = p;
         p = p->pListNext;
         if (ht->pDestructor) {
+            printf("debug\n");
             ht->pDestructor(q->pData);
-        }
-        if (q->pData != &q->pDataPtr) {
-            efree(q->pData);
+            printf("debug2\n");
         }
         efree(q);
     }
+    printf("end\n");
     efree(ht->arBuckets);
     return SUCCESS;
 }

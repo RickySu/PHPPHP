@@ -36,7 +36,7 @@ void __attribute((fastcall)) PHPLLVM_T_ECHO_ZVAL(zval *varZval) {
             while(p){
               printf("list:%p h:%lu\n",p,p->h);
               //printf("zval:%p type:%d\n",p->pData,((zval*)p->pData)->type);
-              PHPLLVM_T_ECHO_ZVAL((zval*)p->pDataPtr);
+              PHPLLVM_T_ECHO_ZVAL((zval*)p->pData);
               printf("\n");
               p=p->pListNext;
             };
