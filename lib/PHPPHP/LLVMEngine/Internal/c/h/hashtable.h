@@ -60,6 +60,8 @@ typedef struct _hashtable {
 
 int hash_init(HashTable *ht, uint nSize,dtor_func_t pDestructor);
 int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong h, void *pData, void **pDest);
+int hash_extend(HashTable *ht);
+int hash_rehash(HashTable *ht);
 int hash_destroy(HashTable *ht);
 
 /*
