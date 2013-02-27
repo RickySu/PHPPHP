@@ -144,9 +144,12 @@ PHPLLVMAPI zval * ZVAL_ASSIGN_STRING(zval *dstZval, int len, char *val) {
     return dstZval;
 }
 
-PHPLLVMAPI void ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT(zval *dstZval, zval *srcZval) {
-    int result;
+PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT(zval *dstZval, zval *srcZval) {
     zval *valueZval;
+
+    if(!dstZval){
+        dstZval=ZVAL_INIT();
+    }
     if (dstZval->type != ZVAL_TYPE_ARRAY) {
         emptyZval(dstZval);
         ZVAL_INIT_ARRAY(dstZval);
@@ -154,9 +157,10 @@ PHPLLVMAPI void ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT(zval *dstZval, zval *srcZval) {
     valueZval = ZVAL_INIT();
     valueZval = ZVAL_ASSIGN_ZVAL(valueZval, srcZval);
     hash_add_next(dstZval->hashtable, valueZval, NULL);
+    return dstZval;
 }
 
-PHPLLVMAPI zval * ZVAL_ASSIGN_ZVAL(zval *zval1, zval *zval2) {
+PHPLLVMAPI zval *ZVAL_ASSIGN_ZVAL(zval *zval1, zval *zval2) {
     int refcount;
 
     if (zval1 == zval2) {

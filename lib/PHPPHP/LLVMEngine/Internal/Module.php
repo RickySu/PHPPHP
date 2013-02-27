@@ -51,12 +51,12 @@ final class Module {
             self::ZVAL_INIT_ARRAY => array(Base::void(), array(Zval::zval('*'))),
             self::ZVAL_LIST_INIT => array(Base::void('*'), array()),
             self::ZVAL_LIST_GC => array(Base::void(), array(Base::void('*'))),
-            self::ZVAL_INIT => array(Zval::zval('*'), array(Base::void())),
+            self::ZVAL_INIT => array(Zval::zval('*'), array()),
             self::ZVAL_GC => array(Base::void(), array(Zval::zval('*'))),
             self::ZVAL_GC_REGISTER => array(Base::void(), array(Base::void('*'), Zval::zval('**'))),
             self::ZVAL_COPY_ON_WRITE => array(Zval::zval('*'), array(Zval::zval('*'))),
             self::ZVAL_COPY => array(Zval::zval('*'), array(Zval::zval('*'))),
-            self::ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT => array(Base::void(),array(Zval::zval('*'),Zval::zval('*'))),
+            self::ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT => array(Zval::zval('*'), array(Zval::zval('*'), Zval::zval('*'))),
             self::ZVAL_ASSIGN_INTEGER => array(Zval::zval('*'), array(Zval::zval('*'), Base::long())),
             self::ZVAL_ASSIGN_BOOLEAN => array(Zval::zval('*'), array(Zval::zval('*'), Base::long())),
             self::ZVAL_ASSIGN_DOUBLE => array(Zval::zval('*'), array(Zval::zval('*'), Base::double())),
@@ -92,13 +92,13 @@ final class Module {
 
     public static function getBitcode() {
         $bitcodeCompiler = new BitcodeCompiler(array(
-                    self::T_ECHO . '.c',
-                    'ZVAL_LIST.c',
-                    'ZVAL.c',
-                    'dtoa.c',
-                    'cvt.c',
-                    'hashtable.c',
-                ));
+            self::T_ECHO . '.c',
+            'ZVAL_LIST.c',
+            'ZVAL.c',
+            'dtoa.c',
+            'cvt.c',
+            'hashtable.c',
+        ));
         return $bitcodeCompiler->compileAll();
     }
 

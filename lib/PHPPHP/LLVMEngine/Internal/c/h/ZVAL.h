@@ -15,7 +15,7 @@ PHPLLVMAPI void ZVAL_GC(zval *zval);
 
 PHPLLVMAPI zval *ZVAL_COPY(zval *zval);
 PHPLLVMAPI zval *ZVAL_COPY_ON_WRITE(zval *zval);
-PHPLLVMAPI void ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT(zval *dstZval, zval *srcZval);
+PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT(zval *dstZval, zval *srcZval);
 PHPLLVMAPI zval *ZVAL_ASSIGN_BOOLEAN(zval *zval, long val);
 PHPLLVMAPI zval *ZVAL_ASSIGN_INTEGER(zval *zval, long val);
 PHPLLVMAPI zval *ZVAL_ASSIGN_DOUBLE(zval *zval, double val);

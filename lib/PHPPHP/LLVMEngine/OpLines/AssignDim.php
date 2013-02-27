@@ -25,6 +25,7 @@ class AssignDim extends OpLine {
         $valueZval=new LLVMZval(NULL,true,false,$this->function);
         $this->writeImmediateValueAssign($valueZval, $value);
         $this->writeAssignNextElementArrayVar($op1Zval, $valueZval);
+        $this->gcVarZval($valueZval);
     }
 
 
