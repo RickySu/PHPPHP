@@ -91,6 +91,10 @@ int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong 
     if (nKeyLength) {
         h = zend_inline_hash_func(arKey, nKeyLength);
     }
+    
+    if(nKeyLength==0 && (long)h >= (long)ht->nNextFreeElement){
+        ht->nNextFreeElement = h < LONG_MAX ? h + 1 : LONG_MAX;
+    }
 
     nIndex = h & ht->nTableMask;
     p = ht->arBuckets[nIndex];

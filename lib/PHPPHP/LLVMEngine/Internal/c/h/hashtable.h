@@ -25,7 +25,9 @@
 #include "common.h"
 #include "string.h"
 
-#define hash_add_next(ht, pData, pDest) hash_add_or_update(ht, NULL, 0, ht->nNextFreeElement++, pData, pDest)
+#define hash_add_next(ht, pData) hash_add_or_update(ht, NULL, 0, ht->nNextFreeElement++, pData, NULL)
+#define hash_add_or_update_index(ht, pData, index) hash_add_or_update(ht, NULL, 0, (ulong)(index), pData, NULL)
+
 
 typedef void (*dtor_func_t)(void *pDest);
 

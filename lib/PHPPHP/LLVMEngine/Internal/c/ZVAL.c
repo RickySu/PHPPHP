@@ -5,13 +5,25 @@
 #include "h/ZVAL_LIST.h"
 #include "h/dtoa.h"
 #include "h/hashtable.h"
-int zvalcount=0;
+int zvalcount = 0;
+
 PHPLLVMAPI void freeConvertionCacheBuffer(zval *zval) {
     if (zval->_convertion_cache_type == ZVAL_TYPE_STRING) {
         efree(zval->_convertion_cache.str.val);
         zval->_convertion_cache.str.len = 0;
     }
     zval->_convertion_cache_type = ZVAL_TYPE_NULL;
+}
+
+static inline zval *prepareForArray(zval *dstZval) {
+    if (!dstZval) {
+        dstZval = ZVAL_INIT();
+    }
+    if (dstZval->type != ZVAL_TYPE_ARRAY) {
+        emptyZval(dstZval);
+        ZVAL_INIT_ARRAY(dstZval);
+    }
+    return dstZval;
 }
 
 static inline zval* prepareForAssign(zval *varZval) {
@@ -144,19 +156,21 @@ PHPLLVMAPI zval * ZVAL_ASSIGN_STRING(zval *dstZval, int len, char *val) {
     return dstZval;
 }
 
-PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT(zval *dstZval, zval *srcZval) {
+PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_INTEGER_ELEMENT(zval *dstZval, zval *srcZval, ulong index) {
     zval *valueZval;
-
-    if(!dstZval){
-        dstZval=ZVAL_INIT();
-    }
-    if (dstZval->type != ZVAL_TYPE_ARRAY) {
-        emptyZval(dstZval);
-        ZVAL_INIT_ARRAY(dstZval);
-    }
+    dstZval = prepareForArray(dstZval);
     valueZval = ZVAL_INIT();
     valueZval = ZVAL_ASSIGN_ZVAL(valueZval, srcZval);
-    hash_add_next(dstZval->hashtable, valueZval, NULL);
+    hash_add_or_update_index(dstZval->hashtable, valueZval, index);
+    return dstZval;
+}
+
+PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT(zval *dstZval, zval *srcZval) {
+    zval *valueZval;
+    dstZval = prepareForArray(dstZval);
+    valueZval = ZVAL_INIT();
+    valueZval = ZVAL_ASSIGN_ZVAL(valueZval, srcZval);
+    hash_add_next(dstZval->hashtable, valueZval);
     return dstZval;
 }
 

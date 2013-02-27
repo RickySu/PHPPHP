@@ -37,6 +37,10 @@
 #define FAILED      FALSE
 #endif
 
+#ifndef LONG_MAX
+#define LONG_MAX    (~(1l<<(sizeof(long)*8-1)))
+#endif
+
 #ifndef PHPLLVMAPI
 #define PHPLLVMAPI  __attribute((fastcall))
 #endif
