@@ -20,7 +20,7 @@ typedef struct _zvallist zvallist;
 struct _zvallist {
     int  len;
     int  count;
-    zval **zval;
+    zval ***arZvalPtr;
     zvallist* next;
 };
 

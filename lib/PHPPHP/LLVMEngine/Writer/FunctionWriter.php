@@ -181,6 +181,7 @@ class FunctionWriter {
         foreach ($this->varList as $varZval) {
             $IR[] = "$varZval = alloca " . Zval::zval('*');
             $IR[] = "store " . Zval::zval('*') . " null, " . Zval::zval('**') . " $varZval, align " . Zval::zval('*')->size();
+            $IR[] = $this->getInternalModuleCallIR(InternalModule::ZVAL_GC_REGISTER,Zval::getGCList(),$varZval);
         }
         return $IR;
     }
@@ -204,10 +205,16 @@ class FunctionWriter {
         return $interlanVar;
     }
 
-    public function InternalModuleCall($moduleName) {
+    protected function getInternalModuleCallIR($moduleName){
         $args = func_get_args();
         $IR = forward_static_call_array(array('\PHPPHP\\LLVMEngine\\Internal\\Module', 'call'), $args);
         $this->moduleWriter->writeUsedFunction($moduleName);
+        return $IR;
+    }
+
+    public function InternalModuleCall($moduleName) {
+        $args = func_get_args();
+        $IR=call_user_func_array(array($this,'getInternalModuleCallIR'), $args);
         if (InternalModule::Define()[$moduleName][0] != StringType::void()) {
             $resultRegister = $this->getRegisterSerial();
             $this->writeOpLineIR("$resultRegister = $IR");

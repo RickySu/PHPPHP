@@ -43,7 +43,7 @@ class Zval {
         $this->isTemp = $isTemp;
         $this->IRWriter = $IRWriter;
         if ($initZval) {
-            $ptrRegister = $this->IRWriter->InternalModuleCall(InternalModule::ZVAL_INIT,$this->getGCList());
+            $ptrRegister = $this->IRWriter->InternalModuleCall(InternalModule::ZVAL_INIT);
             if($varName===NULL){
                 $this->ptrRegister=$ptrRegister;
                 return;

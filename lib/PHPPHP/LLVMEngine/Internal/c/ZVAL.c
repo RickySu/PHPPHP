@@ -14,34 +14,29 @@ PHPLLVMAPI void freeConvertionCacheBuffer(zval *zval) {
     zval->_convertion_cache_type = ZVAL_TYPE_NULL;
 }
 
-static inline zval* prepareForAssign(zvallist *list, zval *varZval) {
+static inline zval* prepareForAssign(zval *varZval) {
     if (!varZval) {
-        return ZVAL_INIT(list);
+        return ZVAL_INIT();
     }
 
     if (!varZval->is_ref && varZval->refcount > 1) {
-        ZVAL_GC(list, varZval);
-        return ZVAL_INIT(NULL);
+        ZVAL_GC(varZval);
+        return ZVAL_INIT();
     }
 
     emptyZval(varZval);
     return varZval;
 }
 
-PHPLLVMAPI zval * ZVAL_INIT(zvallist *list) {
+zval * ZVAL_INIT() {
     zval * aZval;
-
     aZval = ecalloc(1, sizeof (zval));
-
-    if (list) {
-        ZVAL_GC_REGISTER(list, aZval);
-    }
     aZval->refcount = 1;
     return aZval;
 }
 
 void hashtable_zval_gc_dtor(void *pDest) {
-    ZVAL_GC(NULL, (zval*) pDest);
+    ZVAL_GC((zval*) pDest);
 }
 
 PHPLLVMAPI void ZVAL_INIT_ARRAY(zval *aZval) {
@@ -65,16 +60,7 @@ PHPLLVMAPI void emptyZval(zval *varZval) {
     freeConvertionCacheBuffer(varZval);
 }
 
-PHPLLVMAPI void ZVAL_GC_REGISTER(zvallist *list, zval *zval) {
-    if (list->count == list->len) {
-        list->next = ZVAL_LIST_INIT();
-        ZVAL_GC_REGISTER(list->next, zval);
-        return;
-    }
-    list->zval[list->count++] = zval;
-}
-
-PHPLLVMAPI void ZVAL_GC(zvallist *list, zval *varZval) {
+PHPLLVMAPI void ZVAL_GC(zval *varZval) {
     int i;
     if (!varZval) {
         return;
@@ -84,21 +70,6 @@ PHPLLVMAPI void ZVAL_GC(zvallist *list, zval *varZval) {
             varZval->is_ref = 0;
         }
         return;
-    }
-    if (list) {
-        do {
-            i = 0;
-            while (i < list->count) {
-                if (list->zval[i] == varZval) {
-                    list->zval[i] = list->zval[list->count - 1];
-                    list->count--;
-                    break;
-                }
-                i++;
-            }
-            list = list->next;
-        } while (list);
-
     }
     emptyZval(varZval);
     efree(varZval);
@@ -120,47 +91,47 @@ PHPLLVMAPI void zval_copy_content(zval *dstZval, zval *srcZval) {
     }
 }
 
-PHPLLVMAPI zval * ZVAL_COPY(zvallist *list, zval *srcZval) {
+PHPLLVMAPI zval * ZVAL_COPY(zval *srcZval) {
     zval *dstZval;
     if (srcZval == NULL) {
         return NULL;
     }
-    dstZval = ZVAL_INIT(list);
+    dstZval = ZVAL_INIT();
     zval_copy_content(dstZval, srcZval);
     dstZval->is_ref = 0;
     dstZval->refcount = 1;
     return dstZval;
 }
 
-PHPLLVMAPI zval * ZVAL_COPY_ON_WRITE(zvallist *list, zval *srcZval) {
+PHPLLVMAPI zval * ZVAL_COPY_ON_WRITE(zval *srcZval) {
     zval *dstZval;
-    dstZval = ZVAL_COPY(list, srcZval);
-    ZVAL_GC(list, srcZval);
+    dstZval = ZVAL_COPY(srcZval);
+    ZVAL_GC(srcZval);
     return dstZval;
 }
 
-PHPLLVMAPI zval * ZVAL_ASSIGN_INTEGER(zvallist *list, zval *dstZval, long val) {
-    dstZval = prepareForAssign(list, dstZval);
+PHPLLVMAPI zval * ZVAL_ASSIGN_INTEGER(zval *dstZval, long val) {
+    dstZval = prepareForAssign(dstZval);
     dstZval->type = ZVAL_TYPE_INTEGER;
     dstZval->value.lval = val;
     return dstZval;
 }
 
-PHPLLVMAPI zval * ZVAL_ASSIGN_BOOLEAN(zvallist *list, zval *dstZval, long val) {
-    dstZval = ZVAL_ASSIGN_INTEGER(list, dstZval, (val == 0 ? 0 : 1));
+PHPLLVMAPI zval * ZVAL_ASSIGN_BOOLEAN(zval *dstZval, long val) {
+    dstZval = ZVAL_ASSIGN_INTEGER(dstZval, (val == 0 ? 0 : 1));
     dstZval->type = ZVAL_TYPE_BOOLEAN;
     return dstZval;
 }
 
-PHPLLVMAPI zval * ZVAL_ASSIGN_DOUBLE(zvallist *list, zval *dstZval, double val) {
-    dstZval = prepareForAssign(list, dstZval);
+PHPLLVMAPI zval * ZVAL_ASSIGN_DOUBLE(zval *dstZval, double val) {
+    dstZval = prepareForAssign(dstZval);
     dstZval->type = ZVAL_TYPE_DOUBLE;
     dstZval->value.dval = val;
     return dstZval;
 }
 
-PHPLLVMAPI zval * ZVAL_ASSIGN_STRING(zvallist *list, zval *dstZval, int len, char *val) {
-    dstZval = prepareForAssign(list, dstZval);
+PHPLLVMAPI zval * ZVAL_ASSIGN_STRING(zval *dstZval, int len, char *val) {
+    dstZval = prepareForAssign(dstZval);
     dstZval->type = ZVAL_TYPE_STRING;
     dstZval->value.str.len = len;
     if (dstZval->value.str.len) {
@@ -178,12 +149,12 @@ PHPLLVMAPI void ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT(zval *dstZval, zval *srcZval) {
         emptyZval(dstZval);
         ZVAL_INIT_ARRAY(dstZval);
     }
-    valueZval = ZVAL_INIT(NULL);
-    valueZval = ZVAL_ASSIGN_ZVAL(NULL, valueZval, srcZval);
+    valueZval = ZVAL_INIT();
+    valueZval = ZVAL_ASSIGN_ZVAL(valueZval, srcZval);
     hash_add_next(dstZval->hashtable, valueZval, NULL);
 }
 
-PHPLLVMAPI zval * ZVAL_ASSIGN_ZVAL(zvallist *list, zval *zval1, zval *zval2) {
+PHPLLVMAPI zval * ZVAL_ASSIGN_ZVAL(zval *zval1, zval *zval2) {
     int refcount;
 
     if (zval1 == zval2) {
@@ -200,12 +171,12 @@ PHPLLVMAPI zval * ZVAL_ASSIGN_ZVAL(zvallist *list, zval *zval1, zval *zval2) {
     }
 
     if (zval2->is_ref) {
-        ZVAL_GC(list, zval1);
-        return ZVAL_COPY(list, zval2);
+        ZVAL_GC(zval1);
+        return ZVAL_COPY(zval2);
     }
 
     if (zval2 == NULL) {
-        ZVAL_GC(list, zval1);
+        ZVAL_GC(zval1);
         return zval2;
     }
 
@@ -214,14 +185,14 @@ PHPLLVMAPI zval * ZVAL_ASSIGN_ZVAL(zvallist *list, zval *zval1, zval *zval2) {
     return zval2;
 }
 
-PHPLLVMAPI zval * ZVAL_ASSIGN_CONCAT_STRING(zvallist *list, zval *zval, int len, char *val) {
+PHPLLVMAPI zval * ZVAL_ASSIGN_CONCAT_STRING(zval *zval, int len, char *val) {
     int newlen;
     char *newval;
     if (!zval) {
-        zval = ZVAL_INIT(list);
+        zval = ZVAL_INIT();
     }
     if (!zval->is_ref && zval->refcount > 1)
-        zval = ZVAL_COPY_ON_WRITE(list, zval);
+        zval = ZVAL_COPY_ON_WRITE(zval);
     zval->refcount = 1;
     ZVAL_CONVERT_STRING(zval);
     newlen = zval->value.str.len + len;
@@ -244,16 +215,16 @@ PHPLLVMAPI zval * ZVAL_ASSIGN_CONCAT_STRING(zvallist *list, zval *zval, int len,
     return zval;
 }
 
-PHPLLVMAPI zval * ZVAL_ASSIGN_CONCAT_ZVAL(zvallist *list, zval *zval1, zval *zval2) {
+PHPLLVMAPI zval * ZVAL_ASSIGN_CONCAT_ZVAL(zval *zval1, zval *zval2) {
     char *tmpString;
     int tmpLen;
     int newlen;
     char *newval;
     if (!zval1) {
-        zval1 = ZVAL_INIT(list);
+        zval1 = ZVAL_INIT();
     }
     if (zval1->refcount > 1)
-        zval1 = ZVAL_COPY_ON_WRITE(list, zval1);
+        zval1 = ZVAL_COPY_ON_WRITE(zval1);
     zval1->refcount = 1;
 
     ZVAL_CONVERT_STRING(zval1);
@@ -299,7 +270,7 @@ PHPLLVMAPI zval * ZVAL_ASSIGN_CONCAT_ZVAL(zvallist *list, zval *zval1, zval *zva
     return zval1;
 }
 
-PHPLLVMAPI zval * ZVAL_ASSIGN_REF(zvallist *list, zval *srcZval) {
+PHPLLVMAPI zval * ZVAL_ASSIGN_REF(zval *srcZval) {
     zval *oldZval, *newZval;
 
     if (!srcZval) {
@@ -313,9 +284,9 @@ PHPLLVMAPI zval * ZVAL_ASSIGN_REF(zvallist *list, zval *srcZval) {
     }
 
     oldZval = srcZval;
-    newZval = ZVAL_COPY(list, srcZval);
+    newZval = ZVAL_COPY(srcZval);
     if (newZval) {
-        ZVAL_GC(list, oldZval);
+        ZVAL_GC(oldZval);
         newZval->is_ref = 1;
         newZval->refcount++;
     }

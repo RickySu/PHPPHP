@@ -8,5 +8,6 @@
 zvallist * ZVAL_LIST_INIT();
 PHPLLVMAPI void ZVAL_LIST_GC(zvallist *list);
 PHPLLVMAPI void ZVAL_LIST_ADD(zvallist *list);
+PHPLLVMAPI void ZVAL_GC_REGISTER(zvallist *list, zval **ZvalPtr);
 
 #endif
