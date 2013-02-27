@@ -20,7 +20,7 @@
 #ifndef __HASHTABLE_H
 #define __HASHTABLE_H
 
-#define DEFAULT_HASHTABLE_BUCKET_SIZE    1000
+#define DEFAULT_HASHTABLE_BUCKET_SIZE    10
 
 #include "common.h"
 #include "string.h"

@@ -1,11 +1,13 @@
 #include<stdio.h>
 #include "h/hashtable.h"
-#define CONNECT_TO_BUCKET_DLLIST(element, list_head)		\
-	(element)->pNext = (list_head);							\
-	(element)->pLast = NULL;								\
-	if ((element)->pNext) {									\
-		(element)->pNext->pLast = (element);				\
-	}
+
+static inline void CONNECT_TO_BUCKET_DLLIST(Bucket *element, Bucket *list_head) {
+    element->pNext = list_head;
+    element->pLast = NULL;
+    if (element->pNext) {
+        element->pNext->pLast = element;
+    }
+}
 
 int hash_init(HashTable *ht, uint nSize, dtor_func_t pDestructor) {
     uint i = 3;
@@ -36,6 +38,52 @@ int hash_init(HashTable *ht, uint nSize, dtor_func_t pDestructor) {
     return FAILED;
 }
 
+int hash_delete(HashTable *ht, const char *arKey, uint nKeyLength, ulong h) {
+    uint nIndex;
+    Bucket *p;
+
+    if (nKeyLength) {
+        h = zend_inline_hash_func(arKey, nKeyLength);
+    }
+
+    nIndex = h & ht->nTableMask;
+    p = ht->arBuckets[nIndex];
+    while (p != NULL) {
+        if ((p->h == h) && (p->nKeyLength == nKeyLength)) {
+            if (!memcmp(p->arKey, arKey, nKeyLength)) {
+                if(!p->pLast){    //first element
+                    ht->arBuckets[nIndex] = p->pNext;
+                }
+                else{
+                    p->pLast->pNext=p->pNext;
+                }
+                if(p->pNext){
+                    p->pNext->pLast=p->pLast;
+                }
+
+                if(!p->pListLast){
+                    ht->pListHead=p->pListNext;
+                }
+                else{
+                    p->pListLast->pListNext=p->pListNext;
+                }
+                if(p->pListNext){
+                    p->pListNext->pListLast=p->pListLast;
+                }
+
+                if (ht->pDestructor) {
+                    ht->pDestructor(p->pData);
+                }
+                efree(p);
+                ht->nNumOfElements--;
+                return SUCCESS;
+            }
+        }
+        p = p->pNext;
+    }
+    return FAILED;
+}
+
 int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong h, void *pData, void **pDest) {
     uint nIndex;
     Bucket *p;
@@ -61,9 +109,7 @@ int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong 
         }
         p = p->pNext;
     }
-
-    p = (Bucket *) emalloc(sizeof (Bucket) - 1 + nKeyLength);
-    p->pNext = p->pListNext = NULL;
+    p = (Bucket *) ecalloc(1, sizeof (Bucket) - 1 + nKeyLength);
     if (!p) {
         return FAILED;
     }
@@ -76,10 +122,8 @@ int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong 
     if (pDest) {
         *pDest = p->pData;
     }
+    CONNECT_TO_BUCKET_DLLIST(p, ht->arBuckets[nIndex]);
     p->pLast = ht->arBuckets[nIndex];
-    if (p->pLast) {
-        p->pLast->pNext = p;
-    }
     ht->arBuckets[nIndex] = p;
 
     if (!ht->pListHead) {
@@ -92,8 +136,6 @@ int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong 
     }
 
     ht->pListTail = p;
-    printf("p->pListNext:%p\n", p->pListNext);
-    printf("zval:%p Data:%p\n", pData, p->pData);
     ht->nNumOfElements++;
     if (ht->nNumOfElements > ht->nTableSize) {
         return hash_extend(ht);
@@ -105,12 +147,12 @@ int hash_rehash(HashTable *ht) {
     Bucket *p;
     uint nIndex;
     memset(ht->arBuckets, 0, ht->nTableSize * sizeof (Bucket *));
-    while ((p = ht->pListHead) != NULL) {
+    p = ht->pListHead;
+    while (p) {
         nIndex = p->h & ht->nTableMask;
         CONNECT_TO_BUCKET_DLLIST(p, ht->arBuckets[nIndex]);
         ht->arBuckets[nIndex] = p;
         p = p->pListNext;
-
     }
     return SUCCESS;
 }
@@ -121,23 +163,19 @@ int hash_extend(HashTable *ht) {
     if (ht->arBuckets == NULL) {
         return FAILED;
     }
-    return hash_rehash(ht);
+    return    hash_rehash(ht);
 }
 
 int hash_destroy(HashTable *ht) {
     Bucket *p, *q;
     p = ht->pListHead;
     while (p != NULL) {
-        q = p;
-        p = p->pListNext;
         if (ht->pDestructor) {
-            printf("debug\n");
-            ht->pDestructor(q->pData);
-            printf("debug2\n");
+            ht->pDestructor(p->pData);
         }
-        efree(q);
+        efree(p);
+        p=p->pListNext;
     }
-    printf("end\n");
     efree(ht->arBuckets);
     return SUCCESS;
 }

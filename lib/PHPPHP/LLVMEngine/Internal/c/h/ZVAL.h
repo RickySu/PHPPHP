@@ -20,7 +20,7 @@ PHPLLVMAPI void ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT(zval *dstZval, zval *srcZval);
 PHPLLVMAPI zval *  ZVAL_ASSIGN_BOOLEAN(zvallist *list, zval *zval, long val);
 PHPLLVMAPI zval *  ZVAL_ASSIGN_INTEGER(zvallist *list, zval *zval, long val);
 PHPLLVMAPI zval *  ZVAL_ASSIGN_DOUBLE(zvallist *list, zval *zval, double val);
-PHPLLVMAPI zval *  ZVAL_ASSIGN_Zval(zvallist *list1, zval *zval1, zvallist *list2, zval *zval2);
+PHPLLVMAPI zval *  ZVAL_ASSIGN_ZVAL(zvallist *list1, zval *zval1, zval *zval2);
 PHPLLVMAPI zval *  ZVAL_ASSIGN_CONCAT_STRING(zvallist *list, zval *zval, int len, char *val);
 PHPLLVMAPI zval *  ZVAL_ASSIGN_CONCAT_ZVAL(zvallist *list, zval *zval1, zval *zval2);
 PHPLLVMAPI zval *  ZVAL_ASSIGN_REF(zvallist *list, zval *zval);

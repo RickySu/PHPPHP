@@ -5,7 +5,6 @@
 
 void __attribute((fastcall)) PHPLLVM_T_ECHO(int length, char *string) {
     printf("%.*s", length, string);
-    getchar();
 }
 
 void __attribute((fastcall)) PHPLLVM_T_ECHO_ZVAL(zval *varZval) {
@@ -41,6 +40,20 @@ void __attribute((fastcall)) PHPLLVM_T_ECHO_ZVAL(zval *varZval) {
               p=p->pListNext;
             };
 
+            for(int i=0;i<varZval->hashtable->nNumOfElements;i++){
+                int nIndex;
+                if(!varZval->hashtable->arBuckets[i]){
+                    continue;
+                }
+                printf("Index:%d\n",i);
+                p=varZval->hashtable->arBuckets[i];
+                while(p){
+                    printf("\tzval:");
+                    PHPLLVM_T_ECHO_ZVAL((zval*)p->pData);
+                    printf("\n");
+                    p=p->pNext;
+                }
+            }
 
             break;
         case ZVAL_TYPE_NULL:
