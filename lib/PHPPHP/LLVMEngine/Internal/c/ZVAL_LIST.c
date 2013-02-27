@@ -2,7 +2,7 @@
 #include<stdlib.h>
 #include "h/ZVAL_LIST.h"
 #include "h/ZVAL.h"
-
+extern int zvalcount;
 PHPLLVMAPI void ZVAL_LIST_GC(zvallist *list) {
     if (list == NULL) {
         return;
@@ -13,6 +13,7 @@ PHPLLVMAPI void ZVAL_LIST_GC(zvallist *list) {
         }
     }
     ZVAL_LIST_GC(list->next);
+    printf("zvalcount:%d\n",zvalcount);
     efree(list);
 }
 

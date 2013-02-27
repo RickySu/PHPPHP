@@ -5,7 +5,7 @@
 #include "h/ZVAL_LIST.h"
 #include "h/dtoa.h"
 #include "h/hashtable.h"
-
+int zvalcount=0;
 PHPLLVMAPI void freeConvertionCacheBuffer(zval *zval) {
     if (zval->_convertion_cache_type == ZVAL_TYPE_STRING) {
         efree(zval->_convertion_cache.str.val);
@@ -30,6 +30,7 @@ static inline zval* prepareForAssign(zval *varZval) {
 
 zval * ZVAL_INIT() {
     zval * aZval;
+    zvalcount++;
     aZval = ecalloc(1, sizeof (zval));
     aZval->refcount = 1;
     return aZval;
@@ -73,6 +74,7 @@ PHPLLVMAPI void ZVAL_GC(zval *varZval) {
     }
     emptyZval(varZval);
     efree(varZval);
+    zvalcount--;
 }
 
 PHPLLVMAPI void zval_copy_content(zval *dstZval, zval *srcZval) {
@@ -181,6 +183,7 @@ PHPLLVMAPI zval * ZVAL_ASSIGN_ZVAL(zval *zval1, zval *zval2) {
     }
 
     //inc ref_count
+    ZVAL_GC(zval1);
     zval2->refcount++;
     return zval2;
 }
