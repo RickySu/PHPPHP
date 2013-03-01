@@ -155,6 +155,60 @@ PHPLLVMAPI zval * ZVAL_ASSIGN_STRING(zval *dstZval, uint len, char *val) {
     return dstZval;
 }
 
+PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_ZVAL_ELEMENT(zval *dstZval, zval *srcZval, zval *keyZval) {
+    ulong index = 0;
+    uint nKeyLength = 0;
+    char arKey[64];
+    char *arKeyPtr = &arKey[0];
+    dstZval = prepareForArray(dstZval);
+    switch (keyZval->type) {
+        case ZVAL_TYPE_BOOLEAN:
+            index = keyZval->value.lval;
+            break;
+        case ZVAL_TYPE_INTEGER:
+            if (keyZval->value.lval < 0) {
+                nKeyLength = snprintf(arKey, sizeof (arKey), "%ld", keyZval->value.lval);
+                break;
+            }
+            index = keyZval->value.lval;
+            break;
+        case ZVAL_TYPE_DOUBLE:
+            if (keyZval->value.dval < 0) {
+                nKeyLength = snprintf(arKey, sizeof (arKey), "%ld", (long) keyZval->value.dval);
+                break;
+            }
+            index = (ulong) keyZval->value.dval;
+            break;
+        case ZVAL_TYPE_STRING:
+            if (is_number(keyZval->value.str.len, keyZval->value.str.val)) {
+                long intValue = ZVAL_INTEGER_VALUE(keyZval);
+                if (intValue < 0) {
+                    nKeyLength = snprintf(arKey, sizeof (arKey), "%ld", intValue);
+                    break;
+                }
+                index = (ulong) intValue;
+                break;
+            }
+            arKeyPtr = keyZval->value.str.val;
+            nKeyLength = keyZval->value.str.len;
+            break;
+        default:
+            break;
+
+    }
+
+    if(nKeyLength){
+        hash_add_or_update_string_index(dstZval->hashtable, srcZval, nKeyLength, arKeyPtr);
+    }
+    if(index){
+        hash_add_or_update_index(dstZval->hashtable, srcZval, index);
+    }
+    if(index==0 && nKeyLength==0){
+        hash_add_or_update_index(dstZval->hashtable, srcZval, index);
+    }
+    return dstZval;
+}
+
 PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_STRING_ELEMENT(zval *dstZval, zval *srcZval, uint nKeyLength, char *arKey) {
     dstZval = prepareForArray(dstZval);
     hash_add_or_update_string_index(dstZval->hashtable, srcZval, nKeyLength, arKey);

@@ -119,4 +119,11 @@ trait VarAssign {
         return $arrayZvalPtr;
     }
 
+    protected function writeAssignVarElementArrayVar(LLVMZval $arrayZval, LLVMZval $valueZval, LLVMZval $index) {
+        $this->writeDebugInfo("{$arrayZval}[(var) $index] <= (zval)");
+        $arrayZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_ARRAY_ZVAL_ELEMENT, $arrayZval->getPtrRegister(), $valueZval->getPtrRegister(), $index->getPtrRegister());
+        $arrayZval->savePtrRegister($arrayZvalPtr);
+        return $arrayZvalPtr;
+    }
+
 }

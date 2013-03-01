@@ -21,6 +21,7 @@ final class Module {
     const ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT = 'ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT';
     const ZVAL_ASSIGN_ARRAY_INTEGER_ELEMENT = 'ZVAL_ASSIGN_ARRAY_INTEGER_ELEMENT';
     const ZVAL_ASSIGN_ARRAY_STRING_ELEMENT = 'ZVAL_ASSIGN_ARRAY_STRING_ELEMENT';
+    const ZVAL_ASSIGN_ARRAY_ZVAL_ELEMENT = 'ZVAL_ASSIGN_ARRAY_ZVAL_ELEMENT';
     const ZVAL_ASSIGN_BOOLEAN = 'ZVAL_ASSIGN_BOOLEAN';
     const ZVAL_ASSIGN_INTEGER = 'ZVAL_ASSIGN_INTEGER';
     const ZVAL_ASSIGN_DOUBLE = 'ZVAL_ASSIGN_DOUBLE';
@@ -61,6 +62,7 @@ final class Module {
             self::ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT => array(Zval::zval('*'), array(Zval::zval('*'), Zval::zval('*'))),
             self::ZVAL_ASSIGN_ARRAY_INTEGER_ELEMENT => array(Zval::zval('*'), array(Zval::zval('*'), Zval::zval('*'), Base::long())),
             self::ZVAL_ASSIGN_ARRAY_STRING_ELEMENT => array(Zval::zval('*'), array(Zval::zval('*'), Zval::zval('*'), Base::int(), Base::char('*'))),
+            self::ZVAL_ASSIGN_ARRAY_ZVAL_ELEMENT => array(Zval::zval('*'), array(Zval::zval('*'), Zval::zval('*'), Zval::zval('*'))),
             self::ZVAL_ASSIGN_INTEGER => array(Zval::zval('*'), array(Zval::zval('*'), Base::long())),
             self::ZVAL_ASSIGN_BOOLEAN => array(Zval::zval('*'), array(Zval::zval('*'), Base::long())),
             self::ZVAL_ASSIGN_DOUBLE => array(Zval::zval('*'), array(Zval::zval('*'), Base::double())),
