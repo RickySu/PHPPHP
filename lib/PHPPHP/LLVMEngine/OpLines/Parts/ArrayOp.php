@@ -8,7 +8,7 @@ use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 trait ArrayOp {
 
     protected function writeAssignEmptyArray(LLVMZval $op1Zval) {
-        $this->writeDebugInfo("$op1Zval <= (array)");
+        $this->writeDebugInfo("$op1Zval <= (empty array)");
         $this->gcVarZval($op1Zval, false);
         $op1ZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_INIT);
         $this->function->InternalModuleCall(InternalModule::ZVAL_INIT_ARRAY, $op1ZvalPtr);

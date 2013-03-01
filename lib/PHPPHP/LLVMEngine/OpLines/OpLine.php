@@ -24,13 +24,13 @@ abstract class OpLine {
     protected $opLineNo;
     protected $tempZval = array();
 
-    private $resultRegister=NULL;
+    //private $resultRegister=NULL;
 
     protected function getResultRegister(){
-        if($this->resultRegister===NULL){
-            $this->resultRegister=substr($this->function->getRegisterSerial(),1);
+        if(!isset($this->opCode->result->resultRegister)){
+            $this->opCode->result->resultRegister=substr($this->function->getRegisterSerial(),1);
         }
-        return $this->resultRegister;
+        return $this->opCode->result->resultRegister;
     }
 
     public function __construct(opCode $opCode, $opLineNo) {

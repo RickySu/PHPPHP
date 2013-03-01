@@ -6,7 +6,8 @@ use PHPPHP\LLVMEngine\Zval as LLVMZval;
 
 class Assign extends OpLine {
 
-    use Parts\PrepareOpZval;
+    use Parts\PrepareOpZval,
+        Parts\ArrayOp;
 
     public function write() {
         parent::write();
