@@ -46,6 +46,9 @@ final class Module {
     const ZVAL_EQUAL_EXACT = 'ZVAL_EQUAL_EXACT';
     const ZVAL_TEST_NULL = 'ZVAL_TEST_NULL';
     const ZVAL_TEST_FALSE = 'ZVAL_TEST_FALSE';
+    const ZVAL_FETCH_ARRAY_INTEGER_ELEMENT = 'ZVAL_FETCH_ARRAY_INTEGER_ELEMENT';
+    const ZVAL_FETCH_ARRAY_STRING_ELEMENT = 'ZVAL_FETCH_ARRAY_STRING_ELEMENT';
+    const ZVAL_FETCH_ARRAY_ZVAL_ELEMENT = 'ZVAL_FETCH_ARRAY_ZVAL_ELEMENT';
 
     public static function Define() {
         return array(
@@ -87,6 +90,9 @@ final class Module {
             self::ZVAL_EQUAL_EXACT => array(Base::long(), array(Zval::zval('*'), Zval::zval('*'))),
             self::ZVAL_TEST_NULL => array(Base::long(), array(Zval::zval('*'))),
             self::ZVAL_TEST_FALSE => array(Base::long(), array(Zval::zval('*'))),
+            self::ZVAL_FETCH_ARRAY_INTEGER_ELEMENT => array(Zval::zval('*'), array(Zval::zval('*'), Base::long())),
+            self::ZVAL_FETCH_ARRAY_STRING_ELEMENT => array(Zval::zval('*'), array(Zval::zval('*'), Base::int(), Base::char('*'))),
+            self::ZVAL_FETCH_ARRAY_ZVAL_ELEMENT => array(Zval::zval('*'), array(Zval::zval('*'), Zval::zval('*'))),
             'single_debug' => array(Base::void(), array(Base::int())),
         );
     }

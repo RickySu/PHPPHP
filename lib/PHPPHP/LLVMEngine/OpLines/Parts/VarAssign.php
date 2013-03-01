@@ -2,7 +2,6 @@
 
 namespace PHPPHP\LLVMEngine\OpLines\Parts;
 
-use PHPPHP\LLVMEngine\Register;
 use PHPPHP\LLVMEngine\Zval as LLVMZval;
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 
@@ -86,44 +85,6 @@ trait VarAssign {
         $op1ZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_ZVAL, $op1Zval->getPtrRegister(), $op2Zval->getPtrRegister());
         $op1Zval->savePtrRegister($op1ZvalPtr);
         return $op1ZvalPtr;
-    }
-
-    protected function writeAssignEmptyArray(LLVMZval $op1Zval) {
-        $this->writeDebugInfo("$op1Zval <= (array)");
-        $this->gcVarZval($op1Zval, false);
-        $op1ZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_INIT);
-        $this->function->InternalModuleCall(InternalModule::ZVAL_INIT_ARRAY, $op1ZvalPtr);
-        $op1Zval->savePtrRegister($op1ZvalPtr);
-        return $op1ZvalPtr;
-    }
-
-    protected function writeAssignNextElementArrayVar(LLVMZval $arrayZval, LLVMZval $valueZval) {
-        $this->writeDebugInfo("{$arrayZval}[] <= (zval)");
-        $arrayZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT, $arrayZval->getPtrRegister(), $valueZval->getPtrRegister());
-        $arrayZval->savePtrRegister($arrayZvalPtr);
-        return $arrayZvalPtr;
-    }
-
-    protected function writeAssignIntegerElementArrayVar(LLVMZval $arrayZval, LLVMZval $valueZval, $index) {
-        $this->writeDebugInfo("{$arrayZval}[(int) $index] <= (zval)");
-        $arrayZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_ARRAY_INTEGER_ELEMENT, $arrayZval->getPtrRegister(), $valueZval->getPtrRegister(), $index);
-        $arrayZval->savePtrRegister($arrayZvalPtr);
-        return $arrayZvalPtr;
-    }
-
-    protected function writeAssignStringElementArrayVar(LLVMZval $arrayZval, LLVMZval $valueZval, $index) {
-        $this->writeDebugInfo("{$arrayZval}[(string) $index] <= (zval)");
-        $constant = $this->function->writeConstant($index);
-        $arrayZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_ARRAY_STRING_ELEMENT, $arrayZval->getPtrRegister(), $valueZval->getPtrRegister(), strlen($index), $constant->ptr());
-        $arrayZval->savePtrRegister($arrayZvalPtr);
-        return $arrayZvalPtr;
-    }
-
-    protected function writeAssignVarElementArrayVar(LLVMZval $arrayZval, LLVMZval $valueZval, LLVMZval $index) {
-        $this->writeDebugInfo("{$arrayZval}[(var) $index] <= (zval)");
-        $arrayZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_ARRAY_ZVAL_ELEMENT, $arrayZval->getPtrRegister(), $valueZval->getPtrRegister(), $index->getPtrRegister());
-        $arrayZval->savePtrRegister($arrayZvalPtr);
-        return $arrayZvalPtr;
     }
 
 }

@@ -2,14 +2,13 @@
 
 namespace PHPPHP\LLVMEngine\OpLines;
 
-use PHPPHP\Engine\Zval;
 use PHPPHP\LLVMEngine\Zval as LLVMZval;
-use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 
 class AssignDim extends OpLine {
 
     use Parts\TypeCast,
-        Parts\PrepareOpZval;
+        Parts\PrepareOpZval,
+        Parts\ArrayOp;
 
     public function write() {
         parent::write();

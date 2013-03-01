@@ -51,24 +51,22 @@ int hash_delete(HashTable *ht, const char *arKey, uint nKeyLength, ulong h) {
     while (p != NULL) {
         if ((p->h == h) && (p->nKeyLength == nKeyLength)) {
             if (!memcmp(p->arKey, arKey, nKeyLength)) {
-                if(!p->pLast){    //first element
+                if (!p->pLast) { //first element
                     ht->arBuckets[nIndex] = p->pNext;
+                } else {
+                    p->pLast->pNext = p->pNext;
                 }
-                else{
-                    p->pLast->pNext=p->pNext;
-                }
-                if(p->pNext){
-                    p->pNext->pLast=p->pLast;
+                if (p->pNext) {
+                    p->pNext->pLast = p->pLast;
                 }
 
-                if(!p->pListLast){
-                    ht->pListHead=p->pListNext;
+                if (!p->pListLast) {
+                    ht->pListHead = p->pListNext;
+                } else {
+                    p->pListLast->pListNext = p->pListNext;
                 }
-                else{
-                    p->pListLast->pListNext=p->pListNext;
-                }
-                if(p->pListNext){
-                    p->pListNext->pListLast=p->pListLast;
+                if (p->pListNext) {
+                    p->pListNext->pListLast = p->pListLast;
                 }
 
                 if (ht->pDestructor) {
@@ -84,6 +82,31 @@ int hash_delete(HashTable *ht, const char *arKey, uint nKeyLength, ulong h) {
     return FAILED;
 }
 
+void *hash_find(HashTable *ht, const char *arKey, uint nKeyLength, ulong h) {
+    uint nIndex;
+    Bucket *p;
+
+    if (nKeyLength) {
+        h = zend_inline_hash_func(arKey, nKeyLength);
+    }
+
+    if (nKeyLength == 0 && (long) h >= (long) ht->nNextFreeElement) {
+        ht->nNextFreeElement = h < LONG_MAX ? h + 1 : LONG_MAX;
+    }
+
+    nIndex = h & ht->nTableMask;
+    p = ht->arBuckets[nIndex];
+    while (p != NULL) {
+        if ((p->h == h) && (p->nKeyLength == nKeyLength)) {
+            if (!memcmp(p->arKey, arKey, nKeyLength)) {
+                return p->pData;
+            }
+        }
+        p = p->pNext;
+    }
+    return NULL;
+}
+
 int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong h, void *pData, void **pDest) {
     uint nIndex;
     Bucket *p;
@@ -92,7 +115,7 @@ int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong 
         h = zend_inline_hash_func(arKey, nKeyLength);
     }
 
-    if(nKeyLength==0 && (long)h >= (long)ht->nNextFreeElement){
+    if (nKeyLength == 0 && (long) h >= (long) ht->nNextFreeElement) {
         ht->nNextFreeElement = h < LONG_MAX ? h + 1 : LONG_MAX;
     }
 
@@ -168,7 +191,7 @@ int hash_extend(HashTable *ht) {
     if (ht->arBuckets == NULL) {
         return FAILED;
     }
-    return    hash_rehash(ht);
+    return hash_rehash(ht);
 }
 
 int hash_destroy(HashTable *ht) {
@@ -179,7 +202,7 @@ int hash_destroy(HashTable *ht) {
             ht->pDestructor(p->pData);
         }
         efree(p);
-        p=p->pListNext;
+        p = p->pListNext;
     }
     efree(ht->arBuckets);
     return SUCCESS;

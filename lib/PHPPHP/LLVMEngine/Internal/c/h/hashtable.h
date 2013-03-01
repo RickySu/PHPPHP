@@ -26,8 +26,10 @@
 #include "string.h"
 
 #define hash_add_next(ht, pData) hash_add_or_update(ht, NULL, 0, ht->nNextFreeElement++, pData, NULL)
+#define hash_find_index(ht, index) hash_find(ht, NULL, 0, index)
+#define hash_find_string_index(ht, nKeyLength, arKey) hash_find(ht, arKey, nKeyLength, 0)
 #define hash_add_or_update_index(ht, pData, index) hash_add_or_update(ht, NULL, 0, (ulong)(index), pData, NULL)
-#define hash_add_or_update_string_index(ht, pData, nKeyLength, arKey) hash_add_or_update(ht, arKey, nKeyLength, (ulong)(index), pData, NULL)
+#define hash_add_or_update_string_index(ht, pData, nKeyLength, arKey) hash_add_or_update(ht, arKey, nKeyLength, 0, pData, NULL)
 
 
 typedef void (*dtor_func_t)(void *pDest);
@@ -63,6 +65,7 @@ typedef struct _hashtable {
 
 int hash_init(HashTable *ht, uint nSize,dtor_func_t pDestructor);
 int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong h, void *pData, void **pDest);
+void *hash_find(HashTable *ht, const char *arKey, uint nKeyLength, ulong h);
 int hash_extend(HashTable *ht);
 int hash_rehash(HashTable *ht);
 int hash_destroy(HashTable *ht);

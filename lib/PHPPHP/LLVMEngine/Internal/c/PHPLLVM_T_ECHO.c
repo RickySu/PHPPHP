@@ -9,6 +9,9 @@ void __attribute((fastcall)) PHPLLVM_T_ECHO(int length, char *string) {
 
 void __attribute((fastcall)) PHPLLVM_T_ECHO_ZVAL(zval *varZval) {
     char buffer[128];
+    if(!varZval){
+        return;
+    }
     switch (varZval->type) {
         case ZVAL_TYPE_BOOLEAN:
             if (varZval->value.lval) {

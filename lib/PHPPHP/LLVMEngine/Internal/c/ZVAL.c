@@ -197,13 +197,13 @@ PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_ZVAL_ELEMENT(zval *dstZval, zval *srcZval, zv
 
     }
 
-    if(nKeyLength){
+    if (nKeyLength) {
         hash_add_or_update_string_index(dstZval->hashtable, srcZval, nKeyLength, arKeyPtr);
     }
-    if(index){
+    if (index) {
         hash_add_or_update_index(dstZval->hashtable, srcZval, index);
     }
-    if(index==0 && nKeyLength==0){
+    if (index == 0 && nKeyLength == 0) {
         hash_add_or_update_index(dstZval->hashtable, srcZval, index);
     }
     return dstZval;
@@ -243,14 +243,14 @@ PHPLLVMAPI zval *ZVAL_ASSIGN_ZVAL(zval *zval1, zval *zval2) {
         return zval1;
     }
 
-    if (zval2->is_ref) {
-        ZVAL_GC(zval1);
-        return ZVAL_COPY(zval2);
-    }
-
     if (zval2 == NULL) {
         ZVAL_GC(zval1);
         return zval2;
+    }
+
+    if (zval2->is_ref) {
+        ZVAL_GC(zval1);
+        return ZVAL_COPY(zval2);
     }
 
     //inc ref_count
@@ -294,6 +294,11 @@ PHPLLVMAPI zval * ZVAL_ASSIGN_CONCAT_ZVAL(zval *zval1, zval *zval2) {
     uint tmpLen;
     uint newlen;
     char *newval;
+
+    if (!zval2) {
+        return zval1;
+    }
+
     if (!zval1) {
         zval1 = ZVAL_INIT();
     }
@@ -712,4 +717,76 @@ PHPLLVMAPI long ZVAL_TEST_FALSE(zval * zvalop1) {
     }
 
     return TRUE;
+}
+
+PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_INTEGER_ELEMENT(zval *arrayZval, uint index) {
+    if (!arrayZval || arrayZval->type != ZVAL_TYPE_ARRAY) {
+        return NULL;
+    }
+    return (zval *) hash_find_index(arrayZval->hashtable, index);
+}
+
+PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_STRING_ELEMENT(zval *arrayZval, uint nKeyLength, char *arKey) {
+    if (!arrayZval || arrayZval->type != ZVAL_TYPE_ARRAY) {
+        return NULL;
+    }
+    return (zval *) hash_find_string_index(arrayZval->hashtable, nKeyLength, arKey);
+}
+
+PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_ZVAL_ELEMENT(zval *arrayZval, zval *keyZval) {
+    ulong index = 0;
+    uint nKeyLength = 0;
+    char arKey[64];
+    char *arKeyPtr = &arKey[0];
+
+    if (!arrayZval || arrayZval->type != ZVAL_TYPE_ARRAY) {
+        return NULL;
+    }
+    if (keyZval) {
+        switch (keyZval->type) {
+            case ZVAL_TYPE_BOOLEAN:
+                index = keyZval->value.lval;
+                break;
+            case ZVAL_TYPE_INTEGER:
+                if (keyZval->value.lval < 0) {
+                    nKeyLength = snprintf(arKey, sizeof (arKey), "%ld", keyZval->value.lval);
+                    break;
+                }
+                index = keyZval->value.lval;
+                break;
+            case ZVAL_TYPE_DOUBLE:
+                if (keyZval->value.dval < 0) {
+                    nKeyLength = snprintf(arKey, sizeof (arKey), "%ld", (long) keyZval->value.dval);
+                    break;
+                }
+                index = (ulong) keyZval->value.dval;
+                break;
+            case ZVAL_TYPE_STRING:
+                if (is_number(keyZval->value.str.len, keyZval->value.str.val)) {
+                    long intValue = ZVAL_INTEGER_VALUE(keyZval);
+                    if (intValue < 0) {
+                        nKeyLength = snprintf(arKey, sizeof (arKey), "%ld", intValue);
+                        break;
+                    }
+                    index = (ulong) intValue;
+                    break;
+                }
+                arKeyPtr = keyZval->value.str.val;
+                nKeyLength = keyZval->value.str.len;
+                break;
+            default:
+                break;
+        }
+    }
+
+    if (nKeyLength) {
+        return (zval *) hash_find_string_index(arrayZval->hashtable, nKeyLength, arKeyPtr);
+    }
+    if (index) {
+        return (zval *) hash_find_index(arrayZval->hashtable, index);
+    }
+    if (index == 0 && nKeyLength == 0) {
+        return (zval *) hash_find_index(arrayZval->hashtable, index);
+    }
+    return NULL;
 }

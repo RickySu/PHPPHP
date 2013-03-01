@@ -42,4 +42,7 @@ PHPLLVMAPI long ZVAL_EQUAL(zval *zvalop1, zval *zvalop2);
 PHPLLVMAPI long ZVAL_EQUAL_EXACT(zval *zvalop1, zval *zvalop2);
 PHPLLVMAPI long ZVAL_TEST_NULL(zval *zvalop1);
 PHPLLVMAPI long ZVAL_TEST_FALSE(zval *zvalop1);
+PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_INTEGER_ELEMENT(zval *dstZval, uint index);
+PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_STRING_ELEMENT(zval *arrayZval, uint nKeyLength, char *arKey);
+PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_ZVAL_ELEMENT(zval *arrayZval, zval *keyZval);
 #endif

@@ -14,6 +14,10 @@ trait PrepareOpZval {
         $opVars = func_get_args();
 
         foreach ($opVars as $opVar) {
+            if(!is_object($opVar)){
+                $opZvals[] = $opVar;
+                continue;
+            }
             if ($opVar->getImmediateZval() instanceof Zval\Value) {
                 $opZval=$opVar->getValue();
             } else {
