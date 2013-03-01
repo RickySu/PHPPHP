@@ -5,7 +5,7 @@
 #include "h/ZVAL_LIST.h"
 #include "h/dtoa.h"
 #include "h/hashtable.h"
-int zvalcount = 0;
+uint zvalcount = 0;
 
 PHPLLVMAPI void freeConvertionCacheBuffer(zval *zval) {
     if (zval->_convertion_cache_type == ZVAL_TYPE_STRING) {
@@ -74,7 +74,6 @@ PHPLLVMAPI void emptyZval(zval *varZval) {
 }
 
 PHPLLVMAPI void ZVAL_GC(zval *varZval) {
-    int i;
     if (!varZval) {
         return;
     }
@@ -144,7 +143,7 @@ PHPLLVMAPI zval * ZVAL_ASSIGN_DOUBLE(zval *dstZval, double val) {
     return dstZval;
 }
 
-PHPLLVMAPI zval * ZVAL_ASSIGN_STRING(zval *dstZval, int len, char *val) {
+PHPLLVMAPI zval * ZVAL_ASSIGN_STRING(zval *dstZval, uint len, char *val) {
     dstZval = prepareForAssign(dstZval);
     dstZval->type = ZVAL_TYPE_STRING;
     dstZval->value.str.len = len;
@@ -156,26 +155,26 @@ PHPLLVMAPI zval * ZVAL_ASSIGN_STRING(zval *dstZval, int len, char *val) {
     return dstZval;
 }
 
-PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_INTEGER_ELEMENT(zval *dstZval, zval *srcZval, ulong index) {
-    zval *valueZval;
+PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_STRING_ELEMENT(zval *dstZval, zval *srcZval, uint nKeyLength, char *arKey) {
     dstZval = prepareForArray(dstZval);
-    valueZval = ZVAL_INIT();
-    valueZval = ZVAL_ASSIGN_ZVAL(valueZval, srcZval);
-    hash_add_or_update_index(dstZval->hashtable, valueZval, index);
+    hash_add_or_update_string_index(dstZval->hashtable, srcZval, nKeyLength, arKey);
+    return dstZval;
+}
+
+PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_INTEGER_ELEMENT(zval *dstZval, zval *srcZval, ulong index) {
+    dstZval = prepareForArray(dstZval);
+    hash_add_or_update_index(dstZval->hashtable, srcZval, index);
     return dstZval;
 }
 
 PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT(zval *dstZval, zval *srcZval) {
-    zval *valueZval;
     dstZval = prepareForArray(dstZval);
-    valueZval = ZVAL_INIT();
-    valueZval = ZVAL_ASSIGN_ZVAL(valueZval, srcZval);
-    hash_add_next(dstZval->hashtable, valueZval);
+    hash_add_next(dstZval->hashtable, srcZval);
     return dstZval;
 }
 
 PHPLLVMAPI zval *ZVAL_ASSIGN_ZVAL(zval *zval1, zval *zval2) {
-    int refcount;
+    uint refcount;
 
     if (zval1 == zval2) {
         return zval1;
@@ -206,8 +205,8 @@ PHPLLVMAPI zval *ZVAL_ASSIGN_ZVAL(zval *zval1, zval *zval2) {
     return zval2;
 }
 
-PHPLLVMAPI zval * ZVAL_ASSIGN_CONCAT_STRING(zval *zval, int len, char *val) {
-    int newlen;
+PHPLLVMAPI zval * ZVAL_ASSIGN_CONCAT_STRING(zval *zval, uint len, char *val) {
+    uint newlen;
     char *newval;
     if (!zval) {
         zval = ZVAL_INIT();
@@ -238,8 +237,8 @@ PHPLLVMAPI zval * ZVAL_ASSIGN_CONCAT_STRING(zval *zval, int len, char *val) {
 
 PHPLLVMAPI zval * ZVAL_ASSIGN_CONCAT_ZVAL(zval *zval1, zval *zval2) {
     char *tmpString;
-    int tmpLen;
-    int newlen;
+    uint tmpLen;
+    uint newlen;
     char *newval;
     if (!zval1) {
         zval1 = ZVAL_INIT();
@@ -314,8 +313,8 @@ PHPLLVMAPI zval * ZVAL_ASSIGN_REF(zval *srcZval) {
     return newZval;
 }
 
-PHPLLVMAPI void ZVAL_STRING_VALUE(zval *zval, int *len, char **str) {
-    int buffersize;
+PHPLLVMAPI void ZVAL_STRING_VALUE(zval *zval, uint *len, char **str) {
+    uint buffersize;
     if (zval == NULL) {
         *len = 0;
         return;
@@ -360,7 +359,7 @@ PHPLLVMAPI void ZVAL_STRING_VALUE(zval *zval, int *len, char **str) {
 }
 
 PHPLLVMAPI void ZVAL_CONVERT_STRING(zval * zval) {
-    int len;
+    uint len;
     char * val;
     char oldType;
     zvalue_value oldValue;
@@ -480,10 +479,10 @@ PHPLLVMAPI void ZVAL_CONVERT_DOUBLE(zval * zval) {
     memcpy(&zval->_convertion_cache, &oldValue, sizeof (zvalue_value));
 }
 
-PHPLLVMAPI int is_number(int len, char *val) {
+PHPLLVMAPI int is_number(uint len, char *val) {
     char dotAssigned = 0;
     char exponentAssigned = 0;
-    for (int i = 0; i < len; i++) {
+    for (uint i = 0; i < len; i++) {
         if (val[i] < '0' || val[i] > '9') {
             if ((val[i] == 'e' || val[i] == 'E') && exponentAssigned == 0) {
                 exponentAssigned = 1;
@@ -578,8 +577,8 @@ PHPLLVMAPI int ZVAL_TYPE_CAST_NUMBER(zval *zvalop1, zval *zvalop2, type_cast *va
     return ZVAL_TYPE_INTEGER;
 }
 
-PHPLLVMAPI long ZVAL_EQUAL_STRING(zval *zvalop1, int len, char *val) {
-    int op1len;
+PHPLLVMAPI long ZVAL_EQUAL_STRING(zval *zvalop1, uint len, char *val) {
+    uint op1len;
     char *op1val;
     if (zvalop1->type != ZVAL_TYPE_STRING) {
         return 0;
@@ -592,7 +591,7 @@ PHPLLVMAPI long ZVAL_EQUAL_STRING(zval *zvalop1, int len, char *val) {
 }
 
 PHPLLVMAPI long ZVAL_EQUAL(zval *zvalop1, zval * zvalop2) {
-    int op1len, op2len;
+    uint op1len, op2len;
     char *op1val, *op2val;
     type_cast value_op1, value_op2;
     if (ZVAL_TYPE_GUESS(zvalop1) == ZVAL_TYPE_STRING || ZVAL_TYPE_GUESS(zvalop2) == ZVAL_TYPE_STRING) {

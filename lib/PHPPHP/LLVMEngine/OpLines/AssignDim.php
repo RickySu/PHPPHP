@@ -18,18 +18,18 @@ class AssignDim extends OpLine {
     }
 
     protected function writeZvalZval(LLVMZval $op1Zval, LLVMZval $op2Zval) {
-        $this->writeAssignArray($op1Zval, $op2Zval);
+        $valueZval = new LLVMZval(NULL, true, false, $this->function);
+        $this->writeVarAssign($valueZval, $op2Zval);
+        $this->writeAssignArray($op1Zval, $valueZval);
     }
 
     protected function writeZvalValue(LLVMZval $op1Zval, $value) {
         $valueZval = new LLVMZval(NULL, true, false, $this->function);
         $this->writeImmediateValueAssign($valueZval, $value);
         $this->writeAssignArray($op1Zval, $valueZval);
-        $this->gcVarZval($valueZval);
     }
 
     protected function writeAssignArray(LLVMZval $dstZval, LLVMZval $valueZval) {
-        //print_r($this->opCode);die;
         if ($this->opCode->dim == NULL) {
             $this->writeAssignNextElementArrayVar($dstZval, $valueZval);
             return;
@@ -37,12 +37,12 @@ class AssignDim extends OpLine {
         if ($this->opCode->dim->getImmediateZval() instanceof Zval\Value) {
             $index = $this->opCode->dim->getImmediateZval()->getValue();
             if (!is_numeric($index)) {
-                // use string index
+                $this->writeAssignStringElementArrayVar($dstZval, $valueZval, $index);
                 return;
             }
             $index = (int) $index;
             if ($index < 0) {
-                // use string index
+                $this->writeAssignStringElementArrayVar($dstZval, $valueZval, $index);
                 return;
             }
             $this->writeAssignIntegerElementArrayVar($dstZval, $valueZval, $index);

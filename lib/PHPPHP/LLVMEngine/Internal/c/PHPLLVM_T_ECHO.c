@@ -33,14 +33,18 @@ void __attribute((fastcall)) PHPLLVM_T_ECHO_ZVAL(zval *varZval) {
             Bucket *p;
             p=varZval->hashtable->pListHead;
             while(p){
-              printf("list:%p h:%lu\n",p,p->h);
+              printf("list:%p h:%lu",p,p->h);
+              if(p->nKeyLength){
+                  printf(" key:%.*s",p->nKeyLength,p->arKey);
+              }
+              printf("\n");
               //printf("zval:%p type:%d\n",p->pData,((zval*)p->pData)->type);
               PHPLLVM_T_ECHO_ZVAL((zval*)p->pData);
               printf("\n");
               p=p->pListNext;
             };
 
-            for(int i=0;i<varZval->hashtable->nNumOfElements;i++){
+            for(int i=0;i<varZval->hashtable->nTableSize;i++){
                 int nIndex;
                 if(!varZval->hashtable->arBuckets[i]){
                     continue;

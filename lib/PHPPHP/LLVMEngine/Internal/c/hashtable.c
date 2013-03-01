@@ -91,7 +91,7 @@ int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong 
     if (nKeyLength) {
         h = zend_inline_hash_func(arKey, nKeyLength);
     }
-    
+
     if(nKeyLength==0 && (long)h >= (long)ht->nNextFreeElement){
         ht->nNextFreeElement = h < LONG_MAX ? h + 1 : LONG_MAX;
     }
@@ -141,6 +141,7 @@ int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong 
 
     ht->pListTail = p;
     ht->nNumOfElements++;
+
     if (ht->nNumOfElements > ht->nTableSize) {
         return hash_extend(ht);
     }

@@ -66,6 +66,7 @@ class Zval {
 
     public function savePtrRegister($ptrRegister) {
         if($this->varName===NULL){
+            $this->ptrRegister=$ptrRegister;
             return;
         }
         $this->IRWriter->writeOpLineIR("store " . self::zval('*') . " $ptrRegister, " . self::zval('**') . " {$this->getIRRegister()}, align " . self::zval('*')->size());

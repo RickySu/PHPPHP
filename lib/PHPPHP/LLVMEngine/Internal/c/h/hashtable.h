@@ -27,6 +27,7 @@
 
 #define hash_add_next(ht, pData) hash_add_or_update(ht, NULL, 0, ht->nNextFreeElement++, pData, NULL)
 #define hash_add_or_update_index(ht, pData, index) hash_add_or_update(ht, NULL, 0, (ulong)(index), pData, NULL)
+#define hash_add_or_update_string_index(ht, pData, nKeyLength, arKey) hash_add_or_update(ht, arKey, nKeyLength, (ulong)(index), pData, NULL)
 
 
 typedef void (*dtor_func_t)(void *pDest);

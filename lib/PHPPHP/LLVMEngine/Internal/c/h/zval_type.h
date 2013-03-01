@@ -18,8 +18,8 @@ typedef struct _zval_struct zval;
 typedef struct _zvallist zvallist;
 
 struct _zvallist {
-    int  len;
-    int  count;
+    uint  len;
+    uint  count;
     zval ***arZvalPtr;
     zvallist* next;
 };
@@ -35,13 +35,13 @@ typedef union {
 
     struct {
         char *val;
-        int len;
+        uint len;
     } str;
 } zvalue_value;
 
 struct _zval_struct {
         zvalue_value value;             /* value */
-        int  refcount;
+        uint  refcount;
         char type;                     /* active type */
         char is_ref;
         HashTable *hashtable;
