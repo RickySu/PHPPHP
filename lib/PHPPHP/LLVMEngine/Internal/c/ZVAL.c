@@ -726,25 +726,31 @@ PHPLLVMAPI long ZVAL_TEST_FALSE(zval * zvalop1) {
 }
 
 PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_INTEGER_ELEMENT(zval *arrayZval, uint index, uint forWrite) {
+    zval *returnZval;
     if (!arrayZval || arrayZval->type != ZVAL_TYPE_ARRAY) {
         return NULL;
     }
-    if (forWrite) {
-        zval *srcZval=ZVAL_INIT();
+    returnZval = (zval *) hash_find_index(arrayZval->hashtable, index);
+    if (forWrite && (!returnZval)) {
+        zval *srcZval = ZVAL_INIT();
         hash_add_or_update_index(arrayZval->hashtable, srcZval, index);
+        return srcZval;
     }
-    return (zval *) hash_find_index(arrayZval->hashtable, index);
+    return returnZval;
 }
 
 PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_STRING_ELEMENT(zval *arrayZval, uint nKeyLength, char *arKey, uint forWrite) {
+    zval *returnZval;
     if (!arrayZval || arrayZval->type != ZVAL_TYPE_ARRAY) {
         return NULL;
     }
-    if (forWrite) {
-        zval *srcZval=ZVAL_INIT();
+    returnZval = (zval *) hash_find_string_index(arrayZval->hashtable, nKeyLength, arKey);
+    if (forWrite && (!returnZval)) {
+        zval *srcZval = ZVAL_INIT();
         hash_add_or_update_string_index(arrayZval->hashtable, srcZval, nKeyLength, arKey);
+        return srcZval;
     }
-    return (zval *) hash_find_string_index(arrayZval->hashtable, nKeyLength, arKey);
+    return returnZval;
 }
 
 PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_ZVAL_ELEMENT(zval *arrayZval, zval *keyZval, uint forWrite) {
