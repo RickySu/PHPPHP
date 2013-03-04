@@ -54,7 +54,7 @@ final class Module {
         return array(
             self::T_ECHO => array(Base::void(), array(Base::int(), Base::char('*'))),
             self::T_ECHO_ZVAL => array(Base::void(), array(Zval::zval('*'))),
-            self::ZVAL_INIT_ARRAY => array(Base::void(), array(Zval::zval('*'))),
+            self::ZVAL_INIT_ARRAY => array(Zval::zval('*'), array(Zval::zval('*'))),
             self::ZVAL_LIST_INIT => array(Base::void('*'), array()),
             self::ZVAL_LIST_GC => array(Base::void(), array(Base::void('*'))),
             self::ZVAL_INIT => array(Zval::zval('*'), array()),
@@ -90,9 +90,9 @@ final class Module {
             self::ZVAL_EQUAL_EXACT => array(Base::long(), array(Zval::zval('*'), Zval::zval('*'))),
             self::ZVAL_TEST_NULL => array(Base::long(), array(Zval::zval('*'))),
             self::ZVAL_TEST_FALSE => array(Base::long(), array(Zval::zval('*'))),
-            self::ZVAL_FETCH_ARRAY_INTEGER_ELEMENT => array(Zval::zval('*'), array(Zval::zval('*'), Base::long())),
-            self::ZVAL_FETCH_ARRAY_STRING_ELEMENT => array(Zval::zval('*'), array(Zval::zval('*'), Base::int(), Base::char('*'))),
-            self::ZVAL_FETCH_ARRAY_ZVAL_ELEMENT => array(Zval::zval('*'), array(Zval::zval('*'), Zval::zval('*'))),
+            self::ZVAL_FETCH_ARRAY_INTEGER_ELEMENT => array(Zval::zval('*'), array(Zval::zval('*'), Base::long(), Base::int())),
+            self::ZVAL_FETCH_ARRAY_STRING_ELEMENT => array(Zval::zval('*'), array(Zval::zval('*'), Base::int(), Base::char('*'), Base::int())),
+            self::ZVAL_FETCH_ARRAY_ZVAL_ELEMENT => array(Zval::zval('*'), array(Zval::zval('*'), Zval::zval('*'), Base::int())),
             'single_debug' => array(Base::void(), array(Base::int())),
         );
     }

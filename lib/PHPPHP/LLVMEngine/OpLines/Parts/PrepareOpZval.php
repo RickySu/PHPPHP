@@ -20,9 +20,6 @@ trait PrepareOpZval {
             }
             if ($opVar->getImmediateZval() instanceof Zval\Value) {
                 $opZval=$opVar->getValue();
-                if(is_array($opZval)){
-                    print_r($opZval);die;
-                }
             } else {
                 $opZval = $this->function->getZvalIR($opVar->getName());
             }

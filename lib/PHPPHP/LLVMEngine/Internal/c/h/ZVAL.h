@@ -10,7 +10,7 @@ PHPLLVMAPI void emptyZval(zval *varZval);
 void hashtable_zval_gc_dtor(void *pDest);
 
 zval *ZVAL_INIT();
-PHPLLVMAPI void ZVAL_INIT_ARRAY(zval *aZval);
+PHPLLVMAPI zval *ZVAL_INIT_ARRAY(zval *aZval);
 PHPLLVMAPI void ZVAL_GC(zval *zval);
 
 PHPLLVMAPI zval *ZVAL_COPY(zval *zval);
@@ -42,7 +42,7 @@ PHPLLVMAPI long ZVAL_EQUAL(zval *zvalop1, zval *zvalop2);
 PHPLLVMAPI long ZVAL_EQUAL_EXACT(zval *zvalop1, zval *zvalop2);
 PHPLLVMAPI long ZVAL_TEST_NULL(zval *zvalop1);
 PHPLLVMAPI long ZVAL_TEST_FALSE(zval *zvalop1);
-PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_INTEGER_ELEMENT(zval *dstZval, uint index);
-PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_STRING_ELEMENT(zval *arrayZval, uint nKeyLength, char *arKey);
-PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_ZVAL_ELEMENT(zval *arrayZval, zval *keyZval);
+PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_INTEGER_ELEMENT(zval *dstZval, uint index, uint forWrite);
+PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_STRING_ELEMENT(zval *arrayZval, uint nKeyLength, char *arKey, uint forWrite);
+PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_ZVAL_ELEMENT(zval *arrayZval, zval *keyZval, uint forWrite);
 #endif

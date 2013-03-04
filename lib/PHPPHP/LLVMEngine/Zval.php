@@ -35,28 +35,32 @@ class Zval {
         return self::getType($ptr);
     }
 
-    public static function getGCList(){
+    public static function getGCList() {
         return self::ZVAL_GC_LIST;
     }
+
     public function __construct($varName, $initZval, $isTemp, $IRWriter) {
         $this->varName = $varName;
         $this->isTemp = $isTemp;
         $this->IRWriter = $IRWriter;
         if ($initZval) {
             $ptrRegister = $this->IRWriter->InternalModuleCall(InternalModule::ZVAL_INIT);
-            if($varName===NULL){
-                $this->ptrRegister=$ptrRegister;
+            if ($varName === NULL) {
+                $this->ptrRegister = $ptrRegister;
                 return;
             }
             $this->savePtrRegister($ptrRegister);
         }
     }
 
-    public function isTemp(){
+    public function isTemp() {
         return $this->isTemp;
     }
 
     public function getIRRegister() {
+        if ($this->varName == NULL) {
+            return (string)$this->ptrRegister;
+        }
         return "%PHPVar" . ($this->isTemp ? '_temp' : '') . "_{$this->varName}";
     }
 
@@ -65,15 +69,15 @@ class Zval {
     }
 
     public function savePtrRegister($ptrRegister) {
-        if($this->varName===NULL){
-            $this->ptrRegister=$ptrRegister;
+        if ($this->varName === NULL) {
+            $this->ptrRegister = $ptrRegister;
             return;
         }
         $this->IRWriter->writeOpLineIR("store " . self::zval('*') . " $ptrRegister, " . self::zval('**') . " {$this->getIRRegister()}, align " . self::zval('*')->size());
     }
 
     public function getPtrRegister() {
-        if($this->varName===NULL){
+        if ($this->varName === NULL) {
             return $this->ptrRegister;
         }
         $returnRegister = $this->IRWriter->getRegisterSerial();

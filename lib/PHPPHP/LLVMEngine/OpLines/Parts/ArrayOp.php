@@ -45,19 +45,20 @@ trait ArrayOp {
         return $arrayZvalPtr;
     }
 
-    protected function writeFetchIntegerElementArray(LLVMZval $arrayZval, $index) {
+    protected function writeFetchIntegerElementArray(LLVMZval $arrayZval, $index, $forWrite = false) {
         $this->writeDebugInfo("fetch {$arrayZval}[(int) $index]");
-        return $this->function->InternalModuleCall(InternalModule::ZVAL_FETCH_ARRAY_INTEGER_ELEMENT, $arrayZval->getPtrRegister(), $index);
+        return $this->function->InternalModuleCall(InternalModule::ZVAL_FETCH_ARRAY_INTEGER_ELEMENT, $arrayZval->getPtrRegister(), $index, ($forWrite ? 1 : 0));
     }
 
-    protected function writeFetchStringElementArray(LLVMZval $arrayZval, $index) {
+    protected function writeFetchStringElementArray(LLVMZval $arrayZval, $index, $forWrite = false) {
         $this->writeDebugInfo("fetch {$arrayZval}[(string) $index]");
         $constant = $this->function->writeConstant($index);
-        return $this->function->InternalModuleCall(InternalModule::ZVAL_FETCH_ARRAY_STRING_ELEMENT, $arrayZval->getPtrRegister(), strlen($index), $constant->ptr());
+        return $this->function->InternalModuleCall(InternalModule::ZVAL_FETCH_ARRAY_STRING_ELEMENT, $arrayZval->getPtrRegister(), strlen($index), $constant->ptr(), ($forWrite ? 1 : 0));
     }
 
-    protected function writeFetchVarElementArray(LLVMZval $arrayZval, LLVMZval $indexZval) {
+    protected function writeFetchVarElementArray(LLVMZval $arrayZval, LLVMZval $indexZval, $forWrite = false) {
         $this->writeDebugInfo("fetch {$arrayZval}[(var) $indexZval]");
-        return $this->function->InternalModuleCall(InternalModule::ZVAL_FETCH_ARRAY_ZVAL_ELEMENT, $arrayZval->getPtrRegister(), $indexZval->getPtrRegister());
+        return $this->function->InternalModuleCall(InternalModule::ZVAL_FETCH_ARRAY_ZVAL_ELEMENT, $arrayZval->getPtrRegister(), $indexZval->getPtrRegister(), ($forWrite ? 1 : 0));
     }
+
 }

@@ -52,10 +52,16 @@ void hashtable_zval_gc_dtor(void *pDest) {
     ZVAL_GC((zval*) pDest);
 }
 
-PHPLLVMAPI void ZVAL_INIT_ARRAY(zval *aZval) {
-    aZval->type = ZVAL_TYPE_ARRAY;
-    aZval->hashtable = emalloc(sizeof (HashTable));
-    hash_init(aZval->hashtable, DEFAULT_HASHTABLE_BUCKET_SIZE, &hashtable_zval_gc_dtor);
+PHPLLVMAPI zval *ZVAL_INIT_ARRAY(zval *aZval) {
+    if (!aZval) {
+        aZval = ZVAL_INIT();
+    }
+    if (aZval->type != ZVAL_TYPE_ARRAY) {
+        aZval->type = ZVAL_TYPE_ARRAY;
+        aZval->hashtable = emalloc(sizeof (HashTable));
+        hash_init(aZval->hashtable, DEFAULT_HASHTABLE_BUCKET_SIZE, &hashtable_zval_gc_dtor);
+    }
+    return aZval;
 }
 
 PHPLLVMAPI void emptyZval(zval *varZval) {
@@ -719,21 +725,29 @@ PHPLLVMAPI long ZVAL_TEST_FALSE(zval * zvalop1) {
     return TRUE;
 }
 
-PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_INTEGER_ELEMENT(zval *arrayZval, uint index) {
+PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_INTEGER_ELEMENT(zval *arrayZval, uint index, uint forWrite) {
     if (!arrayZval || arrayZval->type != ZVAL_TYPE_ARRAY) {
         return NULL;
+    }
+    if (forWrite) {
+        zval *srcZval=ZVAL_INIT();
+        hash_add_or_update_index(arrayZval->hashtable, srcZval, index);
     }
     return (zval *) hash_find_index(arrayZval->hashtable, index);
 }
 
-PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_STRING_ELEMENT(zval *arrayZval, uint nKeyLength, char *arKey) {
+PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_STRING_ELEMENT(zval *arrayZval, uint nKeyLength, char *arKey, uint forWrite) {
     if (!arrayZval || arrayZval->type != ZVAL_TYPE_ARRAY) {
         return NULL;
+    }
+    if (forWrite) {
+        zval *srcZval=ZVAL_INIT();
+        hash_add_or_update_string_index(arrayZval->hashtable, srcZval, nKeyLength, arKey);
     }
     return (zval *) hash_find_string_index(arrayZval->hashtable, nKeyLength, arKey);
 }
 
-PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_ZVAL_ELEMENT(zval *arrayZval, zval *keyZval) {
+PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_ZVAL_ELEMENT(zval *arrayZval, zval *keyZval, uint forWrite) {
     ulong index = 0;
     uint nKeyLength = 0;
     char arKey[64];
