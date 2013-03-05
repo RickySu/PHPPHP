@@ -87,4 +87,25 @@ trait VarAssign {
         return $op1ZvalPtr;
     }
 
+    protected function writeVarAssignRef(LLVMZval $op1Zval,LLVMZval $op2Zval){
+        $this->writeDebugInfo("$op1Zval <= (var ref) $op2Zval");
+
+        $cmpResult = $this->function->getRegisterSerial();
+        $op1ZvalPtr = $op1Zval->getPtrRegister();
+
+        $this->function->writeOpLineIR("$cmpResult = icmp ne " . LLVMZval::zval('*') . " $op1ZvalPtr, null");
+        $LabelTrue = "{$this->function->getRegisterSerial()}_label_true";
+        $LabelFalse = "{$this->function->getRegisterSerial()}_label_false";
+        $this->function->writeOpLineIR("br i1 $cmpResult, label $LabelTrue, label $LabelFalse");
+
+        $this->function->writeOpLineIR(substr($LabelTrue, 1) . ':');
+        //$op1Zval need GC
+        $this->function->InternalModuleCall(InternalModule::ZVAL_GC, $op1ZvalPtr);
+        $this->function->writeOpLineIR("br label $LabelFalse");
+
+        $this->function->writeOpLineIR(substr($LabelFalse, 1) . ':');
+        $op1ZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_REF, $op2Zval->getPtrRegister());
+        $op1Zval->savePtrRegister($op1ZvalPtr);
+        $op2Zval->savePtrRegister($op1ZvalPtr);
+    }
 }

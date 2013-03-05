@@ -6,6 +6,8 @@
 #include "h/dtoa.h"
 #include "h/hashtable.h"
 uint zvalcount = 0;
+static inline zval* prepareForAssign(zval *varZval);
+static inline zval *prepareForArrayAssign(zval *dstZval);
 
 PHPLLVMAPI void freeConvertionCacheBuffer(zval *zval) {
     if (zval->_convertion_cache_type == ZVAL_TYPE_STRING) {
@@ -15,14 +17,26 @@ PHPLLVMAPI void freeConvertionCacheBuffer(zval *zval) {
     zval->_convertion_cache_type = ZVAL_TYPE_NULL;
 }
 
-static inline zval *prepareForArray(zval *dstZval) {
+static inline zval *prepareForArrayAssign(zval *dstZval) {
     if (!dstZval) {
         dstZval = ZVAL_INIT();
     }
+
+    if (!dstZval->is_ref && dstZval->refcount > 1) {
+        zval *oldZval;
+        oldZval = dstZval;
+        dstZval = ZVAL_INIT();
+        zval_copy_content(dstZval, oldZval);
+        ZVAL_GC(oldZval);
+        dstZval->refcount = 1;
+        dstZval->is_ref = 0;
+    }
+
     if (dstZval->type != ZVAL_TYPE_ARRAY) {
         emptyZval(dstZval);
         ZVAL_INIT_ARRAY(dstZval);
     }
+
     return dstZval;
 }
 
@@ -108,6 +122,11 @@ PHPLLVMAPI void zval_copy_content(zval *dstZval, zval *srcZval) {
             memcpy(dstZval->_convertion_cache.str.val, srcZval->_convertion_cache.str.val, srcZval->_convertion_cache.str.len);
         }
     }
+    if (srcZval->hashtable) {
+        dstZval->hashtable = emalloc(sizeof (HashTable));
+        hash_init(dstZval->hashtable, DEFAULT_HASHTABLE_BUCKET_SIZE, &hashtable_zval_gc_dtor);
+        hash_copy(dstZval->hashtable, srcZval->hashtable);
+    }
 }
 
 PHPLLVMAPI zval * ZVAL_COPY(zval *srcZval) {
@@ -166,7 +185,7 @@ PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_ZVAL_ELEMENT(zval *dstZval, zval *srcZval, zv
     uint nKeyLength = 0;
     char arKey[64];
     char *arKeyPtr = &arKey[0];
-    dstZval = prepareForArray(dstZval);
+    dstZval = prepareForArrayAssign(dstZval);
     switch (keyZval->type) {
         case ZVAL_TYPE_BOOLEAN:
             index = keyZval->value.lval;
@@ -216,19 +235,19 @@ PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_ZVAL_ELEMENT(zval *dstZval, zval *srcZval, zv
 }
 
 PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_STRING_ELEMENT(zval *dstZval, zval *srcZval, uint nKeyLength, char *arKey) {
-    dstZval = prepareForArray(dstZval);
+    dstZval = prepareForArrayAssign(dstZval);
     hash_add_or_update_string_index(dstZval->hashtable, srcZval, nKeyLength, arKey);
     return dstZval;
 }
 
 PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_INTEGER_ELEMENT(zval *dstZval, zval *srcZval, ulong index) {
-    dstZval = prepareForArray(dstZval);
+    dstZval = prepareForArrayAssign(dstZval);
     hash_add_or_update_index(dstZval->hashtable, srcZval, index);
     return dstZval;
 }
 
 PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT(zval *dstZval, zval *srcZval) {
-    dstZval = prepareForArray(dstZval);
+    dstZval = prepareForArrayAssign(dstZval);
     hash_add_next(dstZval->hashtable, srcZval);
     return dstZval;
 }
@@ -245,7 +264,6 @@ PHPLLVMAPI zval *ZVAL_ASSIGN_ZVAL(zval *zval1, zval *zval2) {
         refcount = zval1->refcount;
         zval_copy_content(zval1, zval2);
         zval1->is_ref = 1;
-        zval1->refcount = refcount;
         return zval1;
     }
 

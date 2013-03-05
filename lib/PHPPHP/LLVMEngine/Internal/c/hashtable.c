@@ -38,6 +38,16 @@ int hash_init(HashTable *ht, uint nSize, dtor_func_t pDestructor) {
     return FAILED;
 }
 
+int hash_copy(HashTable *dstht, HashTable *srcht) {
+    Bucket *p;
+    p = srcht->pListHead;
+    while (p) {
+        hash_add_or_update(dstht, p->arKey,p->nKeyLength, p->h, p->pData, NULL);
+        p = p->pListNext;
+    }
+    return SUCCESS;
+}
+
 int hash_delete(HashTable *ht, const char *arKey, uint nKeyLength, ulong h) {
     uint nIndex;
     Bucket *p;
