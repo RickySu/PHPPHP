@@ -11,7 +11,7 @@ class AssignRef extends OpLine {
         $op1VarName = $this->opCode->op1->getImmediateZval()->getName();
         $op2VarName = $this->opCode->op2->getImmediateZval()->getName();
         if ($op1VarName == $op2VarName) {   // $a=&$a;
-            if(isset($this->opCode->dim)){
+            if(property_exists($this->opCode,'dim')){
                 $LLVMOp=new AssignDimRef($this->opCode,$this->opLineNo);
                 $LLVMOp->setFunction($this->function);
                 $LLVMOp->write();

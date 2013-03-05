@@ -37,7 +37,9 @@ class Compiler {
         $bitcode = $this->llvmBind->compileAssembly($IR, 3);
         echo $this->llvmBind->getLastError();
         $this->llvmBind->loadBitcode($bitcode);
+        $this->llvmBind->execute('jit_init');
         $this->llvmBind->execute($module->getEntryName());
+        $this->llvmBind->execute('jit_shutdown');
         //echo $module->getEntryName();
         die;
         echo $bitcode;

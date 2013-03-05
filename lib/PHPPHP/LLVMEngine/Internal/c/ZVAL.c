@@ -5,6 +5,8 @@
 #include "h/ZVAL_LIST.h"
 #include "h/dtoa.h"
 #include "h/hashtable.h"
+#include "h/base.h"
+
 uint zvalcount = 0;
 static inline zval* prepareForAssign(zval *varZval);
 static inline zval *prepareForArrayAssign(zval *dstZval);
@@ -90,6 +92,7 @@ PHPLLVMAPI void emptyZval(zval *varZval) {
             efree(varZval->hashtable);
             break;
     }
+    varZval->hashtable=NULL;
     freeConvertionCacheBuffer(varZval);
 }
 
@@ -101,8 +104,12 @@ PHPLLVMAPI void ZVAL_GC(zval *varZval) {
         if (varZval->refcount == 1) {
             varZval->is_ref = 0;
         }
+        if(varZval->hashtable){
+            phpllvm_gc_pool_add(varZval);
+        }
         return;
     }
+    phpllvm_gc_pool_remove(varZval);
     emptyZval(varZval);
     efree(varZval);
     zvalcount--;

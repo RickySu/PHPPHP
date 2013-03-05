@@ -46,12 +46,6 @@ class ArrayDimFetch extends OpLine {
     }
 
     protected function assignResultZval($resultRegister) {
-        /*if ($this->opCode->write) {
-            $resultZval = new LLVMZval(NULL, false, false, $this->function);
-            $resultZval->savePtrRegister($resultRegister);
-            $this->setResult($resultZval);
-            return;
-        }*/
         $resultZval = $this->function->getZvalIR($this->getResultRegister(), false, true);
         $resultZvalRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_ASSIGN_ZVAL, $resultZval->getPtrRegister(), $resultRegister);
         $resultZval->savePtrRegister($resultZvalRegister);

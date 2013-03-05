@@ -70,6 +70,7 @@ int hash_extend(HashTable *ht);
 int hash_rehash(HashTable *ht);
 int hash_destroy(HashTable *ht);
 int hash_copy(HashTable *dstht,HashTable *srcht);
+int hash_delete(HashTable *ht, const char *arKey, uint nKeyLength, ulong h);
 
 /*
  * DJBX33A (Daniel J. Bernstein, Times 33 with Addition)

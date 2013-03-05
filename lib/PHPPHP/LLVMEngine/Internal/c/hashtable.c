@@ -134,7 +134,7 @@ int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong 
     while (p != NULL) {
         if ((p->h == h) && (p->nKeyLength == nKeyLength)) {
             if (!memcmp(p->arKey, arKey, nKeyLength)) {
-                if (ht->pDestructor) {
+                if (ht->pDestructor && p->pData!=pData) {
                     ht->pDestructor(p->pData);
                 }
                 p->pData = pData;

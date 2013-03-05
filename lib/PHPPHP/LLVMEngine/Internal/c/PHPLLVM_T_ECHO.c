@@ -11,6 +11,10 @@ void __attribute((fastcall)) printr_zval_array(zval *varZval, uint level) {
         return;
     }
     printf("Array\n");
+    if(varZval->hashtable->bApplyProtection && varZval->hashtable->nApplyCount>1){
+        printf("*RECURSION*");
+        return;
+    }
     for (i = 0; i < level * 4; i++) putchar(' ');
     printf("(\n");
     p = varZval->hashtable->pListHead;
@@ -22,7 +26,9 @@ void __attribute((fastcall)) printr_zval_array(zval *varZval, uint level) {
             printf("[%ld] => ",p->h);
         }
         if(p->pData){
+            varZval->hashtable->nApplyCount++;
             printr_zval_array((zval *)p->pData, level+2);
+            varZval->hashtable->nApplyCount--;
             printf("\n");
         }
         p = p->pListNext;

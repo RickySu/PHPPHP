@@ -110,6 +110,7 @@ final class Module {
             'dtoa.c',
             'cvt.c',
             'hashtable.c',
+            'base.c',
         ));
         return $bitcodeCompiler->compileAll();
     }
