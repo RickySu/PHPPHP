@@ -17,6 +17,10 @@ void phpllvm_gc_pool_dtor(void *pDest) {
 }
 
 void phpllvm_gc_pool_add(zval *varZval) {
+    if(LLVMPHPGCPool.nNumOfElements >= LLVMPHPGCPool.nTableSize){
+        hash_destroy(&LLVMPHPGCPool);
+        hash_init(&LLVMPHPGCPool, PHPLLVMGCPOOLSIZE, &phpllvm_gc_pool_dtor);
+    }
     hash_add_or_update(&LLVMPHPGCPool, (const char *)varZval, sizeof (varZval), 0, varZval, NULL);
 }
 
