@@ -25,7 +25,7 @@ class Compiler {
 
     public function compile($compiledData, $context) {
         $opArray = $compiledData['opcode'];
-        print_r($opArray);die;
+        //print_r($opArray);die;
         $module = new Writer\ModuleWriter($context);
         $this->writer->addModuleWriter($module);
         $this->compileOpLine($module, $opArray);

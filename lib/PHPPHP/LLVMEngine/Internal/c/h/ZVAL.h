@@ -45,4 +45,7 @@ PHPLLVMAPI long ZVAL_TEST_FALSE(zval *zvalop1);
 PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_INTEGER_ELEMENT(zval *dstZval, uint index, uint forWrite);
 PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_STRING_ELEMENT(zval *arrayZval, uint nKeyLength, char *arKey, uint forWrite);
 PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_ZVAL_ELEMENT(zval *arrayZval, zval *keyZval, uint forWrite);
+
+FASTCC void zval_gc_real(zval *varZval);
+
 #endif

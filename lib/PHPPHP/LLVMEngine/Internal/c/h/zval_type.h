@@ -45,6 +45,7 @@ struct _zval_struct {
         char type;                     /* active type */
         char is_ref;
         HashTable *hashtable;
+        char _gc_color;
         char _convertion_cache_type;
         zvalue_value _convertion_cache;
 };
