@@ -5,6 +5,8 @@
 #include "h/ZVAL.h"
 #include "h/base.h"
 
+extern int zvalcount;
+
 HashTable LLVMPHPGCPool;
 
 void jit_init() {
@@ -32,5 +34,6 @@ void phpllvm_gc_pool_remove(zval *varZval) {
 
 void jit_shutdown() {
     hash_destroy(&LLVMPHPGCPool);
+    printf("zvalcount:%d\n", zvalcount);
     printf("shutdown\n");
 }

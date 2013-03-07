@@ -2,11 +2,8 @@
 #include<stdlib.h>
 #include "h/ZVAL_LIST.h"
 
-extern int zvalcount;
-
 PHPLLVMAPI void ZVAL_LIST_GC(HashTable *list) {
     hash_destroy(list);
-    printf("zvalcount:%d\n", zvalcount);
     efree(list);
 }
 
