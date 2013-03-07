@@ -13,6 +13,7 @@ void jit_init() {
 }
 
 FASTCC void phpllvm_gc_pool_dtor(void *pDest) {
+    zval *varZval=(zval*)pDest;
     printf("gc pool gc:%p\n", pDest);
 }
 
@@ -21,7 +22,7 @@ void phpllvm_gc_pool_add(zval *varZval) {
         hash_destroy(&LLVMPHPGCPool);
         hash_init(&LLVMPHPGCPool, PHPLLVMGCPOOLSIZE, &phpllvm_gc_pool_dtor);
     }
-    hash_add_or_update(&LLVMPHPGCPool, (const char *)varZval, sizeof (varZval), 0, varZval, NULL);
+    hash_add_or_update(&LLVMPHPGCPool, (const char *) &varZval, sizeof (varZval), 0, varZval, NULL);
 }
 
 void phpllvm_gc_pool_remove(zval *varZval) {

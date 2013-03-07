@@ -22,12 +22,12 @@ PHPLLVMAPI void ZVAL_GC_REGISTER(HashTable *list, zval **ZvalPtr, uint varNameLe
         hash_add_or_update(list, varName, varNameLen, 0, ZvalPtr, NULL);
         return;
     }
-    hash_add_or_update(list, (char *) ZvalPtr, sizeof (ZvalPtr), 0, ZvalPtr, NULL);
+    hash_add_or_update(list, (char *) &ZvalPtr, sizeof (ZvalPtr), 0, ZvalPtr, NULL);
 }
 
 FASTCC void zval_list_dtor(void *pDest) {
-    zval **varZvalPtr = (zval **) pDest;
-    if(*varZvalPtr){
-        ZVAL_GC(*varZvalPtr);
+    zval **ZvalPtr = (zval **) pDest;
+    if(*ZvalPtr){
+        ZVAL_GC(*ZvalPtr);
     }
 }

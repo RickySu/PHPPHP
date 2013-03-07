@@ -40,9 +40,17 @@ int hash_init(HashTable *ht, uint nSize, dtor_func_t pDestructor) {
 
 int hash_copy(HashTable *dstht, HashTable *srcht) {
     Bucket *p;
+    if (dstht->nTableSize < srcht->nTableSize) {
+        dstht->arBuckets = (Bucket**) erealloc(dstht->arBuckets, sizeof (Bucket *) * srcht->nTableSize);
+        if (dstht->arBuckets == NULL) {
+            return FAILED;
+        }
+        memset(dstht->arBuckets, 0, sizeof (Bucket *) * srcht->nTableSize);
+        dstht->nTableSize = srcht->nTableSize;
+    }
     p = srcht->pListHead;
     while (p) {
-        hash_add_or_update(dstht, p->arKey,p->nKeyLength, p->h, p->pData, NULL);
+        hash_add_or_update(dstht, p->arKey, p->nKeyLength, p->h, p->pData, NULL);
         p = p->pListNext;
     }
     return SUCCESS;
@@ -134,7 +142,7 @@ int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong 
     while (p != NULL) {
         if ((p->h == h) && (p->nKeyLength == nKeyLength)) {
             if (!memcmp(p->arKey, arKey, nKeyLength)) {
-                if (ht->pDestructor && p->pData!=pData) {
+                if (ht->pDestructor && p->pData != pData) {
                     ht->pDestructor(p->pData);
                 }
                 p->pData = pData;
@@ -152,7 +160,6 @@ int hash_add_or_update(HashTable *ht, const char *arKey, uint nKeyLength, ulong 
     }
     memcpy(p->arKey, arKey, nKeyLength);
     p->nKeyLength = nKeyLength;
-
     p->pData = pData;
     p->h = h;
 
@@ -196,11 +203,13 @@ int hash_rehash(HashTable *ht) {
 }
 
 int hash_extend(HashTable *ht) {
-    ht->nTableSize += DEFAULT_HASHTABLE_BUCKET_SIZE;
+    uint extendSize = DEFAULT_HASHTABLE_BUCKET_SIZE;
+    ht->nTableSize += extendSize;
     ht->arBuckets = (Bucket**) erealloc(ht->arBuckets, sizeof (Bucket *) * ht->nTableSize);
     if (ht->arBuckets == NULL) {
         return FAILED;
     }
+    memset(&ht->arBuckets[ht->nTableSize - extendSize], 0, sizeof (Bucket *) * extendSize);
     return hash_rehash(ht);
 }
 
