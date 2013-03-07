@@ -2,12 +2,14 @@
 #define __ZVAL_LIST_H
 #include "common.h"
 #include "zval_type.h"
+#include "hashtable.h"
+#include "ZVAL.h"
 
 #define ZVAL_LIST_SIZE    1000
 
-zvallist * ZVAL_LIST_INIT();
-PHPLLVMAPI void ZVAL_LIST_GC(zvallist *list);
-PHPLLVMAPI void ZVAL_LIST_ADD(zvallist *list);
-PHPLLVMAPI void ZVAL_GC_REGISTER(zvallist *list, zval **ZvalPtr);
+HashTable * ZVAL_LIST_INIT();
+PHPLLVMAPI void ZVAL_LIST_GC(HashTable *list);
+PHPLLVMAPI void ZVAL_GC_REGISTER(HashTable *list, zval **ZvalPtr, uint varNameLen, char *varName);
+FASTCC void zval_list_dtor(void *pDest);
 
 #endif

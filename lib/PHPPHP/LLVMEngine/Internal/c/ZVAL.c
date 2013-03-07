@@ -64,7 +64,7 @@ zval * ZVAL_INIT() {
     return aZval;
 }
 
-void hashtable_zval_gc_dtor(void *pDest) {
+FASTCC void hashtable_zval_gc_dtor(void *pDest) {
     ZVAL_GC((zval*) pDest);
 }
 

@@ -5,7 +5,7 @@
 #define  PHPLLVMGCPOOLSIZE 100
 void jit_init();
 void jit_shutdown();
-void phpllvm_gc_pool_dtor(void *pDest);
+FASTCC void phpllvm_gc_pool_dtor(void *pDest);
 void phpllvm_gc_pool_add(zval *varZval);
 void phpllvm_gc_pool_remove(zval *varZval);
 

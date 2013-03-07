@@ -181,7 +181,13 @@ class FunctionWriter {
         foreach ($this->varList as $varZval) {
             $IR[] = "$varZval = alloca " . Zval::zval('*');
             $IR[] = "store " . Zval::zval('*') . " null, " . Zval::zval('**') . " $varZval, align " . Zval::zval('*')->size();
-            $IR[] = $this->getInternalModuleCallIR(InternalModule::ZVAL_GC_REGISTER,Zval::getGCList(),$varZval);
+            if ($varZval->isStoreVarName()) {
+                $varName = $varZval->getVarName();
+                $Constant = $this->writeConstant($varName);
+                $IR[] = $this->getInternalModuleCallIR(InternalModule::ZVAL_GC_REGISTER, Zval::getGCList(), $varZval, sizeof($varName), $Constant->ptr());
+            } else {
+                $IR[] = $this->getInternalModuleCallIR(InternalModule::ZVAL_GC_REGISTER, Zval::getGCList(), $varZval, 0, 'null');
+            }
         }
         return $IR;
     }
@@ -205,7 +211,7 @@ class FunctionWriter {
         return $interlanVar;
     }
 
-    protected function getInternalModuleCallIR($moduleName){
+    protected function getInternalModuleCallIR($moduleName) {
         $args = func_get_args();
         $IR = forward_static_call_array(array('\PHPPHP\\LLVMEngine\\Internal\\Module', 'call'), $args);
         $this->moduleWriter->writeUsedFunction($moduleName);
@@ -214,7 +220,7 @@ class FunctionWriter {
 
     public function InternalModuleCall($moduleName) {
         $args = func_get_args();
-        $IR=call_user_func_array(array($this,'getInternalModuleCallIR'), $args);
+        $IR = call_user_func_array(array($this, 'getInternalModuleCallIR'), $args);
         if (InternalModule::Define()[$moduleName][0] != StringType::void()) {
             $resultRegister = $this->getRegisterSerial();
             $this->writeOpLineIR("$resultRegister = $IR");

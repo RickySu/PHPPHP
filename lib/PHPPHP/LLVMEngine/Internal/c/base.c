@@ -12,7 +12,7 @@ void jit_init() {
     printf("init\n");
 }
 
-void phpllvm_gc_pool_dtor(void *pDest) {
+FASTCC void phpllvm_gc_pool_dtor(void *pDest) {
     printf("gc pool gc:%p\n", pDest);
 }
 

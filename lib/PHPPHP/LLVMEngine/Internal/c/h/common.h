@@ -44,4 +44,9 @@
 #ifndef PHPLLVMAPI
 #define PHPLLVMAPI  __attribute((fastcall))
 #endif
+
+#ifndef FASTCC
+#define FASTCC __attribute((fastcall))
+#endif
+
 #endif

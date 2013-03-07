@@ -11,6 +11,7 @@ class Zval {
     protected $isTemp;
     protected $IRWriter;
     protected $ptrRegister;
+    protected $storeVarName=false;
 
     const ZVAL_GC_LIST = '%zval_gc_list';
     const ZVAL_TEMP_OP = 'zval_temp_op';
@@ -51,6 +52,18 @@ class Zval {
             }
             $this->savePtrRegister($ptrRegister);
         }
+    }
+
+    public function setStoreVarName($store){
+        $this->storeVarName=$store;
+    }
+
+    public function isStoreVarName(){
+        return $this->storeVarName;
+    }
+
+    public function getVarName(){
+        return $this->varName;
     }
 
     public function isTemp() {

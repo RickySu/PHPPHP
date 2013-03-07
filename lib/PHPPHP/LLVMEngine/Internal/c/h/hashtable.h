@@ -32,7 +32,7 @@
 #define hash_add_or_update_string_index(ht, pData, nKeyLength, arKey) hash_add_or_update(ht, arKey, nKeyLength, 0, pData, NULL)
 
 
-typedef void (*dtor_func_t)(void *pDest);
+typedef FASTCC void (*dtor_func_t)(void *pDest);
 
 struct _hashtable;
 
