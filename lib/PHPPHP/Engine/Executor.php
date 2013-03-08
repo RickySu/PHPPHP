@@ -28,6 +28,9 @@ class Executor {
     protected $constantStore;
     protected $classStore;
 
+    protected $preExecute;
+    protected $postExecute;
+
     public function __construct(FunctionStore $functionStore, ConstantStore $constantStore, ClassStore $classStore) {
         $this->executorGlobals = new ExecutorGlobals;
         $this->parser = new Parser;
@@ -63,10 +66,10 @@ class Executor {
         $this->errorHandler = $handler;
     }
 
-    public function raiseError($level, $message, $extra = '') {
+    public function raiseError($level, $message, $extra = '', $adFunc = true) {
         $file = $this->current->opArray->getFileName();
         $line = $this->current->opLine->lineno;
-        $this->errorHandler->handle($this, $level, $message, $file, $line, $extra);
+        $this->errorHandler->handle($this, $level, $message, $file, $line, $extra, $adFunc);
     }
 
     public function getStack() {
@@ -128,6 +131,8 @@ class Executor {
         $scope = new ExecuteData($this, $opArray, $function);
         $scope->arguments = $args;
         $scope->ci = $ci;
+        $preExecute = $this->preExecute;
+        $postExecute = $this->postExecute;
 
         if ($this->current) {
             $scope->parent = $this->current;
@@ -144,16 +149,20 @@ class Executor {
         }
 
         while ($this->shutdown == $shutdownScope && $scope->opLine) {
-            try {
-                $ret = $scope->opLine->execute($scope);
-            } catch (ErrorOccurredException $e) {
-                $ret = false;
-                // Ignored here, since the handler will shutdown for us
+            if ($preExecute) {
+                call_user_func($preExecute, $scope);
             }
+
+            $ret = $scope->opLine->execute($scope);
+
+            if ($postExecute) {
+                call_user_func($postExecute, $scope, $ret);
+            }
+
             if ($this->shutdown == $shutdownScope && $this->executorGlobals->timeLimit && $this->executorGlobals->timeLimitEnd < time()) {
                 $limit = $this->executorGlobals->timeLimit;
                 $message = sprintf('Maximum execution time of %d second%s exceeded', $limit, $limit == 1 ? '' : 's');
-                $this->errorHandler->handle($this, E_ERROR, $message, $opArray->getFileName(), $scope->opLine->lineno);
+                $this->errorHandler->handle($this, E_ERROR, $message, $opArray->getFileName(), $scope->opLine->lineno, '', false);
                 return;
             }
             switch ($ret) {
@@ -203,6 +212,10 @@ class Executor {
                     $class->callMethod($executor->getCurrent(), null, (string) $method, $args, $return);
                 };
             }
+        } elseif ($callback instanceof FunctionData) {
+        	return function(Executor $executor, array $args = array(), Zval $return = null) use ($callback) {
+        		return $callback->execute($executor, $args, $return);
+        	};
         }
         throw new \RuntimeException('Invalid Callback Specified');
     }
@@ -235,6 +248,28 @@ class Executor {
         if (!$this->extensions->contains($extension)) {
             $extension->register($this);
             $this->extensions->attach($extension);
+            if (method_exists($extension, 'preExecute')) {
+                if ($this->preExecute) {
+                    $old = $this->preExecute;
+                    $this->preExecute = function($scope) use ($old, $extension) {
+                        $extension->preExecute($scope);
+                        call_user_func($old, $scope);
+                    };
+                } else {
+                    $this->preExecute = array($extension, 'preExecute');
+                }
+            }
+            if (method_exists($extension, 'postExecute')) {
+                if ($this->postExecute) {
+                    $old = $this->postExecute;
+                    $this->postExecute = function($scope) use ($old, $extension) {
+                        $extension->postExecute($scope);
+                        call_user_func($old, $scope);
+                    };
+                } else {
+                    $this->postExecute = array($extension, 'postExecute');
+                }
+            }
         }
     }
 }

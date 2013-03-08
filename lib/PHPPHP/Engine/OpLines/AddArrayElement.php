@@ -9,10 +9,11 @@ class AddArrayElement extends \PHPPHP\Engine\OpLine {
     public function execute(\PHPPHP\Engine\ExecuteData $data) {
         $key = $this->op1->toString();
         $array = $this->result->toArray();
+        $var = Zval::ptrFactory($this->op2->getZval())->separateIfRef();
         if ($key) {
-            $array[$key] = Zval::ptrFactory(clone $this->op2->getZval());
+            $array[$key] = $var;
         } else {
-            $array[] = Zval::ptrFactory(clone $this->op2->getZval());
+            $array[] = $var;
         }
         $this->result->setValue($array);
         $data->nextOp();
