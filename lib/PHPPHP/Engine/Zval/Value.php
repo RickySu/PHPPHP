@@ -154,6 +154,9 @@ class Value extends Zval {
     }
 
     public function toString() {
+        if ($this->value instanceof \PHPPHP\Engine\Objects\ClassInstance) {
+            debug_print_backtrace(false);
+        }
         return (string) $this->value;
     }
 
@@ -209,9 +212,10 @@ class Value extends Zval {
             return 0 === $this->compareArrays($this->getValue(), $other->getValue(), function ($a, $b) {
                 return $a->isIdenticalTo($b);
             }, true);
-        } else {
+        } elseif ($type == $otherType) {
             return $this->getValue() === $other->getValue();
         }
+        return false;
     }
 
     private function compareArrays($a, $b, $callback, $ordered) {

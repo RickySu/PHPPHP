@@ -232,6 +232,8 @@ class Compiler {
             $this->compileChild($node, 'var', $op1);
         }
 
+        $this->fetchWrite = $prevFetchWrite;
+
         $this->compileChild($node, 'expr', $op2);
 
         $opline = new $class($node->getLine(), $op1, $op2, $returnContext);
@@ -239,8 +241,6 @@ class Compiler {
         $opline->dim = $dim;
 
         $this->opArray[] = $opline;
-
-        $this->fetchWrite = $prevFetchWrite;
     }
 
     protected function compileUnaryOp($node, $returnContext, $class, $expr = 'expr') {
@@ -313,6 +313,11 @@ class Compiler {
         }
     }
 
+    protected function compile_Expr_Closure($node, $returnContext = null) {
+        $funcData = $this->compileFunction($node);
+        $this->opArray[] = new OpLines\ClosureDef($node->getLine(), Zval::factory($node->namespacedName), $funcData, $returnContext);
+    }
+
     protected function compile_Expr_ErrorSuppress($node, $returnContext = null) {
         // Place holder for opcode to turn on suppression
         $this->opArray[] = new OpLines\NoOp($node->getLine());
@@ -334,7 +339,7 @@ class Compiler {
         $this->opArray[] = new OpLines\InitFCallByName($node->getLine(), null, $namePtr);
 
         foreach ($args as $key => $arg) {
-            $this->opArray[] = new OpLines\Send($node->getLine(), $arg, $key);
+            $this->opArray[] = new OpLines\Send($node->getLine(), $arg, Zval::factory($key));
         }
 
         $this->opArray[] = new OpLines\FunctionCall($node->getLine(), null, null, $returnContext ? : Zval::ptrFactory());
@@ -355,7 +360,7 @@ class Compiler {
         $this->opArray[] = new OpLines\InitFCallByName($node->getLine(), $varPtr, $namePtr);
 
         foreach ($args as $key => $arg) {
-            $this->opArray[] = new OpLines\Send($node->getLine(), $arg, $key);
+            $this->opArray[] = new OpLines\Send($node->getLine(), $arg, Zval::factory($key));
         }
 
         $this->opArray[] = new OpLines\FunctionCall($node->getLine(), null, null, $returnContext ? : Zval::ptrFactory());
@@ -376,7 +381,7 @@ class Compiler {
         $this->opArray[] = new OpLines\InitStaticMethodCall($node->getLine(), $classPtr, $namePtr);
 
         foreach ($args as $key => $arg) {
-            $this->opArray[] = new OpLines\Send($node->getLine(), $arg, $key);
+            $this->opArray[] = new OpLines\Send($node->getLine(), $arg, Zval::factory($key));
         }
 
         $this->opArray[] = new OpLines\FunctionCall($node->getLine(), null, null, $returnContext ? : Zval::ptrFactory());
@@ -741,16 +746,16 @@ class Compiler {
     protected function getPropertyAccess($node) {
         $acc = 0;
         if ($node->isPublic()) {
-            $acc |= ClassEntry::ACC_PUBLIC;
+            $acc |= Scope::ACC_PUBLIC;
         }
         if ($node->isProtected()) {
-            $acc |= ClassEntry::ACC_PROTECTED;
+            $acc |= Scope::ACC_PROTECTED;
         }
         if ($node->isPrivate()) {
-            $acc |= ClassEntry::ACC_PRIVATE;
+            $acc |= Scope::ACC_PRIVATE;
         }
         if ($node->isStatic()) {
-            $acc |= ClassEntry::ACC_STATIC;
+            $acc |= Scope::ACC_STATIC;
         }
         return $acc;
     }
@@ -786,7 +791,7 @@ class Compiler {
         $this->opArray[] = $newOp = new OpLines\NewOp($node->getLine(), Zval::ptrFactory($node->class->toString()), null, $returnContext);
 
         foreach ($args as $key => $arg) {
-            $this->opArray[] = new OpLines\Send($node->getLine(), $arg, $key);
+            $this->opArray[] = new OpLines\Send($node->getLine(), $arg, Zval::factory($key));
         }
 
         $this->opArray[] = new OpLines\FunctionCall($node->getLine(), null, $returnContext, Zval::ptrFactory());
