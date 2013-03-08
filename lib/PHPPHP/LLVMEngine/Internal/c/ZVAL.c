@@ -2,10 +2,6 @@
 #include<stdlib.h>
 #include<string.h>
 #include "h/ZVAL.h"
-#include "h/ZVAL_LIST.h"
-#include "h/dtoa.h"
-#include "h/hashtable.h"
-#include "h/gc.h"
 
 uint zvalcount = 0;
 static inline zval* prepareForAssign(zval *varZval);
@@ -92,7 +88,7 @@ PHPLLVMAPI void emptyZval(zval *varZval) {
             efree(varZval->hashtable);
             break;
     }
-    varZval->hashtable=NULL;
+    varZval->hashtable = NULL;
     freeConvertionCacheBuffer(varZval);
 }
 
@@ -104,7 +100,7 @@ PHPLLVMAPI void ZVAL_GC(zval *varZval) {
         if (varZval->refcount == 1) {
             varZval->is_ref = 0;
         }
-        if(varZval->hashtable){
+        if (varZval->hashtable) {
             gc_pool_add(varZval);
         }
         return;
@@ -112,7 +108,7 @@ PHPLLVMAPI void ZVAL_GC(zval *varZval) {
     zval_gc_real(varZval);
 }
 
-FASTCC void zval_gc_real(zval *varZval){
+FASTCC void zval_gc_real(zval *varZval) {
     gc_pool_remove(varZval);
     emptyZval(varZval);
     efree(varZval);
@@ -838,4 +834,35 @@ PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_ZVAL_ELEMENT(zval *arrayZval, zval *keyZval, u
         return (zval *) hash_find_index(arrayZval->hashtable, index);
     }
     return NULL;
+}
+
+PHPLLVMAPI iterate *ZVAL_ITERATE_INIT(zval *arrayZval) {
+    iterate *iterate_object;
+    if ((!arrayZval) || (!arrayZval->hashtable)) {
+        return NULL;
+    }
+    iterate_object = emalloc(sizeof (iterate));
+    iterate_object->current = arrayZval->hashtable->pListHead;
+    iterate_object->ht = arrayZval->hashtable;
+    return iterate_object;
+}
+
+PHPLLVMAPI void ZVAL_ITERATE_FREE(iterate *iterate_object) {
+    if(iterate_object){
+        efree(iterate_object);
+    }
+}
+
+PHPLLVMAPI zval *ZVAL_ITERATE_CURRENT_KEY(iterate *iterate_object) {
+    zval *keyZval;
+    if (!iterate_object->current) {
+        return NULL;
+    }
+    keyZval = ZVAL_INIT();
+    if (!iterate_object->current->nKeyLength) {
+        keyZval = ZVAL_ASSIGN_INTEGER(keyZval, iterate_object->current->h);
+    } else {
+        keyZval = ZVAL_ASSIGN_STRING(keyZval, iterate_object->current->nKeyLength, iterate_object->current->arKey);
+    }
+    return keyZval;
 }

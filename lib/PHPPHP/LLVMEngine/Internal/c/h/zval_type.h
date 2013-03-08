@@ -16,6 +16,7 @@
 
 typedef struct _zval_struct zval;
 typedef struct _zvallist zvallist;
+typedef struct _iterate_struct iterate;
 
 struct _zvallist {
     uint  len;
@@ -49,5 +50,8 @@ struct _zval_struct {
         char _convertion_cache_type;
         zvalue_value _convertion_cache;
 };
-
+struct _iterate_struct{
+        Bucket *current;
+        HashTable *ht;
+};
 #endif

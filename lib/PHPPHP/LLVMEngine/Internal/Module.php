@@ -49,6 +49,9 @@ final class Module
     const ZVAL_FETCH_ARRAY_INTEGER_ELEMENT = 'ZVAL_FETCH_ARRAY_INTEGER_ELEMENT';
     const ZVAL_FETCH_ARRAY_STRING_ELEMENT = 'ZVAL_FETCH_ARRAY_STRING_ELEMENT';
     const ZVAL_FETCH_ARRAY_ZVAL_ELEMENT = 'ZVAL_FETCH_ARRAY_ZVAL_ELEMENT';
+    const ZVAL_ITERATE_INIT = 'ZVAL_ITERATE_INIT';
+    const ZVAL_ITERATE_CURRENT_KEY = 'ZVAL_ITERATE_CURRENT_KEY';
+    const ZVAL_ITERATE_FREE = 'ZVAL_ITERATE_FREE';
 
     public static function Define()
     {
@@ -94,6 +97,9 @@ final class Module
             self::ZVAL_FETCH_ARRAY_INTEGER_ELEMENT => array(Zval::zval('*'), array(Zval::zval('*'), Base::long(), Base::int())),
             self::ZVAL_FETCH_ARRAY_STRING_ELEMENT => array(Zval::zval('*'), array(Zval::zval('*'), Base::int(), Base::char('*'), Base::int())),
             self::ZVAL_FETCH_ARRAY_ZVAL_ELEMENT => array(Zval::zval('*'), array(Zval::zval('*'), Zval::zval('*'), Base::int())),
+            self::ZVAL_ITERATE_INIT => array(Base::void('*'), array(Zval::zval('*'))),
+            self::ZVAL_ITERATE_FREE => array(Base::void(), array(Base::void('*'))),
+            self::ZVAL_ITERATE_CURRENT_KEY => array(Zval::zval('*'), array(Base::void('*'))),
             'single_debug' => array(Base::void(), array(Base::int())),
         );
     }

@@ -2,6 +2,10 @@
 #define __ZVAL_H
 #include "common.h"
 #include "zval_type.h"
+#include "ZVAL_LIST.h"
+#include "dtoa.h"
+#include "hashtable.h"
+#include "gc.h"
 
 PHPLLVMAPI void freeConvertionCacheBuffer(zval *zval);
 PHPLLVMAPI int is_number(uint len, char *val);
@@ -22,6 +26,7 @@ PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_ZVAL_ELEMENT(zval *dstZval, zval *srcZval, zv
 PHPLLVMAPI zval *ZVAL_ASSIGN_BOOLEAN(zval *zval, long val);
 PHPLLVMAPI zval *ZVAL_ASSIGN_INTEGER(zval *zval, long val);
 PHPLLVMAPI zval *ZVAL_ASSIGN_DOUBLE(zval *zval, double val);
+PHPLLVMAPI zval * ZVAL_ASSIGN_STRING(zval *dstZval, uint len, char *val);
 PHPLLVMAPI zval *ZVAL_ASSIGN_ZVAL(zval *dstZval, zval *srcZval);
 PHPLLVMAPI zval *ZVAL_ASSIGN_CONCAT_STRING(zval *zval, uint len, char *val);
 PHPLLVMAPI zval *ZVAL_ASSIGN_CONCAT_ZVAL(zval *zval1, zval *zval2);
@@ -45,6 +50,9 @@ PHPLLVMAPI long ZVAL_TEST_FALSE(zval *zvalop1);
 PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_INTEGER_ELEMENT(zval *dstZval, uint index, uint forWrite);
 PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_STRING_ELEMENT(zval *arrayZval, uint nKeyLength, char *arKey, uint forWrite);
 PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_ZVAL_ELEMENT(zval *arrayZval, zval *keyZval, uint forWrite);
+PHPLLVMAPI iterate *ZVAL_ITERATE_INIT(zval *arrayZval);
+PHPLLVMAPI void ZVAL_ITERATE_FREE(iterate *iterate_object);
+PHPLLVMAPI zval *ZVAL_ITERATE_CURRENT_KEY(iterate *iterate_object);
 
 FASTCC void zval_gc_real(zval *varZval);
 

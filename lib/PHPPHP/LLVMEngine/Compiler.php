@@ -27,7 +27,7 @@ class Compiler
     public function compile($compiledData, $context)
     {
         $opArray = $compiledData['opcode'];
-        //print_r($opArray);die;
+        print_r($opArray);die;
         $module = new Writer\ModuleWriter($context);
         $this->writer->addModuleWriter($module);
         $this->compileOpLine($module, $opArray);
@@ -52,7 +52,7 @@ class Compiler
         $function = $module->getEntryFunction();
         $opResult=NULL;
         foreach ($opArray as $opLineNo => $opCode) {
-            if ($opResult) {
+            if ($opResult && $opResult instanceof Zval\Ptr) {
                 $unUsedOpResult=true;
                 if (($opCode->op1 instanceof Zval\Ptr) && ($opCode->op1->getImmediateZval()===$opResult->getImmediateZval())) {
                     $unUsedOpResult=false;
