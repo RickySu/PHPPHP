@@ -4,12 +4,13 @@ namespace PHPPHP\LLVMEngine\OpLines;
 
 use PHPPHP\LLVMEngine\Type\Base as BaseType;
 
-class BooleanOr extends OpLine {
-
+class BooleanOr extends OpLine
+{
     use Parts\TypeCast,
         Parts\PrepareOpZval;
 
-    public function write() {
+    public function write()
+    {
         parent::write();
         if (!$this->opCode->result->markUnUsed) {
             $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
@@ -17,11 +18,13 @@ class BooleanOr extends OpLine {
         $this->gcTempZval();
     }
 
-    protected function writeValueValue($value1, $value2) {
+    protected function writeValueValue($value1, $value2)
+    {
         $this->setResult($value1 || $value2);
     }
 
-    protected function writeIntegerOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
+    protected function writeIntegerOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister)
+    {
         $op1True = $this->function->getRegisterSerial();
         $op2True = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$op1True = icmp ne " . BaseType::long() . " $typeCastOp1ValueRegister, 0");
@@ -29,7 +32,8 @@ class BooleanOr extends OpLine {
         $this->writeResult($op1True, $op2True);
     }
 
-    protected function writeDoubleOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
+    protected function writeDoubleOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister)
+    {
         $op1True = $this->function->getRegisterSerial();
         $op2True = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$op1True = fcmp one " . BaseType::double() . " $typeCastOp1ValueRegister, 0.0");
@@ -37,7 +41,8 @@ class BooleanOr extends OpLine {
         $this->writeResult($op1True, $op2True);
     }
 
-    protected function writeResult($op1True, $op2True) {
+    protected function writeResult($op1True, $op2True)
+    {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = or i1 $op1True, $op2True");
         $resultCastRegister = $this->function->getRegisterSerial();

@@ -6,12 +6,13 @@ use PHPPHP\LLVMEngine\Zval as LLVMZval;
 use PHPPHP\LLVMEngine\Type\Base as BaseType;
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 
-class NotIdentical extends OpLine {
-
+class NotIdentical extends OpLine
+{
     use Parts\TypeCast,
         Parts\PrepareOpZval;
 
-    public function write() {
+    public function write()
+    {
         parent::write();
         if (!$this->opCode->result->markUnUsed) {
             $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
@@ -19,12 +20,13 @@ class NotIdentical extends OpLine {
         $this->gcTempZval();
     }
 
-    protected function writeValueValue($value1, $value2) {
+    protected function writeValueValue($value1, $value2)
+    {
         $this->setResult($value1 !== $value2);
     }
 
-    protected function writeZvalValue(LLVMZval $opZval, $value) {
-
+    protected function writeZvalValue(LLVMZval $opZval, $value)
+    {
         switch (gettype($value)) {
             case 'string':
                 $valueType = LLVMZval\Type::TYPE_STRING;
@@ -89,11 +91,13 @@ class NotIdentical extends OpLine {
         //    $this->TypeCastNumber($opZval, $value, array($this, 'writeIntegerOp'), array($this, 'writeDoubleOp'));
     }
 
-    protected function writeValueZval($value, LLVMZval $opZval) {
+    protected function writeValueZval($value, LLVMZval $opZval)
+    {
         $this->writeZvalValue($opZval, $value);
     }
 
-    protected function writeZvalZval(LLVMZval $op1Zval, LLVMZval $op2Zval) {
+    protected function writeZvalZval(LLVMZval $op1Zval, LLVMZval $op2Zval)
+    {
         $resultEqualRegister = $this->function->InternalModuleCall(InternalModule::ZVAL_EQUAL_EXACT, $op1Zval->getPtrRegister(), $op2Zval->getPtrRegister());
         $resultRegister = $this->getResultRegister();
         $this->function->writeOpLineIR("%$resultRegister = xor " . BaseType::long() . " $resultEqualRegister, 1");
@@ -102,19 +106,22 @@ class NotIdentical extends OpLine {
         $this->setResult($resultZval);
     }
 
-    protected function writeIntegerOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
+    protected function writeIntegerOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister)
+    {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = icmp ne " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $this->writeResult($resultRegister);
     }
 
-    protected function writeDoubleOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
+    protected function writeDoubleOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister)
+    {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = fcmp one " . BaseType::double() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $this->writeResult($resultRegister);
     }
 
-    protected function writeResult($opTrue) {
+    protected function writeResult($opTrue)
+    {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = zext i1 $opTrue to " . BaseType::long());
         $resultZvalRegister = $this->getResultRegister();

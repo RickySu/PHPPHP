@@ -2,8 +2,8 @@
 
 namespace PHPPHP\LLVMEngine\Internal;
 
-class BitcodeCompiler {
-
+class BitcodeCompiler
+{
     protected $files = array();
     protected $sourcePath;
     protected $outputPath;
@@ -15,13 +15,15 @@ class BitcodeCompiler {
         'link' => 'llvm-link-3.0',
     );
 
-    public function __construct($sourceFiles) {
+    public function __construct($sourceFiles)
+    {
         $this->sourcePath = __DIR__ . DIRECTORY_SEPARATOR . 'c';
         $this->outputPath = __DIR__ . DIRECTORY_SEPARATOR . 'bitcode';
         $this->sourceFiles = $sourceFiles;
     }
 
-    public function __destruct() {
+    public function __destruct()
+    {
         foreach ($this->files as $file) {
             @unlink($file);
             @unlink("$file.s");
@@ -29,7 +31,8 @@ class BitcodeCompiler {
         }
     }
 
-    public function compileAll() {
+    public function compileAll()
+    {
         $outputHash = md5(implode(',', $this->sourceFiles));
         $outputFile = $this->outputPath . DIRECTORY_SEPARATOR . $outputHash . '.bc';
         if (!$this->isNeedRebuild($outputFile)) {
@@ -39,10 +42,12 @@ class BitcodeCompiler {
             $this->compile($file);
         }
         $this->link($outputFile);
+
         return file_get_contents($outputFile);
     }
 
-    protected function isNeedRebuild($outputFile) {
+    protected function isNeedRebuild($outputFile)
+    {
         if (!file_exists($outputFile)) {
             return true;
         }
@@ -52,10 +57,12 @@ class BitcodeCompiler {
                 return true;
             }
         }
+
         return false;
     }
 
-    protected function link($output) {
+    protected function link($output)
+    {
         $linkfiles = '';
         foreach ($this->files as $file) {
             $linkfiles.="$file.bc ";
@@ -63,10 +70,11 @@ class BitcodeCompiler {
         system("{$this->command['link']} $linkfiles -o $output");
     }
 
-    protected function compile($file) {
+    protected function compile($file)
+    {
         $source = $this->sourcePath . DIRECTORY_SEPARATOR . $file;
         $fileinfo = pathinfo($source);
-        switch(strtolower($fileinfo['extension'])){
+        switch (strtolower($fileinfo['extension'])) {
             case 'c':
                 $compiler = $this->command['clang'];
                 break;
@@ -83,14 +91,17 @@ class BitcodeCompiler {
         system("{$this->command['as']} $tmpfile.s -o $tmpfile.bc");
     }
 
-    protected function convertFastCC($file) {
+    protected function convertFastCC($file)
+    {
         $IR = file_get_contents($file);
         $IR = str_replace('x86_fastcallcc', 'fastcc', $IR);
         file_put_contents($file, $IR);
     }
 
-    protected function setupOutput() {
+    protected function setupOutput()
+    {
         $tmpOutputPath = sys_get_temp_dir();
+
         return tempnam($tmpOutputPath, 'phpllvm_tmp_');
     }
 

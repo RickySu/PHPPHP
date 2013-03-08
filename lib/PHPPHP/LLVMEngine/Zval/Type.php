@@ -5,8 +5,8 @@ namespace PHPPHP\LLVMEngine\Zval;
 use PHPPHP\LLVMEngine\Type\Base;
 use PHPPHP\LLVMEngine\Type\Structure;
 
-class Type extends Structure {
-
+class Type extends Structure
+{
     protected $structName = "zval";
     protected $structureDefine;
 
@@ -19,7 +19,8 @@ class Type extends Structure {
     const TYPE_OBJECT   =   6;
     const TYPE_RESOURCE =   7;
 
-    protected function defineStructure() {
+    protected function defineStructure()
+    {
         $this->structureDefine = array(
             'type' => 'struct',
             'struct' => array(
@@ -44,7 +45,8 @@ class Type extends Structure {
         );
     }
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->defineStructure();
     }
 

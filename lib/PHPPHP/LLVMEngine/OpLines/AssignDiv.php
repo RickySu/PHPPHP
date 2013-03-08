@@ -4,22 +4,25 @@ namespace PHPPHP\LLVMEngine\OpLines;
 
 use PHPPHP\LLVMEngine\Type\Base as BaseType;
 
-class AssignDiv extends OpLine {
-
+class AssignDiv extends OpLine
+{
     use Parts\TypeCast,
         Parts\PrepareOpZval;
 
-    public function write() {
+    public function write()
+    {
         parent::write();
         $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
         $this->gcTempZval();
     }
 
-    protected function writeValueValue($value1, $value2) {
+    protected function writeValueValue($value1, $value2)
+    {
         $this->setResult($value1 / $value2);
     }
 
-    protected function writeIntegerOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
+    protected function writeIntegerOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister)
+    {
         $resultRegister = $this->function->getRegisterSerial();
         $isIntegerTypeRegister=$this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = srem " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
@@ -42,7 +45,8 @@ class AssignDiv extends OpLine {
         $this->writeDoubleOp($typeCastOp1ValueDoubleRegister, $typeCastOp2ValueDoubleRegister);
     }
 
-    protected function writeDoubleOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
+    protected function writeDoubleOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister)
+    {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = fdiv " . BaseType::double() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $resultZval=$this->function->getZvalIR($this->opCode->op1->getName());

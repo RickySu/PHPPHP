@@ -5,12 +5,13 @@ namespace PHPPHP\LLVMEngine\Zval;
 use PHPPHP\LLVMEngine\Type\Base;
 use PHPPHP\LLVMEngine\Type\Structure;
 
-class TypeCast extends Structure {
-
+class TypeCast extends Structure
+{
     protected $structName="zvalue_type_cast";
     protected $structureDefine;
 
-    protected function defineStructure() {
+    protected function defineStructure()
+    {
         $this->structureDefine = array(
             'type' => 'union',
             'struct' => array(
@@ -20,7 +21,8 @@ class TypeCast extends Structure {
         );
     }
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->defineStructure();
     }
 

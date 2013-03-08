@@ -5,12 +5,13 @@ namespace PHPPHP\LLVMEngine\OpLines;
 use PHPPHP\LLVMEngine\Zval as LLVMZval;
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 
-class Concat extends OpLine {
-
+class Concat extends OpLine
+{
     use Parts\TypeCast,
         Parts\PrepareOpZval;
 
-    public function write() {
+    public function write()
+    {
         parent::write();
         if (!$this->opCode->result->markUnUsed) {
             $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
@@ -18,7 +19,8 @@ class Concat extends OpLine {
         $this->gcTempZval();
     }
 
-    protected function writeZvalZval(LLVMZval $op1Zval, LLVMZval $op2Zval) {
+    protected function writeZvalZval(LLVMZval $op1Zval, LLVMZval $op2Zval)
+    {
         $resultZvalRegister = $this->getResultRegister();
         $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
         $this->writeVarAssign($resultZval, $op1Zval);
@@ -27,7 +29,8 @@ class Concat extends OpLine {
         $this->setResult($resultZval);
     }
 
-    protected function writeZvalValue(LLVMZval $op1Zval, $value) {
+    protected function writeZvalValue(LLVMZval $op1Zval, $value)
+    {
         $resultZvalRegister = $this->getResultRegister();
         $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
         $this->writeVarAssign($resultZval, $op1Zval);
@@ -39,11 +42,13 @@ class Concat extends OpLine {
         $this->setResult($resultZval);
     }
 
-    protected function writeValueValue($value1, $value2) {
+    protected function writeValueValue($value1, $value2)
+    {
         $this->setResult($value1 . $value2);
     }
 
-    protected function writeValueZval($value, LLVMZval $op1Zval) {
+    protected function writeValueZval($value, LLVMZval $op1Zval)
+    {
         $resultZvalRegister = $this->getResultRegister();
         $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
         $this->writeImmediateValueAssign($resultZval, $value);

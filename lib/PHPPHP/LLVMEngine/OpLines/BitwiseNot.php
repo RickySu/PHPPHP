@@ -4,12 +4,13 @@ namespace PHPPHP\LLVMEngine\OpLines;
 
 use PHPPHP\LLVMEngine\Type\Base as BaseType;
 
-class BitwiseNot extends OpLine {
-
+class BitwiseNot extends OpLine
+{
     use Parts\TypeCast,
         Parts\PrepareOpZval;
 
-    public function write() {
+    public function write()
+    {
         parent::write();
         if (!$this->opCode->result->markUnUsed) {
             $this->prepareOpZval($this->opCode->op1);
@@ -17,11 +18,13 @@ class BitwiseNot extends OpLine {
         $this->gcTempZval();
     }
 
-    protected function writeValue($value1) {
+    protected function writeValue($value1)
+    {
         $this->setResult(~$value1);
     }
 
-    protected function writeIntegerOp($typeCastOp1ValueRegister) {
+    protected function writeIntegerOp($typeCastOp1ValueRegister)
+    {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = xor " . BaseType::long() . " $typeCastOp1ValueRegister, -1");
         $resultZvalRegister = $this->getResultRegister();
@@ -30,9 +33,11 @@ class BitwiseNot extends OpLine {
         $this->setResult($resultZval);
     }
 
-    protected function writeDoubleOp($typeCastOp1ValueRegister) {
+    protected function writeDoubleOp($typeCastOp1ValueRegister)
+    {
         $typeCastOp1ValueIntegerRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$typeCastOp1ValueIntegerRegister = fptosi " . BaseType::double() . " $typeCastOp1ValueRegister to " . BaseType::long());
+
         return $this->writeIntegerOp($typeCastOp1ValueIntegerRegister);
     }
 

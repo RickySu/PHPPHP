@@ -6,9 +6,10 @@ use PHPPHP\LLVMEngine\Zval as LLVMZval;
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 use PHPPHP\LLVMEngine\Type\Base;
 
-trait Convert {
-
-    protected function convertString(LLVMZval $toZval, LLVMZval $fromZval) {
+trait Convert
+{
+    protected function convertString(LLVMZval $toZval, LLVMZval $fromZval)
+    {
         $fromZvalPtr = $fromZval->getPtrRegister();
 
         //force  convert cache
@@ -16,10 +17,12 @@ trait Convert {
         $toZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_COPY, $fromZvalPtr);
         $this->function->InternalModuleCall(InternalModule::ZVAL_CONVERT_STRING, $toZvalPtr);
         $toZval->savePtrRegister($toZvalPtr);
+
         return $toZvalPtr;
     }
 
-    protected function convertInteger(LLVMZval $toZval, LLVMZval $fromZval) {
+    protected function convertInteger(LLVMZval $toZval, LLVMZval $fromZval)
+    {
         $fromZvalPtr = $fromZval->getPtrRegister();
 
         //force  convert cache
@@ -27,10 +30,12 @@ trait Convert {
         $toZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_COPY, $fromZvalPtr);
         $this->function->InternalModuleCall(InternalModule::ZVAL_CONVERT_INTEGER, $toZvalPtr);
         $toZval->savePtrRegister($toZvalPtr);
+
         return $toZvalPtr;
     }
 
-    protected function convertDouble(LLVMZval $toZval, LLVMZval $fromZval) {
+    protected function convertDouble(LLVMZval $toZval, LLVMZval $fromZval)
+    {
         $fromZvalPtr = $fromZval->getPtrRegister();
 
         //force  convert cache
@@ -38,6 +43,7 @@ trait Convert {
         $toZvalPtr = $this->function->InternalModuleCall(InternalModule::ZVAL_COPY, $fromZvalPtr);
         $this->function->InternalModuleCall(InternalModule::ZVAL_CONVERT_DOUBLE, $toZvalPtr);
         $toZval->savePtrRegister($toZvalPtr);
+
         return $toZvalPtr;
     }
 

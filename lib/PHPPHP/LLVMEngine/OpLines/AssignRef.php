@@ -2,15 +2,17 @@
 
 namespace PHPPHP\LLVMEngine\OpLines;
 
-class AssignRef extends OpLine {
-
+class AssignRef extends OpLine
+{
     use Parts\VarAssign;
 
-    public function write() {
+    public function write()
+    {
         parent::write();
         $op1VarName = $this->opCode->op1->getImmediateZval()->getName();
         $op2VarName = $this->opCode->op2->getImmediateZval()->getName();
         if ($op1VarName == $op2VarName && (!property_exists($this->opCode, 'dim'))) {   // $a=&$a;
+
             return;
         }
         if (property_exists($this->opCode, 'dim')) {

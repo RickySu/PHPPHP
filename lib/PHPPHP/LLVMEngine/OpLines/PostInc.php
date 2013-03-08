@@ -4,24 +4,27 @@ namespace PHPPHP\LLVMEngine\OpLines;
 
 use PHPPHP\LLVMEngine\Type\Base as BaseType;
 
-class PostInc extends OpLine {
-
+class PostInc extends OpLine
+{
     use Parts\TypeCast,
         Parts\PrepareOpZval;
 
-    public function write() {
+    public function write()
+    {
         parent::write();
         $this->prepareOpZval($this->opCode->op1);
         $this->gcTempZval();
     }
 
-    protected function writeValueValue($value1) {
+    protected function writeValueValue($value1)
+    {
         if (!$this->opCode->result->markUnUsed) {
             $this->setResult($value1++);
         }
     }
 
-    protected function writeIntegerOp($typeCastOp1ValueRegister) {
+    protected function writeIntegerOp($typeCastOp1ValueRegister)
+    {
         if (!$this->opCode->result->markUnUsed) {
             $resultZvalRegister = $this->getResultRegister();
             $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
@@ -34,7 +37,8 @@ class PostInc extends OpLine {
         $this->writeAssignInteger($opZval, $resultRegister);
     }
 
-    protected function writeDoubleOp($typeCastOp1ValueRegister) {
+    protected function writeDoubleOp($typeCastOp1ValueRegister)
+    {
         if (!$this->opCode->result->markUnUsed) {
             $resultZvalRegister = $this->getResultRegister();
             $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);

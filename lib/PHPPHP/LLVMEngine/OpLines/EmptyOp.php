@@ -6,22 +6,25 @@ use PHPPHP\LLVMEngine\Type\Base as BaseType;
 use PHPPHP\LLVMEngine\Zval as LLVMZval;
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 
-class EmptyOp extends OpLine {
-
+class EmptyOp extends OpLine
+{
     use Parts\TypeCast,
         Parts\PrepareOpZval;
 
-    public function write() {
+    public function write()
+    {
         parent::write();
         $this->prepareOpZval($this->opCode->op1);
         $this->gcTempZval();
     }
 
-    protected function writeValue($value1) {
+    protected function writeValue($value1)
+    {
         $this->setResult(empty($value1));
     }
 
-    protected function writeZval(LLVMZval $opZval) {
+    protected function writeZval(LLVMZval $opZval)
+    {
         $GuessTypeRegister=$this->function->InternalModuleCall(InternalModule::ZVAL_TYPE_GUESS,$opZval->getPtrRegister());
         $isString=$this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$isString = icmp eq ".BaseType::int()." $GuessTypeRegister , ".LLVMZval\Type::TYPE_STRING);
@@ -42,7 +45,8 @@ class EmptyOp extends OpLine {
         $this->function->writeOpLineIR("$LabelEndIf:");
     }
 
-    protected function writeIntegerOp($typeCastOp1ValueRegister) {
+    protected function writeIntegerOp($typeCastOp1ValueRegister)
+    {
         $resultRegister = $this->function->getRegisterSerial();
         $op1True = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$op1True = icmp eq " . BaseType::long() . " $typeCastOp1ValueRegister, 0");
@@ -53,7 +57,8 @@ class EmptyOp extends OpLine {
         $this->setResult($resultZval);
     }
 
-    protected function writeDoubleOp($typeCastOp1ValueRegister) {
+    protected function writeDoubleOp($typeCastOp1ValueRegister)
+    {
         $resultRegister = $this->function->getRegisterSerial();
         $op1True = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$op1True = fcmp eq " . BaseType::double() . " $typeCastOp1ValueRegister, 0.0");

@@ -8,8 +8,8 @@ use PHPPHP\Engine\Zval;
 
 dl('llvm_bind.so');
 
-class Compiler {
-
+class Compiler
+{
     /**
      *
      * @var Writer
@@ -18,12 +18,14 @@ class Compiler {
     protected $context;
     protected $llvmBind;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->writer = new Writer();
         $this->llvmBind = new \LLVMBind();
     }
 
-    public function compile($compiledData, $context) {
+    public function compile($compiledData, $context)
+    {
         $opArray = $compiledData['opcode'];
         //print_r($opArray);die;
         $module = new Writer\ModuleWriter($context);
@@ -45,19 +47,20 @@ class Compiler {
         echo $bitcode;
     }
 
-    protected function compileOpLine(Writer\ModuleWriter $module, OpArray $opArray) {
+    protected function compileOpLine(Writer\ModuleWriter $module, OpArray $opArray)
+    {
         $function = $module->getEntryFunction();
         $opResult=NULL;
         foreach ($opArray as $opLineNo => $opCode) {
-            if($opResult){
+            if ($opResult) {
                 $unUsedOpResult=true;
-                if(($opCode->op1 instanceof Zval\Ptr) && ($opCode->op1->getImmediateZval()===$opResult->getImmediateZval())){
+                if (($opCode->op1 instanceof Zval\Ptr) && ($opCode->op1->getImmediateZval()===$opResult->getImmediateZval())) {
                     $unUsedOpResult=false;
                 }
-                if(($opCode->op2 instanceof Zval\Ptr) && ($opCode->op2->getImmediateZval()===$opResult->getImmediateZval())){
+                if (($opCode->op2 instanceof Zval\Ptr) && ($opCode->op2->getImmediateZval()===$opResult->getImmediateZval())) {
                     $unUsedOpResult=false;
                 }
-                if(($opCode->result instanceof Zval\Ptr) && ($opCode->result->getImmediateZval()===$opResult->getImmediateZval())){
+                if (($opCode->result instanceof Zval\Ptr) && ($opCode->result->getImmediateZval()===$opResult->getImmediateZval())) {
                     $unUsedOpResult=false;
                 }
                 $opResult->markUnUsed=$unUsedOpResult;

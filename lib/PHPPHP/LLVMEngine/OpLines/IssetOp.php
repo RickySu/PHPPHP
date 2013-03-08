@@ -6,12 +6,13 @@ use PHPPHP\LLVMEngine\Zval as LLVMZval;
 use PHPPHP\LLVMEngine\Type\Base as BaseType;
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 
-class IssetOp extends OpLine {
-
+class IssetOp extends OpLine
+{
     use Parts\TypeCast,
         Parts\PrepareOpZval;
 
-    public function write() {
+    public function write()
+    {
         parent::write();
         if (!$this->opCode->result->markUnUsed) {
             $this->prepareOpZval($this->opCode->op1);
@@ -19,7 +20,8 @@ class IssetOp extends OpLine {
         $this->gcTempZval();
     }
 
-    protected function writeZval(LLVMZval $opZval) {
+    protected function writeZval(LLVMZval $opZval)
+    {
         $resultZvalRegister = $this->getResultRegister();
         $resultZval = $this->function->getZvalIR($resultZvalRegister, false, true);
         $isNULL = $this->function->InternalModuleCall(InternalModule::ZVAL_TEST_NULL, $opZval->getPtrRegister());

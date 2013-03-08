@@ -6,8 +6,8 @@ use PHPPHP\LLVMEngine\Type\Base;
 use PHPPHP\LLVMEngine\Zval;
 use PHPPHP\LLVMEngine\TypeCast;
 
-final class Module {
-
+final class Module
+{
     const T_ECHO = 'PHPLLVM_T_ECHO';
     const T_ECHO_ZVAL = 'PHPLLVM_T_ECHO_ZVAL';
     const ZVAL_LIST_INIT = 'ZVAL_LIST_INIT';
@@ -50,7 +50,8 @@ final class Module {
     const ZVAL_FETCH_ARRAY_STRING_ELEMENT = 'ZVAL_FETCH_ARRAY_STRING_ELEMENT';
     const ZVAL_FETCH_ARRAY_ZVAL_ELEMENT = 'ZVAL_FETCH_ARRAY_ZVAL_ELEMENT';
 
-    public static function Define() {
+    public static function Define()
+    {
         return array(
             self::T_ECHO => array(Base::void(), array(Base::int(), Base::char('*'))),
             self::T_ECHO_ZVAL => array(Base::void(), array(Zval::zval('*'))),
@@ -97,12 +98,15 @@ final class Module {
         );
     }
 
-    public static function returnType($moduleName) {
+    public static function returnType($moduleName)
+    {
         $define = self::Define();
+
         return $define[$moduleName][0];
     }
 
-    public static function getBitcode() {
+    public static function getBitcode()
+    {
         $bitcodeCompiler = new BitcodeCompiler(array(
             self::T_ECHO . '.c',
             'ZVAL_LIST.c',
@@ -112,10 +116,12 @@ final class Module {
             'hashtable.c',
             'gc.c',
         ));
+
         return $bitcodeCompiler->compileAll();
     }
 
-    public static function call() {
+    public static function call()
+    {
         $args = func_get_args();
         $moduleName = array_shift($args);
         $define = self::Define();
@@ -131,6 +137,7 @@ final class Module {
             $argIR = substr($argIR, 1);
         }
         $argIR = trim($argIR);
+
         return "call " . ($argIR == '' ? '' : 'fastcc') . " $return @$moduleName($argIR)";
     }
 

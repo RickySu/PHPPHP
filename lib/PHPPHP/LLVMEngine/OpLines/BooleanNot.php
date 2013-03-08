@@ -4,12 +4,13 @@ namespace PHPPHP\LLVMEngine\OpLines;
 
 use PHPPHP\LLVMEngine\Type\Base as BaseType;
 
-class BooleanNot extends OpLine {
-
+class BooleanNot extends OpLine
+{
     use Parts\TypeCast,
         Parts\PrepareOpZval;
 
-    public function write() {
+    public function write()
+    {
         parent::write();
         if (!$this->opCode->result->markUnUsed) {
             $this->prepareOpZval($this->opCode->op1);
@@ -17,23 +18,27 @@ class BooleanNot extends OpLine {
         $this->gcTempZval();
     }
 
-    protected function writeValue($value1) {
+    protected function writeValue($value1)
+    {
         $this->setResult(!$value1);
     }
 
-    protected function writeIntegerOp($typeCastOp1ValueRegister) {
+    protected function writeIntegerOp($typeCastOp1ValueRegister)
+    {
         $op1True = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$op1True = icmp ne " . BaseType::long() . " $typeCastOp1ValueRegister, 0");
         $this->writeResult($op1True);
     }
 
-    protected function writeDoubleOp($typeCastOp1ValueRegister) {
+    protected function writeDoubleOp($typeCastOp1ValueRegister)
+    {
         $op1True = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$op1True = fcmp one " . BaseType::double() . " $typeCastOp1ValueRegister, 0.0");
         $this->writeResult($op1True);
     }
 
-    protected function writeResult($op1True) {
+    protected function writeResult($op1True)
+    {
         $resultRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultRegister = xor i1 $op1True, true");
         $resultCastRegister = $this->function->getRegisterSerial();

@@ -4,12 +4,13 @@ namespace PHPPHP\LLVMEngine\OpLines;
 
 use PHPPHP\LLVMEngine\Type\Base as BaseType;
 
-class Smaller extends OpLine {
-
+class Smaller extends OpLine
+{
     use Parts\TypeCast,
         Parts\PrepareOpZval;
 
-    public function write() {
+    public function write()
+    {
         parent::write();
         if (!$this->opCode->result->markUnUsed) {
             $this->prepareOpZval($this->opCode->op1, $this->opCode->op2);
@@ -17,23 +18,27 @@ class Smaller extends OpLine {
         $this->gcTempZval();
     }
 
-    protected function writeValueValue($value1, $value2) {
+    protected function writeValueValue($value1, $value2)
+    {
         $this->setResult($value1 < $value2);
     }
 
-    protected function writeIntegerOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
+    protected function writeIntegerOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister)
+    {
         $result = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$result = icmp slt " . BaseType::long() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $this->writeResult($result);
     }
 
-    protected function writeDoubleOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister) {
+    protected function writeDoubleOp($typeCastOp1ValueRegister, $typeCastOp2ValueRegister)
+    {
         $result = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$result = fcmp olt " . BaseType::double() . " $typeCastOp1ValueRegister, $typeCastOp2ValueRegister");
         $this->writeResult($result);
     }
 
-    protected function writeResult($resultRegister) {
+    protected function writeResult($resultRegister)
+    {
         $resultCastRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$resultCastRegister = zext i1 $resultRegister to " . BaseType::long());
         $resultZvalRegister = $this->getResultRegister();

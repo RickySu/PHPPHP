@@ -4,8 +4,8 @@ namespace PHPPHP\LLVMEngine;
 
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 
-class Zval {
-
+class Zval
+{
     protected static $type;
     protected $varName;
     protected $isTemp;
@@ -20,27 +20,33 @@ class Zval {
      *
      * @return Type\Base
      */
-    protected static function getType($ptr = '') {
+    protected static function getType($ptr = '')
+    {
         if (isset(self::$type[$ptr])) {
             return self::$type[$ptr];
         }
         self::$type[$ptr] = Type\Base::structure(new Zval\Type(), $ptr);
+
         return self::$type[$ptr];
     }
 
-    public static function getDeclare() {
+    public static function getDeclare()
+    {
         return self::getType()->getStructIR()->getIR();
     }
 
-    public static function zval($ptr = '') {
+    public static function zval($ptr = '')
+    {
         return self::getType($ptr);
     }
 
-    public static function getGCList() {
+    public static function getGCList()
+    {
         return self::ZVAL_GC_LIST;
     }
 
-    public function __construct($varName, $initZval, $isTemp, $IRWriter) {
+    public function __construct($varName, $initZval, $isTemp, $IRWriter)
+    {
         $this->varName = $varName;
         $this->isTemp = $isTemp;
         $this->IRWriter = $IRWriter;
@@ -48,53 +54,65 @@ class Zval {
             $ptrRegister = $this->IRWriter->InternalModuleCall(InternalModule::ZVAL_INIT);
             if ($varName === NULL) {
                 $this->ptrRegister = $ptrRegister;
+
                 return;
             }
             $this->savePtrRegister($ptrRegister);
         }
     }
 
-    public function setStoreVarName($store){
+    public function setStoreVarName($store)
+    {
         $this->storeVarName=$store;
     }
 
-    public function isStoreVarName(){
+    public function isStoreVarName()
+    {
         return $this->storeVarName;
     }
 
-    public function getVarName(){
+    public function getVarName()
+    {
         return $this->varName;
     }
 
-    public function isTemp() {
+    public function isTemp()
+    {
         return $this->isTemp;
     }
 
-    public function getIRRegister() {
+    public function getIRRegister()
+    {
         if ($this->varName == NULL) {
-            return (string)$this->ptrRegister;
+            return (string) $this->ptrRegister;
         }
+
         return "%PHPVar" . ($this->isTemp ? '_temp' : '') . "_{$this->varName}";
     }
 
-    public function __toString() {
+    public function __toString()
+    {
         return $this->getIRRegister();
     }
 
-    public function savePtrRegister($ptrRegister) {
+    public function savePtrRegister($ptrRegister)
+    {
         if ($this->varName === NULL) {
             $this->ptrRegister = $ptrRegister;
+
             return;
         }
         $this->IRWriter->writeOpLineIR("store " . self::zval('*') . " $ptrRegister, " . self::zval('**') . " {$this->getIRRegister()}, align " . self::zval('*')->size());
     }
 
-    public function getPtrRegister() {
+    public function getPtrRegister()
+    {
         if ($this->varName === NULL) {
             return $this->ptrRegister;
         }
         $returnRegister = $this->IRWriter->getRegisterSerial();
         $this->IRWriter->writeOpLineIR("$returnRegister = load " . self::zval('**') . " {$this->getIRRegister()}, align " . self::zval('*')->size());
+
         return $returnRegister;
     }
 

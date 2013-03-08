@@ -6,23 +6,26 @@ use PHPPHP\LLVMEngine\Zval as LLVMZval;
 use PHPPHP\LLVMEngine\Type\Base as BaseType;
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 
-class JumpIfNot extends OpLine {
-
+class JumpIfNot extends OpLine
+{
     use Parts\PrepareOpZval;
 
-    public function write() {
+    public function write()
+    {
         parent::write();
         $this->prepareOpZval($this->opCode->op1);
         $this->gcTempZval();
     }
 
-    protected function writeValue($value) {
+    protected function writeValue($value)
+    {
         if (!$value) {
             $this->function->writeJumpLabelIR($this->opCode->op2);
         }
     }
 
-    protected function writeZval(LLVMZval $opZval) {
+    protected function writeZval(LLVMZval $opZval)
+    {
         $isFalse = $this->function->InternalModuleCall(InternalModule::ZVAL_TEST_FALSE, $opZval->getPtrRegister());
         $isFalseResult = $this->function->getRegisterSerial();
         $ifSerial = substr($this->function->getRegisterSerial(), 1);

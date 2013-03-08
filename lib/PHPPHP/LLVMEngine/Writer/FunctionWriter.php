@@ -9,8 +9,8 @@ use PHPPHP\LLVMEngine\OpLines\OpLine;
 use PHPPHP\LLVMEngine\Type\Base as StringType;
 use PHPPHP\LLVMEngine\Type\TypeDefine;
 
-class FunctionWriter {
-
+class FunctionWriter
+{
     protected $opLines = array();
     protected $opLinesIR = array();
     protected $registerSerial = 0;
@@ -27,15 +27,18 @@ class FunctionWriter {
      */
     protected $moduleWriter;
 
-    public function __construct($functionName) {
+    public function __construct($functionName)
+    {
         $this->functionName = strtolower($functionName);
     }
 
-    public function setModuleWriter(ModuleWriter $moduleWriter) {
+    public function setModuleWriter(ModuleWriter $moduleWriter)
+    {
         $this->moduleWriter = $moduleWriter;
     }
 
-    public function getEntryName() {
+    public function getEntryName()
+    {
         return "PHPLLVM_function_{$this->functionName}";
     }
 
@@ -43,55 +46,66 @@ class FunctionWriter {
      *
      * @param \PHPPHP\LLVMEngine\OpLines\OpLine $opLine
      */
-    public function addOpLine(OpLine $opLine) {
+    public function addOpLine(OpLine $opLine)
+    {
         if (!in_array($opLine, $this->opLines)) {
             $this->opLines[] = $opLine;
             $opLine->setFunction($this);
         }
     }
 
-    protected function writeOpLines() {
+    protected function writeOpLines()
+    {
         foreach ($this->opLines as $opLine) {
             $opLine->write();
         }
     }
 
-    public function setJumpLabel($opLineNo) {
+    public function setJumpLabel($opLineNo)
+    {
         $this->writeOpLineIR(";set jump label $opLineNo");
         $this->opJumpLabel[$opLineNo] = true;
     }
 
-    public function writeJumpLabelIR($opLineNo) {
+    public function writeJumpLabelIR($opLineNo)
+    {
         $this->setJumpLabel($opLineNo);
         $Label = substr($this->getJumpLabel($opLineNo), 0, -1);
         $this->writeOpLineIR("br label %$Label\n");
     }
 
-    public function getJumpLabelIR($opLineNo) {
+    public function getJumpLabelIR($opLineNo)
+    {
         $IR = '';
         if ($this->isSetJumpLable($opLineNo)) {
             $Label = substr($this->getJumpLabel($opLineNo), 0, -1);
             $IR.="br label %$Label\n";
         }
+
         return $IR;
     }
 
-    public function getJumpLabel($opLineNo) {
+    public function getJumpLabel($opLineNo)
+    {
         if ($this->isSetJumpLable($opLineNo)) {
             return "op_jump_label_$opLineNo:";
         }
+
         return '';
     }
 
-    public function isSetJumpLable($opLineNo) {
+    public function isSetJumpLable($opLineNo)
+    {
         return isset($this->opJumpLabel[$opLineNo]);
     }
 
-    public function writeOpLineIR($opLineIR) {
+    public function writeOpLineIR($opLineIR)
+    {
         $this->opLinesIR[] = $opLineIR;
     }
 
-    protected function writeIR() {
+    protected function writeIR()
+    {
         //write declare
         $EntryDeclareIR = "declare " . Zval::zval('*') . " @{$this->getEntryName()}()";
         $this->moduleWriter->writeFunctionIRDeclare($this->getEntryName(), $EntryDeclareIR);
@@ -114,11 +128,13 @@ class FunctionWriter {
         $this->moduleWriter->writeFunctionIR($this->getEntryName(), implode("\n", $IR));
     }
 
-    public function getRegisterSerial() {
+    public function getRegisterSerial()
+    {
         return new Register(++$this->registerSerial);
     }
 
-    protected function functionCtorIR() {
+    protected function functionCtorIR()
+    {
         $IR[] = '';
         $IR[] = ";function entry";
 
@@ -129,10 +145,12 @@ class FunctionWriter {
         //prepare var list
         $IR[] = Zval::ZVAL_GC_LIST . ' = ' . InternalModule::call(InternalModule::ZVAL_LIST_INIT);
         $this->moduleWriter->writeUsedFunction(InternalModule::ZVAL_LIST_INIT);
+
         return $IR;
     }
 
-    protected function functionDtorIR() {
+    protected function functionDtorIR()
+    {
         $IR[] = "";
         $IR[] = ";function end";
         $IR[] = "end_return:";
@@ -147,31 +165,39 @@ class FunctionWriter {
         $IR[] = ";prepare return value";
         $IR[] = "$returnRegister = load " . Zval::zval('**') . ' ' . self::RETVAL . ", align " . Zval::zval('*')->size();
         $IR[] = "ret %struct.zval* $returnRegister";
+
         return $IR;
     }
 
-    public function writeConstant($constant) {
+    public function writeConstant($constant)
+    {
         return $this->moduleWriter->writeConstant($constant);
     }
 
-    public function writeUsedFunction($functionName) {
+    public function writeUsedFunction($functionName)
+    {
         $this->moduleWriter->writeUsedFunction($functionName);
     }
 
-    public function getModuleWriter() {
+    public function getModuleWriter()
+    {
         return $this->moduleWriter;
     }
 
-    public function write() {
+    public function write()
+    {
         $this->writeIR();
     }
 
-    public function isZvalIRDefined($varName) {
+    public function isZvalIRDefined($varName)
+    {
         $zval = new Zval($varName, false, false, $this);
+
         return isset($this->varList[(string) $zval]);
     }
 
-    protected function writeVarDeclare() {
+    protected function writeVarDeclare()
+    {
         $IR = array(";declare internal var");
         foreach ($this->internalVarList as $interlanVar => $type) {
             $IR[] = "$interlanVar = alloca $type";
@@ -189,44 +215,54 @@ class FunctionWriter {
                 $IR[] = $this->getInternalModuleCallIR(InternalModule::ZVAL_GC_REGISTER, Zval::getGCList(), $varZval, 0, 'null');
             }
         }
+
         return $IR;
     }
 
-    public function getZvalIR($varName, $initZval = false, $isTmp = false) {
+    public function getZvalIR($varName, $initZval = false, $isTmp = false)
+    {
         $zval = new Zval($varName, false, $isTmp, $this);
         if (isset($this->varList[(string) $zval])) {
             return $this->varList[(string) $zval];
         }
         $zval = new Zval($varName, $initZval, $isTmp, $this);
         $this->varList[(string) $zval] = $zval;
+
         return $zval;
     }
 
-    public function getInternalVar($varName, TypeDefine $type) {
+    public function getInternalVar($varName, TypeDefine $type)
+    {
         $interlanVar = "%PHPVarInternal_$varName";
         if (isset($this->internalVarList[$interlanVar])) {
             return $interlanVar;
         }
         $this->internalVarList[$interlanVar] = $type;
+
         return $interlanVar;
     }
 
-    protected function getInternalModuleCallIR($moduleName) {
+    protected function getInternalModuleCallIR($moduleName)
+    {
         $args = func_get_args();
         $IR = forward_static_call_array(array('\PHPPHP\\LLVMEngine\\Internal\\Module', 'call'), $args);
         $this->moduleWriter->writeUsedFunction($moduleName);
+
         return $IR;
     }
 
-    public function InternalModuleCall($moduleName) {
+    public function InternalModuleCall($moduleName)
+    {
         $args = func_get_args();
         $IR = call_user_func_array(array($this, 'getInternalModuleCallIR'), $args);
         if (InternalModule::Define()[$moduleName][0] != StringType::void()) {
             $resultRegister = $this->getRegisterSerial();
             $this->writeOpLineIR("$resultRegister = $IR");
+
             return $resultRegister;
         }
         $this->writeOpLineIR($IR);
+
         return NULL;
     }
 

@@ -2,6 +2,6 @@
 
 namespace PHPPHP\LLVMEngine\Type;
 
-class Constant {
-    
+class Constant
+{
 }

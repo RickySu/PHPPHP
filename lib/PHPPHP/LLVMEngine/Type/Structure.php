@@ -2,21 +2,24 @@
 
 namespace PHPPHP\LLVMEngine\Type;
 
-abstract class Structure implements TypeDefine {
-
+abstract class Structure implements TypeDefine
+{
     protected $structureIRSize;
     protected $structureIRName;
     protected $IR = array();
 
-    public function __toString() {
+    public function __toString()
+    {
         return implode("\n", $this->getIR()) . "\n";
     }
 
-    public function size() {
+    public function size()
+    {
         return $this->getStructureIRSize();
     }
 
-    public function getDeclareStructure(array &$structure, $structureName) {
+    public function getDeclareStructure(array &$structure, $structureName)
+    {
         switch ($structure['type']) {
             case 'union':
                 return $this->getDeclareStructureunion($structure, "union.$structureName");
@@ -27,7 +30,8 @@ abstract class Structure implements TypeDefine {
         }
     }
 
-    protected function getDeclareStructureStructure(array &$structure, $structureName) {
+    protected function getDeclareStructureStructure(array &$structure, $structureName)
+    {
         $struct = array();
         $structSize = 0;
 
@@ -46,10 +50,12 @@ abstract class Structure implements TypeDefine {
         }
         $structureDefine = implode(", ", $struct);
         $this->IR[] = "%$structureName = type { $structureDefine }";
+
         return array($structSize, "%$structureName");
     }
 
-    protected function getDeclareStructureunion(array &$structure, $structureName) {
+    protected function getDeclareStructureunion(array &$structure, $structureName)
+    {
         $struct = '';
         $structSize = 0;
         $index = 0;
@@ -70,26 +76,32 @@ abstract class Structure implements TypeDefine {
         }
         $structure['effective.type'] = $struct;
         $this->IR[] = "%$structureName = type { $struct }";
+
         return array($structSize, "%$structureName");
     }
 
-    public function analyzeStruct() {
+    public function analyzeStruct()
+    {
         list($this->structureIRSize, $this->structureIRName) = $this->getDeclareStructure($this->structureDefine, $this->structName);
     }
 
-    public function getIR() {
+    public function getIR()
+    {
         return $this->IR;
     }
 
-    public function getStructureIRSize() {
+    public function getStructureIRSize()
+    {
         return $this->structureIRSize;
     }
 
-    public function getStructureIRName() {
+    public function getStructureIRName()
+    {
         return $this->structureIRName;
     }
 
-    public function getElementPosition() {
+    public function getElementPosition()
+    {
         $args = func_get_args();
         $position = 0;
         $define = &$this->structureDefine;
@@ -100,28 +112,34 @@ abstract class Structure implements TypeDefine {
             $position[] = $define['struct']["$index.pos"];
             $define = &$define['struct'][$index];
         }
+
         return $position;
     }
 
-    public function getElement() {
+    public function getElement()
+    {
         $args = func_get_args();
         $define = &$this->structureDefine;
         foreach ($args as $index) {
             $define = &$define['struct'][$index];
         }
+
         return $define;
     }
 
-    public function getElementEffectiveType() {
+    public function getElementEffectiveType()
+    {
         return $this->structureDefine['effective.type'];
     }
 
-    public function getElementPtrIR() {
+    public function getElementPtrIR()
+    {
         $args = func_get_args();
         $toRegister = array_shift($args);
         $fromRegister = array_shift($args);
         $Position = implode(', i32 ', call_user_func_array(array($this, 'getElementPosition'), $args));
         $define = call_user_func_array(array($this, 'getElement'), $args);
+
         return "$toRegister = getelementptr inbounds {$this->structureIRName}* $fromRegister, i32 0, i32 $Position";
     }
 
