@@ -848,9 +848,16 @@ PHPLLVMAPI iterate *ZVAL_ITERATE_INIT(zval *arrayZval) {
 }
 
 PHPLLVMAPI void ZVAL_ITERATE_FREE(iterate *iterate_object) {
-    if(iterate_object){
+    if (iterate_object) {
         efree(iterate_object);
     }
+}
+
+PHPLLVMAPI uint ZVAL_ITERATE_IS_END(iterate *iterate_object) {
+    if (!iterate_object->current) {
+        return TRUE;
+    }
+    return FALSE;
 }
 
 PHPLLVMAPI zval *ZVAL_ITERATE_CURRENT_KEY(iterate *iterate_object) {
@@ -865,4 +872,18 @@ PHPLLVMAPI zval *ZVAL_ITERATE_CURRENT_KEY(iterate *iterate_object) {
         keyZval = ZVAL_ASSIGN_STRING(keyZval, iterate_object->current->nKeyLength, iterate_object->current->arKey);
     }
     return keyZval;
+}
+
+PHPLLVMAPI zval *ZVAL_ITERATE_CURRENT_VALUE(iterate *iterate_object) {
+    if (!iterate_object->current) {
+        return NULL;
+    }
+    return (zval *) iterate_object->current->pData;
+}
+
+PHPLLVMAPI void ZVAL_ITERATE_NEXT(iterate *iterate_object) {
+    if (!iterate_object->current) {
+        return;
+    }
+    iterate_object->current = iterate_object->current->pListNext;
 }

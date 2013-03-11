@@ -53,6 +53,9 @@ PHPLLVMAPI zval *ZVAL_FETCH_ARRAY_ZVAL_ELEMENT(zval *arrayZval, zval *keyZval, u
 PHPLLVMAPI iterate *ZVAL_ITERATE_INIT(zval *arrayZval);
 PHPLLVMAPI void ZVAL_ITERATE_FREE(iterate *iterate_object);
 PHPLLVMAPI zval *ZVAL_ITERATE_CURRENT_KEY(iterate *iterate_object);
+PHPLLVMAPI zval *ZVAL_ITERATE_CURRENT_VALUE(iterate *iterate_object);
+PHPLLVMAPI uint ZVAL_ITERATE_IS_END(iterate *iterate_object);
+PHPLLVMAPI void ZVAL_ITERATE_NEXT(iterate *iterate_object);
 
 FASTCC void zval_gc_real(zval *varZval);
 

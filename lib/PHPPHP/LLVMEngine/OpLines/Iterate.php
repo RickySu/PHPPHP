@@ -38,24 +38,20 @@ class Iterate extends OpLine
         $this->function->writeOpLineIR("$LabelEndIf:");
         $iterateObjectVarRegister=$this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$iterateObjectVarRegister = load ".BaseType::void('**')." $iterateObjectVarName, align ".BaseType::void('**')->size());
-        $keyZval = new LLVMZval(NULL, false, false, $this->function);
-        $keyZvalRegister=$this->function->InternalModuleCall(InternalModule::ZVAL_ITERATE_CURRENT_KEY,$iterateObjectVarRegister);
-        $keyZval->savePtrRegister($keyZvalRegister);
+        $isEndRegister=$this->function->InternalModuleCall(InternalModule::ZVAL_ITERATE_IS_END,$iterateObjectVarRegister);
 
-        $isNULLResult = $this->function->getRegisterSerial();
+        $isEndResult = $this->function->getRegisterSerial();
         $ifSerial = substr($this->function->getRegisterSerial(), 1);
         $LabelIfTrue = "Label_IfTrue_$ifSerial";
         $LabelEndIf = "Label_EndIf_$ifSerial";
-        $this->function->writeOpLineIR("$isNULLResult = icmp eq {$keyZval->zval('*')} $keyZvalRegister, null");
-        $this->function->writeOpLineIR("br i1 $isNULLResult, label  %$LabelIfTrue, label %$LabelEndIf");
+        $this->function->writeOpLineIR("$isEndResult = icmp eq ".BaseType::int()." $isEndRegister, 1");
+        $this->function->writeOpLineIR("br i1 $isEndResult, label  %$LabelIfTrue, label %$LabelEndIf");
         $this->function->writeOpLineIR("$LabelIfTrue:");
         $this->function->InternalModuleCall(InternalModule::ZVAL_ITERATE_FREE,$iterateObjectVarRegister);
         $this->function->writeOpLineIR("store ".BaseType::void('*')." null, ".BaseType::void('**')." $iterateObjectVarName, align ".BaseType::void('*')->size());
         $this->gcTempZval();
         $this->function->writeJumpLabelIR($this->opCode->op2);
-        $this->function->writeOpLineIR("br label %$LabelEndIf");
         $this->function->writeOpLineIR("$LabelEndIf:");
 
-        $this->opCode->result->iterateKeyZval=$keyZval;
     }
 }
