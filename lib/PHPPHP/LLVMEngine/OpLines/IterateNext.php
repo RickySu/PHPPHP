@@ -4,8 +4,6 @@ namespace PHPPHP\LLVMEngine\OpLines;
 
 use PHPPHP\LLVMEngine\Type\Base as BaseType;
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
-use PHPPHP\LLVMEngine\Zval as LLVMZval;
-
 
 class IterateNext extends OpLine {
 
