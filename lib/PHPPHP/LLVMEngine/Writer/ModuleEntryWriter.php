@@ -15,6 +15,9 @@ class ModuleEntryWriter extends FunctionWriter {
     protected function functionCtorIR() {
         $registerFunctionsIR = $this->writeRegisterFunctions();
         $IR = parent::functionCtorIR();
+        if($this->moduleWriter->getJumpTableInitializerEntryName()){
+            $IR[]="call void {$this->moduleWriter->getJumpTableInitializerEntryName()}()";
+        }
         return array_merge($registerFunctionsIR, $IR);
     }
 

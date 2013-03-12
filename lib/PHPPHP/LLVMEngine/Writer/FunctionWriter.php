@@ -238,6 +238,10 @@ class FunctionWriter {
         return $zval;
     }
 
+    public function getJumpTable($functionName){
+        return $this->moduleWriter->getJumpTable($functionName);
+    }
+
     public function getInternalVar($varName, TypeDefine $type, $init = NULL) {
         $interlanVar = "%PHPVarInternal_$varName";
         if (isset($this->internalVarList[$interlanVar])) {
