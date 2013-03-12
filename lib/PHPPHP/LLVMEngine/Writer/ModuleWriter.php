@@ -17,7 +17,7 @@ class ModuleWriter extends Base
         $this->moduleContext = $moduleContext;
         $functionWriter=new ModuleEntryWriter($this->getModuleName());
         $functionWriter->setModuleWriter($this);
-        $this->functions['entryFunction']=$functionWriter;
+        $this->functions['*entryFunction*']=$functionWriter;
     }
 
     public function getModuleName()
@@ -27,7 +27,7 @@ class ModuleWriter extends Base
 
     public function getEntryName()
     {
-        return $this->functions['entryFunction']->getEntryName();
+        return $this->functions['*entryFunction*']->getEntryName();
     }
 
     /**
@@ -36,19 +36,24 @@ class ModuleWriter extends Base
      */
     public function getEntryFunction()
     {
-        return $this->functions['entryFunction'];
+        return $this->functions['*entryFunction*'];
     }
 
+    public function getFunctions(){
+        $functions=$this->functions;
+        unset($functions['*entryFunction*']);
+        return $functions;
+    }
     /**
      *
      * @param  type           $functionName
      * @return FunctionWriter
      */
-    public function addFunction($functionName)
+    public function addFunction($functionName,$params)
     {
-        $functionWriter=new FunctionWriter($functionName);
+        $functionWriter=new FunctionWriter($functionName,$params);
         $this->functions[$functionWriter->getEntryName()]=$functionWriter;
-
+        $functionWriter->setModuleWriter($this);
         return $functionWriter;
     }
 

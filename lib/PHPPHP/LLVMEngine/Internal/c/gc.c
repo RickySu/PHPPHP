@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "h/gc.h"
+#include "h/functions.h"
 
 extern int zvalcount;
 
@@ -8,6 +9,7 @@ HashTable LLVMPHPGCPool;
 
 void jit_init() {
     hash_init(&LLVMPHPGCPool, PHPLLVMGCPOOLSIZE, &gc_pool_dtor);
+    hash_init(&functionStore, PHP_FUNCTION_STORE_SIZE, NULL);
     printf("init\n");
 }
 
@@ -36,6 +38,7 @@ FASTCC void gc_pool_remove(zval *varZval) {
 
 void jit_shutdown() {
     hash_destroy(&LLVMPHPGCPool);
+    hash_destroy(&functionStore);
     printf("zvalcount:%d\n", zvalcount);
     printf("shutdown\n");
 }

@@ -49,4 +49,7 @@
 #define FASTCC __attribute((fastcall))
 #endif
 
+#define  PHPLLVMGCPOOLSIZE 1000
+#define  PHP_FUNCTION_STORE_SIZE 1000
+
 #endif

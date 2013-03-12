@@ -18,6 +18,7 @@ class FunctionWriter {
     protected $varList = array();
     protected $internalVarList = array();
     protected $opJumpLabel = array();
+    protected $params;
 
     const RETVAL = '%retval';
 
@@ -27,12 +28,28 @@ class FunctionWriter {
      */
     protected $moduleWriter;
 
-    public function __construct($functionName) {
+    public function __construct($functionName, $params = array()) {
         $this->functionName = strtolower($functionName);
+        $this->params = $params;
     }
 
     public function setModuleWriter(ModuleWriter $moduleWriter) {
         $this->moduleWriter = $moduleWriter;
+    }
+
+    public function getFunctionName(){
+        return $this->functionName;
+    }
+
+    public function getParamsTypeDefine(){
+        if(!$this->params){
+            return '';
+        }
+        $paramString='';
+        foreach($this->params as $param){
+            $paramString.=Zval::zval('*').', ';
+        }
+        return substr(trim($paramString),0,-1);
     }
 
     public function getEntryName() {
@@ -95,7 +112,14 @@ class FunctionWriter {
 
     protected function writeIR() {
         //write declare
-        $EntryDeclareIR = "declare " . Zval::zval('*') . " @{$this->getEntryName()}()";
+        $paramIR='';
+        foreach($this->params as $index => $param){
+            $paramIR.=Zval::zval('*')." %param_$index, ";
+            $paramZval=$this->getZvalIR($param->name);
+            $paramZval->setInitValue("%param_$index");
+        }
+        $paramIR=substr(trim($paramIR),0,-1);
+        $EntryDeclareIR = "declare " . Zval::zval('*') . " @{$this->getEntryName()}($paramIR)";
         $this->moduleWriter->writeFunctionIRDeclare($this->getEntryName(), $EntryDeclareIR);
 
         $opLineIRs = array();
@@ -106,7 +130,7 @@ class FunctionWriter {
 
         //write function content
         $IR[] = ";function {$this->functionName}";
-        $IR[] = "define " . Zval::zval('*') . " @{$this->getEntryName()}() nounwind uwtable {";
+        $IR[] = "define " . Zval::zval('*') . " @{$this->getEntryName()}($paramIR) nounwind uwtable {";
         $IR[] = implode("\n\t", $this->functionCtorIR());
         $varIRDeclare = "\n\t" . implode("\n\t", $this->writeVarDeclare());
         $IR[] = $varIRDeclare;
@@ -179,9 +203,9 @@ class FunctionWriter {
     protected function writeVarDeclare() {
         $IR = array(";declare internal var");
         foreach ($this->internalVarList as $interlanVar => $varDefine) {
-            list($type,$defaultValue)=$varDefine;
+            list($type, $defaultValue) = $varDefine;
             $IR[] = "$interlanVar = alloca $type, align {$type->size()}";
-            if ($defaultValue!==NULL) {
+            if ($defaultValue !== NULL) {
                 $IR[] = "store $type $defaultValue, $type* $interlanVar, align {$type->size()}";
             }
         }
@@ -189,7 +213,8 @@ class FunctionWriter {
         $IR[] = ";declare used var";
         foreach ($this->varList as $varZval) {
             $IR[] = "$varZval = alloca " . Zval::zval('*');
-            $IR[] = "store " . Zval::zval('*') . " null, " . Zval::zval('**') . " $varZval, align " . Zval::zval('*')->size();
+            $initValue=($varZval->getInitValue()===false?'null':$varZval->getInitValue());
+            $IR[] = "store " . Zval::zval('*') . " $initValue, " . Zval::zval('**') . " $varZval, align " . Zval::zval('*')->size();
             if ($varZval->isStoreVarName()) {
                 $varName = $varZval->getVarName();
                 $Constant = $this->writeConstant($varName);
@@ -218,7 +243,7 @@ class FunctionWriter {
         if (isset($this->internalVarList[$interlanVar])) {
             return $interlanVar;
         }
-        $this->internalVarList[$interlanVar] = array($type,$init);
+        $this->internalVarList[$interlanVar] = array($type, $init);
 
         return $interlanVar;
     }
@@ -234,10 +259,10 @@ class FunctionWriter {
     public function InternalModuleCall($moduleName) {
         $args = func_get_args();
         $IR = call_user_func_array(array($this, 'getInternalModuleCallIR'), $args);
-        if (InternalModule::Define()[$moduleName][0] != StringType::void()) {
+        list($fastcc, $return, $argTypes) =InternalModule::Define()[$moduleName];
+        if ($return != StringType::void()) {
             $resultRegister = $this->getRegisterSerial();
             $this->writeOpLineIR("$resultRegister = $IR");
-
             return $resultRegister;
         }
         $this->writeOpLineIR($IR);

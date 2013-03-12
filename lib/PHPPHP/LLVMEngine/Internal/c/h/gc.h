@@ -6,8 +6,6 @@
 #include "ZVAL_LIST.h"
 #include "ZVAL.h"
 
-#define  PHPLLVMGCPOOLSIZE 1000
-
 #define  COLOR_BLACK     0
 #define  COLOR_WHITE     1
 #define  COLOR_PURPLE    2

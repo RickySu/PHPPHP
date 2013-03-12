@@ -20,9 +20,9 @@ class Writer
     {
         $interalModules = Internal\Module::Define();
         foreach ($interalModules as $functionName => $functionDeclare) {
-            list($return, $params) = $functionDeclare;
+            list($fastcc,$return, $params) = $functionDeclare;
             $paramIR = implode(', ', $params);
-            $IR = "declare fastcc $return @$functionName($paramIR)";
+            $IR = "declare $fastcc $return @$functionName($paramIR)";
             $this->writeFunctionIRDeclare('internal', $functionName, $IR);
         }
     }

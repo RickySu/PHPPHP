@@ -12,6 +12,7 @@ class Zval
     protected $IRWriter;
     protected $ptrRegister;
     protected $storeVarName=false;
+    protected $initValue=false;
 
     const ZVAL_GC_LIST = '%zval_gc_list';
     const ZVAL_TEMP_OP = 'zval_temp_op';
@@ -59,6 +60,14 @@ class Zval
             }
             $this->savePtrRegister($ptrRegister);
         }
+    }
+
+    public function getInitValue(){
+        return $this->initValue;
+    }
+
+    public function setInitValue($initValue){
+        $this->initValue=$initValue;
     }
 
     public function setStoreVarName($store)
