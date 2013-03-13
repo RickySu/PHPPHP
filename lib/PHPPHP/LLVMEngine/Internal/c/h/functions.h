@@ -15,6 +15,6 @@ struct _fcall_struct {
 };
 
 PHPLLVMAPI void PHPLLVM_FUNCTION_REGISTER(uint functionNameLen, char *functionName, void *functionPtr);
-zval* PHPLLVM_FUNCTION_CALL_BY_NAME(fcall *fcall_obj, int nArg, ...);
+PHPLLVMAPI void PHPLLVM_FUNCTION_CALL_BY_NAME(fcall *fcall_obj);
 
 #endif

@@ -22,7 +22,7 @@ class FunctionWriter {
 
     const RETVAL = '%retval';
     const JUMPTABLEOBJ = '%jumptableobj';
-    const ARGSCOUNT='%nArgs';
+    const ARGSCOUNT = '%nArgs';
 
     /**
      *
@@ -112,15 +112,23 @@ class FunctionWriter {
         $this->opLinesIR[] = $opLineIR;
     }
 
+    public function getParams(){
+        return $this->params;
+    }
+
+    public function getParam($index){
+        return $this->params[$index];
+    }
+
     protected function writeIR() {
         //write declare
         $paramIR = '';
-        $paramIR.=StringType::void('*').' '.self::JUMPTABLEOBJ.", ".StringType::int().' '.self::ARGSCOUNT.' , ';
-        if ($this->params) {
-            foreach ($this->params as $index => $param) {
-                $paramIR.=Zval::zval('*') . " %param_$index, ";
-                $paramZval = $this->getZvalIR($param->name);
-                $paramZval->setInitValue("%param_$index");
+        if (!($this instanceof ModuleEntryWriter)) {
+            $paramIR.= StringType::int() . ' ' . self::ARGSCOUNT . ' , ';
+            if ($this->params) {
+                foreach ($this->params as $index => $param) {
+                    $paramIR.=Zval::zval('*') . " %param_$index, ";
+                }
             }
         }
         $paramIR = substr(trim($paramIR), 0, -1);
@@ -218,8 +226,7 @@ class FunctionWriter {
         $IR[] = ";declare used var";
         foreach ($this->varList as $varZval) {
             $IR[] = "$varZval = alloca " . Zval::zval('*');
-            $initValue = ($varZval->getInitValue() === false ? 'null' : $varZval->getInitValue());
-            $IR[] = "store " . Zval::zval('*') . " $initValue, " . Zval::zval('**') . " $varZval, align " . Zval::zval('*')->size();
+            $IR[] = "store " . Zval::zval('*') . " null, " . Zval::zval('**') . " $varZval, align " . Zval::zval('*')->size();
             if ($varZval->isStoreVarName()) {
                 $varName = $varZval->getVarName();
                 $Constant = $this->writeConstant($varName);

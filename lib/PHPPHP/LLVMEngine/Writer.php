@@ -106,10 +106,13 @@ class Writer {
             $fnameRegisterPtr="%fnameRegisterPtr";
             $IR[]=$jumpTable::jumpTable('*')->getStructIR()->getElementPtrIR($fnameRegisterPtr,$jumpTable->getIRRegister(),'fname');
             $IR[]="store ".Type\Base::char('*')." {$jumpTable->functionNameConstant->ptr()}, ".Type\Base::char('**')." $fnameRegisterPtr";
+/*
             $realfunctionRegisterPtr="%realfunctionRegisterPtr";
             $IR[]=$jumpTable::jumpTable('*')->getStructIR()->getElementPtrIR($realfunctionRegisterPtr,$jumpTable->getIRRegister(),'realfunction');
             list($fastcc, $return, $argTypes) =Internal\Module::Define()[Internal\Module::PHPLLVM_FUNCTION_CALL_BY_NAME];
             $IR[]="store ".Type\Base::void('*')." bitcast( $return (".implode(", ",$argTypes).")* @".Internal\Module::PHPLLVM_FUNCTION_CALL_BY_NAME." to ".Type\Base::void('*')." ), ".Type\Base::void('**')." $realfunctionRegisterPtr";
+ *
+ */
         }
         $IR[]='ret void';
         return $IRHead.implode("\n\t",$IR).$IREnd;

@@ -108,7 +108,7 @@ final class Module {
             self::ZVAL_ITERATE_IS_END => array('fastcc', Base::int(), array(Base::void('*'))),
             self::ZVAL_ITERATE_NEXT => array('fastcc', Base::void(), array(Base::void('*'))),
             self::PHPLLVM_FUNCTION_REGISTER => array('fastcc', Base::void(), array(Base::int(), Base::char('*'), Base::void('*'))),
-            self::PHPLLVM_FUNCTION_CALL_BY_NAME => array('', Zval::zval('*'), array(Base::void('*'), Base::int(), '...')),
+            self::PHPLLVM_FUNCTION_CALL_BY_NAME => array('fastcc', Base::void(), array(Base::void('*'))),
             'single_debug' => array('fastcc', Base::void(), array(Base::int())),
         );
     }

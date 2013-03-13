@@ -62,14 +62,6 @@ class Zval
         }
     }
 
-    public function getInitValue(){
-        return $this->initValue;
-    }
-
-    public function setInitValue($initValue){
-        $this->initValue=$initValue;
-    }
-
     public function setStoreVarName($store)
     {
         $this->storeVarName=$store;

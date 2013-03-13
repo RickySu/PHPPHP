@@ -53,6 +53,8 @@ void __attribute((fastcall)) PHPLLVM_T_ECHO_ZVAL(zval *varZval) {
     if (!varZval) {
         return;
     }
+    printf("echo %p\n",varZval);
+    getchar();
     switch (varZval->type) {
         case ZVAL_TYPE_BOOLEAN:
             if (varZval->value.lval) {

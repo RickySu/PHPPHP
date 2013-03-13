@@ -25,7 +25,7 @@ class ModuleEntryWriter extends FunctionWriter {
         $IR[] = '';
         $IR[] = ";regist function";
         foreach ($this->moduleWriter->getFunctions() as $function) {
-            $functionParamTypeDefine = array(BaseType::void('*'),BaseType::int());
+            $functionParamTypeDefine = array(BaseType::int());
             if($function->getParamsTypeDefine()){
                 $functionParamTypeDefine[]=$function->getParamsTypeDefine();
             }

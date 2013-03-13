@@ -261,11 +261,9 @@ PHPLLVMAPI zval *ZVAL_ASSIGN_ARRAY_NEXT_ELEMENT(zval *dstZval, zval *srcZval) {
 
 PHPLLVMAPI zval *ZVAL_ASSIGN_ZVAL(zval *zval1, zval *zval2) {
     uint refcount;
-
     if (zval1 == zval2) {
         return zval1;
     }
-
     if (zval1 && zval1->is_ref) {
         //copy content
         refcount = zval1->refcount;
@@ -273,17 +271,14 @@ PHPLLVMAPI zval *ZVAL_ASSIGN_ZVAL(zval *zval1, zval *zval2) {
         zval1->is_ref = 1;
         return zval1;
     }
-
     if (zval2 == NULL) {
         ZVAL_GC(zval1);
         return zval2;
     }
-
     if (zval2->is_ref) {
         ZVAL_GC(zval1);
         return ZVAL_COPY(zval2);
     }
-
     //inc ref_count
     ZVAL_GC(zval1);
     zval2->refcount++;
