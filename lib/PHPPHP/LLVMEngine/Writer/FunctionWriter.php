@@ -21,6 +21,8 @@ class FunctionWriter {
     protected $params;
 
     const RETVAL = '%retval';
+    const JUMPTABLEOBJ = '%jumptableobj';
+    const ARGSCOUNT='%nArgs';
 
     /**
      *
@@ -37,19 +39,19 @@ class FunctionWriter {
         $this->moduleWriter = $moduleWriter;
     }
 
-    public function getFunctionName(){
+    public function getFunctionName() {
         return $this->functionName;
     }
 
-    public function getParamsTypeDefine(){
-        if(!$this->params){
+    public function getParamsTypeDefine() {
+        if (!$this->params) {
             return '';
         }
-        $paramString='';
-        foreach($this->params as $param){
-            $paramString.=Zval::zval('*').', ';
+        $paramString = '';
+        foreach ($this->params as $param) {
+            $paramString.=Zval::zval('*') . ', ';
         }
-        return substr(trim($paramString),0,-1);
+        return substr(trim($paramString), 0, -1);
     }
 
     public function getEntryName() {
@@ -112,13 +114,16 @@ class FunctionWriter {
 
     protected function writeIR() {
         //write declare
-        $paramIR='';
-        foreach($this->params as $index => $param){
-            $paramIR.=Zval::zval('*')." %param_$index, ";
-            $paramZval=$this->getZvalIR($param->name);
-            $paramZval->setInitValue("%param_$index");
+        $paramIR = '';
+        $paramIR.=StringType::void('*').' '.self::JUMPTABLEOBJ.", ".StringType::int().' '.self::ARGSCOUNT.' , ';
+        if ($this->params) {
+            foreach ($this->params as $index => $param) {
+                $paramIR.=Zval::zval('*') . " %param_$index, ";
+                $paramZval = $this->getZvalIR($param->name);
+                $paramZval->setInitValue("%param_$index");
+            }
         }
-        $paramIR=substr(trim($paramIR),0,-1);
+        $paramIR = substr(trim($paramIR), 0, -1);
         $EntryDeclareIR = "declare " . Zval::zval('*') . " @{$this->getEntryName()}($paramIR)";
         $this->moduleWriter->writeFunctionIRDeclare($this->getEntryName(), $EntryDeclareIR);
 
@@ -213,7 +218,7 @@ class FunctionWriter {
         $IR[] = ";declare used var";
         foreach ($this->varList as $varZval) {
             $IR[] = "$varZval = alloca " . Zval::zval('*');
-            $initValue=($varZval->getInitValue()===false?'null':$varZval->getInitValue());
+            $initValue = ($varZval->getInitValue() === false ? 'null' : $varZval->getInitValue());
             $IR[] = "store " . Zval::zval('*') . " $initValue, " . Zval::zval('**') . " $varZval, align " . Zval::zval('*')->size();
             if ($varZval->isStoreVarName()) {
                 $varName = $varZval->getVarName();
@@ -238,7 +243,7 @@ class FunctionWriter {
         return $zval;
     }
 
-    public function getJumpTable($functionName){
+    public function getJumpTable($functionName) {
         return $this->moduleWriter->getJumpTable($functionName);
     }
 
@@ -263,7 +268,7 @@ class FunctionWriter {
     public function InternalModuleCall($moduleName) {
         $args = func_get_args();
         $IR = call_user_func_array(array($this, 'getInternalModuleCallIR'), $args);
-        list($fastcc, $return, $argTypes) =InternalModule::Define()[$moduleName];
+        list($fastcc, $return, $argTypes) = InternalModule::Define()[$moduleName];
         if ($return != StringType::void()) {
             $resultRegister = $this->getRegisterSerial();
             $this->writeOpLineIR("$resultRegister = $IR");

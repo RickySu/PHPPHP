@@ -15,7 +15,7 @@ zval* PHPLLVM_FUNCTION_CALL_BY_NAME(fcall *fcall_obj, int nArg, ...) {
         exit(-1);
     }
     va_start(argptr, nArg);
-    return fcall_obj->realfunction(fcall_obj, nArg, argptr);
+    fcall_obj->realfunction(fcall_obj, nArg, argptr);
     va_end(argptr);
     return NULL;
 }
