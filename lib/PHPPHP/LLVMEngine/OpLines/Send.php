@@ -3,6 +3,7 @@
 namespace PHPPHP\LLVMEngine\OpLines;
 
 use PHPPHP\LLVMEngine\Type\Base as BaseType;
+use PHPPHP\LLVMEngine\Zval as LLVMZval;
 
 class Send extends OpLine
 {

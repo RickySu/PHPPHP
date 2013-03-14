@@ -100,10 +100,10 @@ class Writer {
         $IREnd = "\n}";
         $IR[] = "; init jumptable";
         foreach ($this->jumpTable as $functionName => $jumpTable) {
-            $lenRegisterPtr = "%lenRegisterPtr";
+            $lenRegisterPtr = "%lenRegisterPtr_$functionName";
             $IR[] = $jumpTable::jumpTable('*')->getStructIR()->getElementPtrIR($lenRegisterPtr, $jumpTable->getIRRegister(), 'len');
             $IR[] = "store " . Type\Base::int() . " " . strlen($functionName) . ", " . Type\Base::int('*') . " $lenRegisterPtr";
-            $fnameRegisterPtr = "%fnameRegisterPtr";
+            $fnameRegisterPtr = "%fnameRegisterPtr_$functionName";
             $IR[] = $jumpTable::jumpTable('*')->getStructIR()->getElementPtrIR($fnameRegisterPtr, $jumpTable->getIRRegister(), 'fname');
             $IR[] = "store " . Type\Base::char('*') . " {$jumpTable->functionNameConstant->ptr()}, " . Type\Base::char('**') . " $fnameRegisterPtr";
         }

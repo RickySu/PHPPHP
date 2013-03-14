@@ -53,7 +53,7 @@ class Compiler {
 
     public function compileFunction(Writer\ModuleWriter $module, FunctionData\User $userFunctionData) {
         $functionWriter = $module->addFunction($userFunctionData->getName(), $userFunctionData->getParams());
-        //print_r($userFunctionData->getParams());die;
+        //print_r($userFunctionData->getOpArray());die;
         $this->compileOpLine($module, $functionWriter, $userFunctionData->getOpArray());
     }
 

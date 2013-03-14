@@ -39,7 +39,7 @@ class Recv extends OpLine {
         $this->function->writeOpLineIR("call void @llvm.va_end(".BaseType::void('*')." %va_list_ptr)");
     }
 
-    protected function prepareParamInit($index, LLVMZval $paramZval) {
+    protected function prepareParamInit(LLVMZval $paramZval) {
     }
 
     public function prepareParam($index, $param) {
@@ -53,7 +53,7 @@ class Recv extends OpLine {
         $this->function->writeOpLineIR("br i1 $ifLessCmpResult, label %$LabelIfTrue, label %$LabelIfElse");
         $this->function->writeOpLineIR("$LabelIfTrue:");
 
-        $this->prepareParamInit($index, $paramZval);
+        $this->prepareParamInit($paramZval);
 
         $this->function->writeOpLineIR("br label %$LabelEndIf");
         $this->function->writeOpLineIR("$LabelIfElse:");

@@ -13,7 +13,7 @@ class FunctionCall extends OpLine {
 
     public function write() {
         parent::write();
-        $functionName = $this->opCode->InitFCallByNameOp->op2->getImmediateZval()->getValue();
+        $functionName = strtolower($this->opCode->InitFCallByNameOp->op2->getImmediateZval()->getValue());
         $jumpTable = $this->function->getJumpTable($functionName);
         $jumpTablePtrRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$jumpTablePtrRegister = bitcast ".$jumpTable::jumpTable('*')." {$jumpTable->getIRRegister()} to ".BaseType::void('*'));
