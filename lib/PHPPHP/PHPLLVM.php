@@ -4,6 +4,8 @@ namespace PHPPHP;
 
 use PHPPHP\Engine;
 
+dl('llvm_bind.so');
+
 class PHPLLVM {
 
     protected $executor;

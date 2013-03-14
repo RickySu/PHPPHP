@@ -2,8 +2,6 @@
 
 namespace PHPPHP\LLVMEngine;
 
-dl('llvm_bind.so');
-
 class Executor {
 
     /**

@@ -7,8 +7,6 @@ use PHPPHP\Engine\OpArray;
 use PHPPHP\Engine\Zval;
 use PHPPHP\Engine\FunctionData;
 
-dl('llvm_bind.so');
-
 class Compiler {
 
     /**
