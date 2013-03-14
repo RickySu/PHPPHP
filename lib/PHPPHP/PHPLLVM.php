@@ -33,6 +33,7 @@ class PHPLLVM {
         $this->opcodeCompiler = new Engine\Compiler($functionStore);
         $this->bitcodeCompiler = new LLVMEngine\Compiler();
         $this->parser = new Engine\Parser();
+        $this->executor = new LLVMEngine\Executor();
     }
 
     protected function parseCode($code,$context){
@@ -69,7 +70,8 @@ class PHPLLVM {
 
     public function execute($code,$context) {
         $compiledData=$this->compile($code, $context);
-        $bitcode=$this->bitcodeCompiler->compile($compiledData,$context);
+        list($bitcode,$entryName)=$this->bitcodeCompiler->compile($compiledData,$context);
+        $this->executor->execute($bitcode, $entryName);
     }
 
     public function executeFile($file) {

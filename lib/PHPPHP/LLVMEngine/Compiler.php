@@ -38,22 +38,16 @@ class Compiler {
         $IR = $this->writer->write();
         echo $IR;
         $this->writer->clear();
-        $bitcode = Internal\Module::getBitcode();
-        $this->llvmBind->loadBitcode($bitcode);
         $bitcode = $this->llvmBind->compileAssembly($IR, 3);
-        echo $this->llvmBind->getLastError();
-        $this->llvmBind->loadBitcode($bitcode);
-        $this->llvmBind->execute('jit_init');
-        $this->llvmBind->execute($module->getEntryName());
-        $this->llvmBind->execute('jit_shutdown');
-        //echo $module->getEntryName();
-        die;
-        echo $bitcode;
+        if($error=$this->llvmBind->getLastError()){
+            echo $error;
+            return false;
+        }
+        return array($bitcode,$module->getEntryName());
     }
 
     public function compileFunction(Writer\ModuleWriter $module, FunctionData\User $userFunctionData) {
         $functionWriter = $module->addFunction($userFunctionData->getName(), $userFunctionData->getParams());
-        //print_r($userFunctionData->getOpArray());die;
         $this->compileOpLine($module, $functionWriter, $userFunctionData->getOpArray());
     }
 
