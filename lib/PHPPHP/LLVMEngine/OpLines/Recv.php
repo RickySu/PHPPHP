@@ -26,10 +26,11 @@ class Recv extends OpLine {
     }
 
     protected function prepareParamPre() {
+        $valistType="[32 x ".BaseType::char()."]";
         $this->function->writeUsedFunction('@llvm.va_start', array('', BaseType::void(), array(BaseType::void('*'))));
-        $this->function->writeOpLineIR("%va_list_hack = alloca [16 x i8], align 16");
-        $this->function->writeOpLineIR("%va_list = alloca ".BaseType::void('*').", align ".BaseType::void('*')->size());
-        $this->function->writeOpLineIR("%va_list_ptr = bitcast ".BaseType::void('**')." %va_list to ".BaseType::void('*'));
+        $this->function->writeOpLineIR("%va_list = alloca $valistType, align 8");
+        $this->function->writeOpLineIR("%va_list_ptr = getelementptr inbounds $valistType* %va_list, ".BaseType::int()." 0, ".BaseType::int()." 0");
+        $this->function->writeOpLineIR("%va_list_addr = bitcast $valistType* %va_list to ".BaseType::void('**'));
         $this->function->writeOpLineIR("call void @llvm.va_start(".BaseType::void('*')." %va_list_ptr)");
     }
 
@@ -58,7 +59,7 @@ class Recv extends OpLine {
         $this->function->writeOpLineIR("$LabelIfElse:");
 
         $paramRegister=$this->function->getRegisterSerial();
-        $this->function->writeOpLineIR("$paramRegister = va_arg ".BaseType::void('**')." %va_list, ".LLVMZval::zval('*'));
+        $this->function->writeOpLineIR("$paramRegister = va_arg i8** %va_list_addr, ".LLVMZval::zval('*'));
         $srcZval = new LLVMZval(NULL, false, true, $this->function);
         $srcZval->savePtrRegister($paramRegister);
         $this->writeVarAssign($paramZval, $srcZval);
