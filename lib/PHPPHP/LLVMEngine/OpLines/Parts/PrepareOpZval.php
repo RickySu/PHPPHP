@@ -42,7 +42,6 @@ trait PrepareOpZval
                 $cbMethod.="Value";
             }
         }
-
         return call_user_func_array(array($this,$cbMethod),$opZvals);
     }
 

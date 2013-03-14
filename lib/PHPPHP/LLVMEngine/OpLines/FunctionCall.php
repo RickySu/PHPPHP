@@ -27,9 +27,16 @@ class FunctionCall extends OpLine {
         $realfunctionRegisterPtr = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR($jumpTable::jumpTable('*')->getStructIR()->getElementPtrIR($realfunctionRegisterPtr, $jumpTable->getIRRegister(), 'realfunction'));
         $argTypes=LLVMZval::zval('*')." (".BaseType::int().",  ...)*";
+        $returnZvalRegister=$this->function->getRegisterSerial();
         $this->function->writeOpLineIR("{$remoteFunctionCallRegister}_ptr = load " . BaseType::void('**') . " $realfunctionRegisterPtr, align " . BaseType::void('*')->size());
         $this->function->writeOpLineIR("{$remoteFunctionCallRegister} = bitcast ".BaseType::void('*')." {$remoteFunctionCallRegister}_ptr to $argTypes");
-        $this->function->writeOpLineIR("call $argTypes {$remoteFunctionCallRegister}(".implode(', ',$callParams).")");
+        $this->function->writeOpLineIR("$returnZvalRegister = call $argTypes {$remoteFunctionCallRegister}(".implode(', ',$callParams).")");
+        $returnZval = new LLVMZval(NULL, false, true, $this->function);
+        $returnZval->savePtrRegister($returnZvalRegister);
+        $this->setResult($returnZval);
+        if($this->opCode->result->markUnUsed){
+            $this->function->InternalModuleCall(InternalModule::ZVAL_GC,$returnZvalRegister);
+        }
         $this->gcTempZval();
     }
 

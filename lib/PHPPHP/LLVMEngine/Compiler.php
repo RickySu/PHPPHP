@@ -40,7 +40,7 @@ class Compiler {
         $this->writer->clear();
         $bitcode = Internal\Module::getBitcode();
         $this->llvmBind->loadBitcode($bitcode);
-        $bitcode = $this->llvmBind->compileAssembly($IR, 0);
+        $bitcode = $this->llvmBind->compileAssembly($IR, 3);
         echo $this->llvmBind->getLastError();
         $this->llvmBind->loadBitcode($bitcode);
         $this->llvmBind->execute('jit_init');
@@ -60,23 +60,38 @@ class Compiler {
     protected function compileOpLine(Writer\ModuleWriter $module, Writer\FunctionWriter $function, OpArray $opArray) {
         $opResult = NULL;
         foreach ($opArray as $opLineNo => $opCode) {
+            $opResult = $opCode->result;
+            if ($opResult instanceof Zval\Ptr) {
+                $opZval = $opResult->getImmediateZval();
+                if (!isset($opZval->usedCount)) {
+                    $opZval->usedCount=0;
+                }
+            }
+            if ($opCode->op1 instanceof Zval\Ptr) {
+                $opZval = $opCode->op1->getImmediateZval();
+                if (isset($opZval->usedCount)) {
+                    $opZval->usedCount++;
+                }
+            }
+            if ($opCode->op2 instanceof Zval\Ptr) {
+                $opZval = $opCode->op2->getImmediateZval();
+                if (isset($opZval->usedCount)) {
+                    $opZval->usedCount++;
+                }
+            }
+        }
+        foreach ($opArray as $opLineNo => $opCode) {
+            $opResult = $opCode->result;
             if ($opResult && $opResult instanceof Zval\Ptr) {
-                $unUsedOpResult = true;
-                if (($opCode->op1 instanceof Zval\Ptr) && ($opCode->op1->getImmediateZval() === $opResult->getImmediateZval())) {
-                    $unUsedOpResult = false;
+                $opResult->markUnUsed = false;
+                $opZval = $opResult->getImmediateZval();
+                if (isset($opZval->usedCount) && ($opZval->usedCount == 0)) {
+                    $opResult->markUnUsed = true;
                 }
-                if (($opCode->op2 instanceof Zval\Ptr) && ($opCode->op2->getImmediateZval() === $opResult->getImmediateZval())) {
-                    $unUsedOpResult = false;
-                }
-                if (($opCode->result instanceof Zval\Ptr) && ($opCode->result->getImmediateZval() === $opResult->getImmediateZval())) {
-                    $unUsedOpResult = false;
-                }
-                $opResult->markUnUsed = $unUsedOpResult;
             }
             if (isset($opArray[$opLineNo + 1])) {
                 $opCode->nextOpCode = $opArray[$opLineNo + 1];
             }
-            $opResult = $opCode->result;
             $className = explode('\\', get_class($opCode));
             $className = $className[count($className) - 1];
             $opLineClassName = '\\PHPPHP\\LLVMEngine\\OpLines\\' . $className;

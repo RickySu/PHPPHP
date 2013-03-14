@@ -143,10 +143,10 @@ class FunctionWriter {
     protected function functionCtorIR() {
         $IR[] = '';
         $IR[] = ";function entry";
-        
+
         //prepare return value
         $IR[] = self::RETVAL . " = alloca " . Zval::zval('*') . ", align " . Zval::zval('*')->size();
-        $IR[] = "store " . Zval::zval('*') . " null , " . Zval::zval('**') . " %retval, align " . Zval::zval('*')->size();
+        $IR[] = "store " . Zval::zval('*') . " null , " . Zval::zval('**') . " ".self::RETVAL.", align " . Zval::zval('*')->size();
 
         //prepare var list
         $IR[] = Zval::ZVAL_GC_LIST . ' = ' . InternalModule::call(InternalModule::ZVAL_LIST_INIT);

@@ -4,7 +4,6 @@ namespace PHPPHP\LLVMEngine\OpLines;
 
 use PHPPHP\LLVMEngine\Type\Base as BaseType;
 use PHPPHP\LLVMEngine\Zval as LLVMZval;
-use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 
 class Recv extends OpLine {
 
