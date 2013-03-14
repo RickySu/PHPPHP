@@ -13,7 +13,7 @@ class ModuleWriter extends Base {
     protected $functionIR = array();
     protected $constant = array();
 
-    public function getJumpTableInitializerEntryName(){
+    public function getJumpTableInitializerEntryName() {
         return $this->writer->getJumpTableInitializerEntryName();
     }
 
@@ -41,9 +41,9 @@ class ModuleWriter extends Base {
     }
 
     public function getJumpTable($functionName) {
-        $functionNameConstant=$this->writeConstant($functionName);
-        $jumpTable=$this->writer->getJumpTable($functionName);
-        $jumpTable->functionNameConstant=$functionNameConstant;
+        $functionNameConstant = $this->writeConstant($functionName);
+        $jumpTable = $this->writer->getJumpTable($functionName);
+        $jumpTable->functionNameConstant = $functionNameConstant;
         return $jumpTable;
     }
 
@@ -82,8 +82,8 @@ class ModuleWriter extends Base {
         return ($this->constant[$constant] = StringType::char('*', $constantLen, $constantName));
     }
 
-    protected function getConstantSerial(){
-        return ++$this->constantSerial;
+    protected function getConstantSerial() {
+        return++$this->constantSerial;
     }
 
     public function setWriter(Writer $writer) {
@@ -91,8 +91,8 @@ class ModuleWriter extends Base {
         $writer->addModuleWriter($this);
     }
 
-    public function writeUsedFunction($functionName) {
-        $this->writer->writeUsedFunction($functionName);
+    public function writeUsedFunction($functionName, $define = false) {
+        $this->writer->writeUsedFunction($functionName, $define);
     }
 
     public function write() {

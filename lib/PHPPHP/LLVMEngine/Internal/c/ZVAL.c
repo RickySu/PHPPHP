@@ -156,7 +156,11 @@ PHPLLVMAPI zval * ZVAL_COPY_ON_WRITE(zval *srcZval) {
 }
 
 PHPLLVMAPI zval * ZVAL_ASSIGN_INTEGER(zval *dstZval, long val) {
+    printf("assign:%ld %p\n",val,dstZval);
+    getchar();
     dstZval = prepareForAssign(dstZval);
+    printf("assign:%ld \n",val);
+    getchar();
     dstZval->type = ZVAL_TYPE_INTEGER;
     dstZval->value.lval = val;
     return dstZval;

@@ -40,7 +40,7 @@ class Compiler {
         $this->writer->clear();
         $bitcode = Internal\Module::getBitcode();
         $this->llvmBind->loadBitcode($bitcode);
-        $bitcode = $this->llvmBind->compileAssembly($IR, 3);
+        $bitcode = $this->llvmBind->compileAssembly($IR, 0);
         echo $this->llvmBind->getLastError();
         $this->llvmBind->loadBitcode($bitcode);
         $this->llvmBind->execute('jit_init');

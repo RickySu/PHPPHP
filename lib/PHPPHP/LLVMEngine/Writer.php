@@ -15,11 +15,11 @@ class Writer {
 
     public function __construct() {
         $this->assignInternalModuleDefine();
-        $this->jumpTableInitializerEntryName="@PHPLLVM_jumptable_init_entry_".md5(microtime().rand());
+        $this->jumpTableInitializerEntryName = "@PHPLLVM_jumptable_init_entry_" . md5(microtime() . rand());
     }
 
-    public function getJumpTableInitializerEntryName(){
-        if(!$this->jumpTable){
+    public function getJumpTableInitializerEntryName() {
+        if (!$this->jumpTable) {
             return false;
         }
         return $this->jumpTableInitializerEntryName;
@@ -28,9 +28,9 @@ class Writer {
     protected function assignInternalModuleDefine() {
         $interalModules = Internal\Module::Define();
         foreach ($interalModules as $functionName => $functionDeclare) {
-            list($fastcc, $return, $params) = $functionDeclare;
+            list($attrib, $return, $params) = $functionDeclare;
             $paramIR = implode(', ', $params);
-            $IR = "declare $fastcc $return @$functionName($paramIR)";
+            $IR = "declare $attrib $return @$functionName($paramIR)";
             $this->writeFunctionIRDeclare('internal', $functionName, $IR);
         }
     }
@@ -47,8 +47,8 @@ class Writer {
         $this->moduleConstantDeclare[$moduleName][] = $IR;
     }
 
-    public function writeUsedFunction($functionName) {
-        $this->moduleExternalDeclare[$functionName] = true;
+    public function writeUsedFunction($functionName, $define = false) {
+        $this->moduleExternalDeclare[$functionName] = $define;
     }
 
     public function writeFunctionIR($moduleName, $functionName, $IR) {
@@ -92,30 +92,23 @@ class Writer {
         return '';
     }
 
-    protected function writeJumpTableInitializerEntryIRs(){
-        if(!$this->jumpTable){
+    protected function writeJumpTableInitializerEntryIRs() {
+        if (!$this->jumpTable) {
             return '';
         }
-        $IRHead="define void {$this->getJumpTableInitializerEntryName()}() nounwind uwtable {\n";
-        $IREnd="\n}";
-        $IR[]="; init jumptable";
+        $IRHead = "define void {$this->getJumpTableInitializerEntryName()}() nounwind uwtable {\n";
+        $IREnd = "\n}";
+        $IR[] = "; init jumptable";
         foreach ($this->jumpTable as $functionName => $jumpTable) {
-            $lenRegisterPtr="%lenRegisterPtr";
-            $IR[]=$jumpTable::jumpTable('*')->getStructIR()->getElementPtrIR($lenRegisterPtr,$jumpTable->getIRRegister(),'len');
-            $IR[]="store ".Type\Base::int()." ".strlen($functionName).", ".Type\Base::int('*')." $lenRegisterPtr";
-            $fnameRegisterPtr="%fnameRegisterPtr";
-            $IR[]=$jumpTable::jumpTable('*')->getStructIR()->getElementPtrIR($fnameRegisterPtr,$jumpTable->getIRRegister(),'fname');
-            $IR[]="store ".Type\Base::char('*')." {$jumpTable->functionNameConstant->ptr()}, ".Type\Base::char('**')." $fnameRegisterPtr";
-/*
-            $realfunctionRegisterPtr="%realfunctionRegisterPtr";
-            $IR[]=$jumpTable::jumpTable('*')->getStructIR()->getElementPtrIR($realfunctionRegisterPtr,$jumpTable->getIRRegister(),'realfunction');
-            list($fastcc, $return, $argTypes) =Internal\Module::Define()[Internal\Module::PHPLLVM_FUNCTION_CALL_BY_NAME];
-            $IR[]="store ".Type\Base::void('*')." bitcast( $return (".implode(", ",$argTypes).")* @".Internal\Module::PHPLLVM_FUNCTION_CALL_BY_NAME." to ".Type\Base::void('*')." ), ".Type\Base::void('**')." $realfunctionRegisterPtr";
- *
- */
+            $lenRegisterPtr = "%lenRegisterPtr";
+            $IR[] = $jumpTable::jumpTable('*')->getStructIR()->getElementPtrIR($lenRegisterPtr, $jumpTable->getIRRegister(), 'len');
+            $IR[] = "store " . Type\Base::int() . " " . strlen($functionName) . ", " . Type\Base::int('*') . " $lenRegisterPtr";
+            $fnameRegisterPtr = "%fnameRegisterPtr";
+            $IR[] = $jumpTable::jumpTable('*')->getStructIR()->getElementPtrIR($fnameRegisterPtr, $jumpTable->getIRRegister(), 'fname');
+            $IR[] = "store " . Type\Base::char('*') . " {$jumpTable->functionNameConstant->ptr()}, " . Type\Base::char('**') . " $fnameRegisterPtr";
         }
-        $IR[]='ret void';
-        return $IRHead.implode("\n\t",$IR).$IREnd;
+        $IR[] = 'ret void';
+        return $IRHead . implode("\n\t", $IR) . $IREnd;
     }
 
     public function write() {
@@ -132,9 +125,14 @@ class Writer {
         foreach ($this->functionIRs as $moduleName => $functionIR) {
             $outputIR.=implode("\n", $functionIR) . "\n";
         }
-        $outputIR.=$this->writeJumpTableInitializerEntryIRs()."\n";
-        foreach ($this->moduleExternalDeclare as $externalFunction => $used) {
-            $outputIR.="{$this->getFunctionIRDeclare($externalFunction)}\n";
+        $outputIR.=$this->writeJumpTableInitializerEntryIRs() . "\n";
+        foreach ($this->moduleExternalDeclare as $externalFunction => $define) {
+            if (!is_array($define)) {
+                $outputIR.="{$this->getFunctionIRDeclare($externalFunction)}\n";
+            } else {
+                list($attrib, $return, $params) = $define;
+                $outputIR.="declare $attrib $return $externalFunction(" . implode(', ', $params) . ")\n";
+            }
         }
         return $outputIR;
     }

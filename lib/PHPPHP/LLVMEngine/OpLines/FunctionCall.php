@@ -18,7 +18,6 @@ class FunctionCall extends OpLine {
         $jumpTablePtrRegister = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR("$jumpTablePtrRegister = bitcast ".$jumpTable::jumpTable('*')." {$jumpTable->getIRRegister()} to ".BaseType::void('*'));
         $this->function->InternalModuleCall(InternalModule::PHPLLVM_FUNCTION_CALL_BY_NAME,$jumpTablePtrRegister);
-//        return;
         $callParams = array(BaseType::int().' '.count($this->opCode->InitFCallByNameOp->FCallParams));
         foreach ($this->opCode->InitFCallByNameOp->FCallParams as $paramZval) {
             $this->registTempZval($paramZval);
@@ -27,7 +26,7 @@ class FunctionCall extends OpLine {
         $remoteFunctionCallRegister = $this->function->getRegisterSerial();
         $realfunctionRegisterPtr = $this->function->getRegisterSerial();
         $this->function->writeOpLineIR($jumpTable::jumpTable('*')->getStructIR()->getElementPtrIR($realfunctionRegisterPtr, $jumpTable->getIRRegister(), 'realfunction'));
-        $argTypes=LLVMZval::zval('*')." (...)*";
+        $argTypes=LLVMZval::zval('*')." (".BaseType::int().",  ...)*";
         $this->function->writeOpLineIR("{$remoteFunctionCallRegister}_ptr = load " . BaseType::void('**') . " $realfunctionRegisterPtr, align " . BaseType::void('*')->size());
         $this->function->writeOpLineIR("{$remoteFunctionCallRegister} = bitcast ".BaseType::void('*')." {$remoteFunctionCallRegister}_ptr to $argTypes");
         $this->function->writeOpLineIR("call $argTypes {$remoteFunctionCallRegister}(".implode(', ',$callParams).")");

@@ -6,7 +6,7 @@ use PHPPHP\LLVMEngine\Zval;
 use PHPPHP\LLVMEngine\Register;
 use PHPPHP\LLVMEngine\Internal\Module as InternalModule;
 use PHPPHP\LLVMEngine\OpLines\OpLine;
-use PHPPHP\LLVMEngine\Type\Base as StringType;
+use PHPPHP\LLVMEngine\Type\Base as BaseType;
 use PHPPHP\LLVMEngine\Type\TypeDefine;
 
 class FunctionWriter {
@@ -41,17 +41,6 @@ class FunctionWriter {
 
     public function getFunctionName() {
         return $this->functionName;
-    }
-
-    public function getParamsTypeDefine() {
-        if (!$this->params) {
-            return '';
-        }
-        $paramString = '';
-        foreach ($this->params as $param) {
-            $paramString.=Zval::zval('*') . ', ';
-        }
-        return substr(trim($paramString), 0, -1);
     }
 
     public function getEntryName() {
@@ -112,11 +101,11 @@ class FunctionWriter {
         $this->opLinesIR[] = $opLineIR;
     }
 
-    public function getParams(){
+    public function getParams() {
         return $this->params;
     }
 
-    public function getParam($index){
+    public function getParam($index) {
         return $this->params[$index];
     }
 
@@ -124,14 +113,8 @@ class FunctionWriter {
         //write declare
         $paramIR = '';
         if (!($this instanceof ModuleEntryWriter)) {
-            $paramIR.= StringType::int() . ' ' . self::ARGSCOUNT . ' , ';
-            if ($this->params) {
-                foreach ($this->params as $index => $param) {
-                    $paramIR.=Zval::zval('*') . " %param_$index, ";
-                }
-            }
+            $paramIR.= BaseType::int() . ' ' . self::ARGSCOUNT . ', ...';
         }
-        $paramIR = substr(trim($paramIR), 0, -1);
         $EntryDeclareIR = "declare " . Zval::zval('*') . " @{$this->getEntryName()}($paramIR)";
         $this->moduleWriter->writeFunctionIRDeclare($this->getEntryName(), $EntryDeclareIR);
 
@@ -160,7 +143,7 @@ class FunctionWriter {
     protected function functionCtorIR() {
         $IR[] = '';
         $IR[] = ";function entry";
-
+        
         //prepare return value
         $IR[] = self::RETVAL . " = alloca " . Zval::zval('*') . ", align " . Zval::zval('*')->size();
         $IR[] = "store " . Zval::zval('*') . " null , " . Zval::zval('**') . " %retval, align " . Zval::zval('*')->size();
@@ -195,8 +178,8 @@ class FunctionWriter {
         return $this->moduleWriter->writeConstant($constant);
     }
 
-    public function writeUsedFunction($functionName) {
-        $this->moduleWriter->writeUsedFunction($functionName);
+    public function writeUsedFunction($functionName, $define = false) {
+        $this->moduleWriter->writeUsedFunction($functionName, $define);
     }
 
     public function getModuleWriter() {
@@ -225,7 +208,7 @@ class FunctionWriter {
         $IR[] = '';
         $IR[] = ";declare used var";
         foreach ($this->varList as $varZval) {
-            $IR[] = "$varZval = alloca " . Zval::zval('*');
+            $IR[] = "$varZval = alloca " . Zval::zval('*').", align ".BaseType::void('*')->size();
             $IR[] = "store " . Zval::zval('*') . " null, " . Zval::zval('**') . " $varZval, align " . Zval::zval('*')->size();
             if ($varZval->isStoreVarName()) {
                 $varName = $varZval->getVarName();
@@ -276,7 +259,7 @@ class FunctionWriter {
         $args = func_get_args();
         $IR = call_user_func_array(array($this, 'getInternalModuleCallIR'), $args);
         list($fastcc, $return, $argTypes) = InternalModule::Define()[$moduleName];
-        if ($return != StringType::void()) {
+        if ($return != BaseType::void()) {
             $resultRegister = $this->getRegisterSerial();
             $this->writeOpLineIR("$resultRegister = $IR");
             return $resultRegister;

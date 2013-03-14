@@ -17,4 +17,10 @@ PHPLLVMAPI void PHPLLVM_FUNCTION_CALL_BY_NAME(fcall *fcall_obj) {
         printf("function %.*s not found!\n", fcall_obj->len, fcall_obj->fname);
         exit(-1);
     }
+    getchar();
+}
+
+PHPLLVMAPI void single_debug(int i){
+    printf("single debug:%d\n",i);
+    getchar();
 }
