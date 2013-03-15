@@ -15,17 +15,14 @@ class Send extends OpLine
         parent::write();
         $this->prepareOpZval($this->opCode->op1);
         $this->opCode->nextOpCode->InitFCallByNameOp=$this->opCode->InitFCallByNameOp;
-        $this->gcTempZval();
     }
 
     protected function writeZval(LLVMZval $opZval){
-        //$resultRegister = substr($this->function->getRegisterSerial(),1);
-        //$resultZval=$this->function->getZvalIR($resultRegister, false, true);
-        //$this->writeVarAssign($resultZval,$opZval);
         $this->opCode->InitFCallByNameOp->FCallParams[]=$opZval;
     }
 
     protected function writeValue($value){
+
         $resultRegister = substr($this->function->getRegisterSerial(),1);
         $resultZval=$this->function->getZvalIR($resultRegister, false, true);
         $this->writeImmediateValueAssign($resultZval, $value);

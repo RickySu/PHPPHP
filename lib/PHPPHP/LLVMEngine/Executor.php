@@ -21,9 +21,14 @@ class Executor {
         $this->llvmBind->execute('jit_shutdown');
     }
 
+    public function test($a){
+
+    }
+
     protected function init(){
         $bitcode = Internal\Module::getBitcode();
         $this->llvmBind->loadBitcode($bitcode);
+        //$this->llvmBind->registCallback(0,array($this,'test'));
     }
 
     public function execute($bitcode,$entryName){
