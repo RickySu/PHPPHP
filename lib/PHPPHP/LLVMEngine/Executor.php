@@ -12,8 +12,8 @@ class Executor {
     protected $context;
     protected $llvmBind;
 
-    public function __construct() {
-        $this->llvmBind = new \LLVMBind();
+    public function __construct(\LLVMBind $llvmBind) {
+        $this->llvmBind = $llvmBind;
         $this->init();
     }
 

@@ -28,14 +28,17 @@ class PHPLLVM {
      */
     protected $parser;
 
+    protected $llvmBind;
+
     public function __construct() {
         $functionStore = new Engine\FunctionStore;
         $constantStore = new Engine\ConstantStore;
         $classeStore = new Engine\ClassStore;
-        $this->opcodeCompiler = new Engine\Compiler($functionStore);
-        $this->bitcodeCompiler = new LLVMEngine\Compiler();
+        $this->llvmBind = new \LLVMBind();
         $this->parser = new Engine\Parser();
-        $this->executor = new LLVMEngine\Executor();
+        $this->opcodeCompiler = new Engine\Compiler($functionStore);
+        $this->bitcodeCompiler = new LLVMEngine\Compiler($this->llvmBind);
+        $this->executor = new LLVMEngine\Executor($this->llvmBind);
     }
 
     protected function parseCode($code,$context){

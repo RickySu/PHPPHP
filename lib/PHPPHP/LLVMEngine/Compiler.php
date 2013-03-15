@@ -17,9 +17,9 @@ class Compiler {
     protected $context;
     protected $llvmBind;
 
-    public function __construct() {
+    public function __construct(\LLVMBind $llvmBind) {
         $this->writer = new Writer();
-        $this->llvmBind = new \LLVMBind();
+        $this->llvmBind = $llvmBind;
     }
 
     public function compile($compiledData, $context) {
