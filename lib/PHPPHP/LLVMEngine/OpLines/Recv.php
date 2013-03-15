@@ -61,9 +61,12 @@ class Recv extends OpLine {
         $this->function->writeOpLineIR("$paramRegister = va_arg i8** %va_list_addr, ".LLVMZval::zval('*'));
         $srcZval = new LLVMZval(NULL, false, true, $this->function);
         $srcZval->savePtrRegister($paramRegister);
-        $this->writeVarAssign($paramZval, $srcZval);
-
-
+        if($param->isRef){
+            $this->writeVarAssignRef($paramZval, $srcZval);
+        }
+        else{
+            $this->writeVarAssign($paramZval, $srcZval);
+        }
         $this->function->writeOpLineIR("br label %$LabelEndIf");
         $this->function->writeOpLineIR("$LabelEndIf:");
     }

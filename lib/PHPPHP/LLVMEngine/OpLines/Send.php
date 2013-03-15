@@ -19,10 +19,10 @@ class Send extends OpLine
     }
 
     protected function writeZval(LLVMZval $opZval){
-        $resultRegister = substr($this->function->getRegisterSerial(),1);
-        $resultZval=$this->function->getZvalIR($resultRegister, false, true);
-        $this->writeVarAssign($resultZval,$opZval);
-        $this->opCode->InitFCallByNameOp->FCallParams[]=$resultZval;
+        //$resultRegister = substr($this->function->getRegisterSerial(),1);
+        //$resultZval=$this->function->getZvalIR($resultRegister, false, true);
+        //$this->writeVarAssign($resultZval,$opZval);
+        $this->opCode->InitFCallByNameOp->FCallParams[]=$opZval;
     }
 
     protected function writeValue($value){

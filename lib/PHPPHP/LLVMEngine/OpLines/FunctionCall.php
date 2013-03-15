@@ -20,7 +20,9 @@ class FunctionCall extends OpLine {
         $this->function->InternalModuleCall(InternalModule::PHPLLVM_FUNCTION_CALL_BY_NAME,$jumpTablePtrRegister);
         $callParams = array(BaseType::int().' '.count($this->opCode->InitFCallByNameOp->FCallParams));
         foreach ($this->opCode->InitFCallByNameOp->FCallParams as $paramZval) {
-            $this->registTempZval($paramZval);
+            if($paramZval->isTemp()){
+                $this->registTempZval($paramZval);
+            }
             $callParams[] = $paramZval::zval('*') . ' ' . $paramZval->getPtrRegister();
         }
         $remoteFunctionCallRegister = $this->function->getRegisterSerial();
